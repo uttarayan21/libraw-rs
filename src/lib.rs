@@ -237,13 +237,13 @@ impl Processor {
                     processed.height as u32,
                     colortype,
                 )?;
-                Orientation::from(Flip::from(flip)).add_to_buffer(&mut jpeg)?;
+                Orientation::from(Flip::from(flip)).add_to(&mut jpeg)?;
                 Ok(jpeg)
             }
             ImageFormat::Jpeg => {
                 // structure contain in-memory image of JPEG file. Only type, data_size and data fields are valid (and nonzero);
                 let mut jpeg = data.to_vec();
-                Orientation::from(Flip::from(flip)).add_to_buffer(&mut jpeg)?;
+                Orientation::from(Flip::from(flip)).add_to(&mut jpeg)?;
                 Ok(jpeg)
             }
         }
@@ -293,7 +293,7 @@ impl Processor {
                     processed.height.into(),
                     colortype,
                 )?;
-                Orientation::from(Flip::from(flip)).add_to_buffer(&mut jpeg)?;
+                Orientation::from(Flip::from(flip)).add_to(&mut jpeg)?;
                 Ok(jpeg)
             }
             ImageFormat::Jpeg => {
@@ -311,7 +311,7 @@ impl Processor {
                         image::ImageOutputFormat::Jpeg(80),
                     )?;
                 }
-                Orientation::from(Flip::from(flip)).add_to_buffer(&mut jpeg)?;
+                Orientation::from(Flip::from(flip)).add_to(&mut jpeg)?;
                 Ok(jpeg)
             }
         }
@@ -748,6 +748,17 @@ impl IntoResolution for [u16; 2] {
 /// 2, 5, 7 and 4 are mirrored images and not implemented
 #[derive(Debug, Eq, PartialEq)]
 pub struct Orientation(pub u8);
+impl PartialEq<u8> for Orientation {
+    fn eq(&self, other: &u8) -> bool {
+        &self.0 == other
+    }
+}
+impl PartialEq<Orientation> for u8 {
+    fn eq(&self, other: &Orientation) -> bool {
+        self == &other.0
+    }
+}
+
 impl Orientation {
     pub const NONE: Self = Self(1);
     pub const CW180: Self = Self(3);
@@ -756,19 +767,20 @@ impl Orientation {
     pub const CCW90: Self = Self(8);
 
     #[cfg(feature = "jpeg")]
-    pub fn add_to_buffer(self, buffer: &mut Vec<u8>) -> Result<(), LibrawError> {
+    pub fn add_to<B>(self, buffer: B) -> Result<(), LibrawError>
+    where
+        B: AsRef<[u8]> + std::io::Write,
+    {
         use img_parts::ImageEXIF;
         if self.0 > 8 {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                "Flip greater than 8",
-            ))?;
+            return Err(
+                std::io::Error::new(std::io::ErrorKind::Other, "Flip greater than 8").into(),
+            );
         }
-        if self.0 == 0 || self.0 == 1 {
-            return Ok(());
-        }
+
         let mut jpeg =
-            img_parts::jpeg::Jpeg::from_bytes(img_parts::Bytes::from_iter(buffer.drain(..)))?;
+            img_parts::jpeg::Jpeg::from_bytes(img_parts::Bytes::copy_from_slice(buffer.as_ref()))?;
+        // img_parts::jpeg::Jpeg::from_bytes(img_parts::Bytes::from_iter(buffer.drain(..)))?;
         jpeg.set_exif(Some(Self::exif_data_with_orientation(self.0).into()));
         jpeg.encoder().write_to(buffer)?;
         Ok(())
