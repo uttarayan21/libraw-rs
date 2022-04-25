@@ -52,10 +52,9 @@ impl Processor {
 
     pub fn open(&mut self, path: impl AsRef<Path>) -> Result<(), LibrawError> {
         if !path.as_ref().exists() {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::NotFound,
-                "Raw file not found",
-            ))?;
+            return Err(
+                std::io::Error::new(std::io::ErrorKind::NotFound, "Raw file not found").into(),
+            );
         }
 
         let c_path = path_to_cstr(path)?;
@@ -150,7 +149,7 @@ impl Processor {
     }
 }
 
-#[cfg(feature = "extra")]
+#[cfg(feature = "jpeg")]
 impl Processor {
     /// Returns a jpeg thumbnail
     /// resolution: Option<(width, height)>
@@ -463,25 +462,29 @@ pub enum Params {
 #[repr(u32)]
 pub enum LibrawConstructorFlags {
     None = sys::LibRaw_constructor_flags_LIBRAW_OPTIONS_NONE,
+    // Depending on the version of libraw this is not generated
+    NoMemErrCallBack = 1,
+    // On some versions of libraw this is misspelled opions
     NoDataErrCallBack = sys::LibRaw_constructor_flags_LIBRAW_OPTIONS_NO_DATAERR_CALLBACK,
 }
 
-#[non_exhaustive]
-#[repr(u32)]
-#[allow(dead_code)]
-pub enum InternalThumbnailFormat {
-    Unknown = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_UNKNOWN,
-    KodakThumb = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_KODAK_THUMB,
-    KodakYcbcr = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_KODAK_YCBCR,
-    KodakRgb = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_KODAK_RGB,
-    Jpeg = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_JPEG,
-    Layer = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_LAYER,
-    Rollei = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_ROLLEI,
-    Ppm = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_PPM,
-    PPM16 = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_PPM16,
-    X3F = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_X3F,
-}
+// #[non_exhaustive]
+// #[repr(u32)]
+// #[allow(dead_code)]
+// pub enum InternalThumbnailFormat {
+//     Unknown = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_UNKNOWN,
+//     KodakThumb = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_KODAK_THUMB,
+//     KodakYcbcr = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_KODAK_YCBCR,
+//     KodakRgb = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_KODAK_RGB,
+//     Jpeg = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_JPEG,
+//     Layer = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_LAYER,
+//     Rollei = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_ROLLEI,
+//     Ppm = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_PPM,
+//     PPM16 = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_PPM16,
+//     X3F = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_X3F,
+// }
 
+/// The thumbnail types that might be embedded inside a raw file
 #[non_exhaustive]
 #[repr(u32)]
 pub enum ThumbnailFormat {
@@ -494,7 +497,7 @@ pub enum ThumbnailFormat {
     H265 = sys::LibRaw_thumbnail_formats_LIBRAW_THUMBNAIL_H265,
 }
 
-impl From<sys::LibRaw_internal_thumbnail_formats> for ThumbnailFormat {
+impl From<sys::LibRaw_thumbnail_formats> for ThumbnailFormat {
     fn from(tformat: sys::LibRaw_internal_thumbnail_formats) -> Self {
         use ThumbnailFormat::*;
         match tformat {
@@ -510,6 +513,7 @@ impl From<sys::LibRaw_internal_thumbnail_formats> for ThumbnailFormat {
     }
 }
 
+/// The format the raw file might be encoded in
 #[non_exhaustive]
 #[repr(u32)]
 pub enum ImageFormat {
@@ -559,14 +563,17 @@ pub enum LibrawError {
     IoError(#[from] std::io::Error),
     #[error("{0}")]
     NulError(#[from] std::ffi::NulError),
+    #[cfg(windows)]
     #[error("{0}")]
     WidestringError(#[from] widestring::NulError<u16>),
+    #[cfg(feature = "jpeg")]
     #[error("{0}")]
     ImageError(#[from] image::error::ImageError),
     #[error("Unsupported Thumbnail")]
     UnsupportedThumbnail,
     #[error("Invalid Number of bits ({0}) for colortype")]
     InvalidColor(u16),
+    #[cfg(feature = "jpeg")]
     #[error("{0}")]
     ImgPartsError(#[from] img_parts::Error),
 }
@@ -616,6 +623,7 @@ impl From<std::ffi::NulError> for InternalLibrawError {
     }
 }
 
+#[cfg(windows)]
 impl From<widestring::NulError<u16>> for InternalLibrawError {
     fn from(_: widestring::NulError<u16>) -> Self {
         Self::UnspecifiedError
@@ -656,12 +664,6 @@ impl InternalLibrawError {
             Ok(())
         } else {
             Err(Self::from(code))
-        }
-    }
-    pub fn close(img: &mut sys::libraw_data_t) {
-        unsafe {
-            sys::libraw_close(img);
-            sys::libraw_free_image(img);
         }
     }
 }
@@ -753,6 +755,7 @@ impl Orientation {
     pub const CW270: Self = Self(8);
     pub const CCW90: Self = Self(8);
 
+    #[cfg(feature = "jpeg")]
     pub fn add_to_buffer(self, buffer: &mut Vec<u8>) -> Result<(), LibrawError> {
         use img_parts::ImageEXIF;
         if self.0 > 8 {
@@ -772,6 +775,7 @@ impl Orientation {
     }
 
     /// This encodes the orientation into a raw exif container data
+    #[cfg(feature = "jpeg")]
     fn exif_data_with_orientation(o: u8) -> Vec<u8> {
         vec![
             0x4d, 0x4d, 0x0, 0x2a, 0x0, 0x0, 0x0, 0x8, 0x0, 0x1, 0x1, 0x12, 0x0, 0x3, 0x0, 0x0,
