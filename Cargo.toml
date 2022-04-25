@@ -1,0 +1,17 @@
+[package]
+name = "libraw_r"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+image = "0.24.1"
+img-parts = "0.2.3"
+libraw-sys = { git = "https://github.com/aftershootco/libraw-sys", branch = "update-libraw" }
+thiserror = "1.0.30"
+widestring = "0.5.1"
+
+[features]
+extra = []
+default = []
