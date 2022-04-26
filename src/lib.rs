@@ -316,6 +316,17 @@ impl Processor {
             }
         }
     }
+
+    /// This will first try get_jpeg and then fallback to to_jpeg
+    /// Might take from 5 ~ 500 ms depending on the image
+    pub fn jpeg(&mut self, quality: u8) -> Result<Vec<u8>, LibrawError> {
+        let jpg = self.get_jpeg();
+        if jpg.is_ok() {
+            jpg
+        } else {
+            self.to_jpeg(quality)
+        }
+    }
 }
 
 pub struct ProcessorBuilder {
