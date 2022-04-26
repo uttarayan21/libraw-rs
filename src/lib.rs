@@ -576,7 +576,7 @@ fn path_to_widestring(
 
 #[derive(Debug, thiserror::Error)]
 pub enum LibrawError {
-    #[error("{0}")]
+    #[error("{0} {1}")]
     InternalError(InternalLibrawError, String),
     #[error("{0}")]
     IoError(#[from] std::io::Error),
