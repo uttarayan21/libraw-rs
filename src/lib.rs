@@ -57,19 +57,24 @@ impl Processor {
             );
         }
 
-        let c_path = path_to_cstr(path)?;
+        let c_path = path_to_cstr(&path)?;
         #[allow(clippy::let_and_return)]
-        let ret = LibrawError::check(unsafe { sys::libraw_open_file(self.inner, c_path.as_ptr()) });
+        // let ret = LibrawError::check(unsafe { sys::libraw_open_file(self.inner, c_path.as_ptr()) });
+        let ret = LibrawError::check_with_context(
+            unsafe { sys::libraw_open_file(self.inner, c_path.as_ptr()) },
+            &path,
+        );
         // Windows only fallback to open_wfile
         #[cfg(windows)]
         {
             if ret.is_err() {
                 warn!("Failed to open file using libraw_open_file in windows");
                 warn!("Fallback to open_wfile");
-                let wchar_path = path_to_widestring(path)?;
-                return LibrawError::check(unsafe {
-                    sys::libraw_open_wfile(self.inner, wchar_path.as_ptr())
-                });
+                let wchar_path = path_to_widestring(&path)?;
+                return LibrawError::check_with_context(
+                    unsafe { sys::libraw_open_wfile(self.inner, wchar_path.as_ptr()) },
+                    &path,
+                );
             }
         }
         ret
@@ -83,8 +88,11 @@ impl Processor {
                 "Raw file not found",
             ))?;
         }
-        let c_path = path_to_cstr(path)?;
-        LibrawError::check(unsafe { sys::libraw_open_file(self.inner, c_path.as_ptr()) })
+        let c_path = path_to_cstr(&path)?;
+        LibrawError::check_with_context(
+            unsafe { sys::libraw_open_file(self.inner, c_path.as_ptr()) },
+            &path,
+        )
     }
 
     pub fn shootinginfo(&'_ self) -> &'_ sys::libraw_shootinginfo_t {
@@ -569,7 +577,7 @@ fn path_to_widestring(
 #[derive(Debug, thiserror::Error)]
 pub enum LibrawError {
     #[error("{0}")]
-    InternalError(#[from] InternalLibrawError),
+    InternalError(InternalLibrawError, String),
     #[error("{0}")]
     IoError(#[from] std::io::Error),
     #[error("{0}")]
@@ -596,6 +604,21 @@ impl LibrawError {
 
     pub fn check(code: i32) -> Result<(), Self> {
         Ok(InternalLibrawError::check(code)?)
+    }
+
+    pub fn check_with_context(code: i32, file: impl AsRef<Path>) -> Result<(), Self> {
+        let e = InternalLibrawError::check(code);
+        if let Err(e) = e {
+            Err(Self::InternalError(e, file.as_ref().display().to_string()))
+        } else {
+            Ok(())
+        }
+    }
+}
+
+impl From<InternalLibrawError> for LibrawError {
+    fn from(e: InternalLibrawError) -> Self {
+        LibrawError::InternalError(e, String::new())
     }
 }
 
