@@ -101,10 +101,9 @@ impl Processor {
     #[cfg(windows)]
     pub fn open_fallback(&mut self, path: impl AsRef<Path>) -> Result<(), LibrawError> {
         if !path.as_ref().exists() {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::NotFound,
-                "Raw file not found",
-            ))?;
+            return Err(
+                std::io::Error::new(std::io::ErrorKind::NotFound, "Raw file not found").into(),
+            );
         }
         let c_path = path_to_cstr(&path)?;
         LibrawError::check_with_context(
