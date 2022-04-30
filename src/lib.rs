@@ -2,6 +2,9 @@ pub mod error;
 pub mod orientation;
 pub use error::LibrawError;
 
+#[cfg(windows)]
+use log::warn;
+
 use libraw_sys as sys;
 use semver::Version;
 use std::ffi::CString;
@@ -518,22 +521,6 @@ pub enum LibrawConstructorFlags {
     NoDataErrCallBack = sys::LibRaw_constructor_flags_LIBRAW_OPTIONS_NO_DATAERR_CALLBACK,
 }
 
-// #[non_exhaustive]
-// #[repr(u32)]
-// #[allow(dead_code)]
-// pub enum InternalThumbnailFormat {
-//     Unknown = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_UNKNOWN,
-//     KodakThumb = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_KODAK_THUMB,
-//     KodakYcbcr = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_KODAK_YCBCR,
-//     KodakRgb = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_KODAK_RGB,
-//     Jpeg = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_JPEG,
-//     Layer = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_LAYER,
-//     Rollei = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_ROLLEI,
-//     Ppm = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_PPM,
-//     PPM16 = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_PPM16,
-//     X3F = sys::LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_X3F,
-// }
-
 /// The thumbnail types that might be embedded inside a raw file
 #[non_exhaustive]
 #[repr(u32)]
@@ -548,7 +535,7 @@ pub enum ThumbnailFormat {
 }
 
 impl From<sys::LibRaw_thumbnail_formats> for ThumbnailFormat {
-    fn from(tformat: sys::LibRaw_internal_thumbnail_formats) -> Self {
+    fn from(tformat: sys::LibRaw_thumbnail_formats) -> Self {
         use ThumbnailFormat::*;
         match tformat {
             sys::LibRaw_thumbnail_formats_LIBRAW_THUMBNAIL_UNKNOWN => Unknown,
