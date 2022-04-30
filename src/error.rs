@@ -21,6 +21,9 @@ pub enum LibrawError {
     #[cfg(feature = "jpeg")]
     #[error("{0}")]
     ImgPartsError(#[from] img_parts::Error),
+    #[cfg(feature = "jpeg")]
+    #[error("Failed to encode the processed image into and rgb image")]
+    EncodingError,
 }
 
 impl LibrawError {

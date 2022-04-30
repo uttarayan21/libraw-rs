@@ -238,9 +238,8 @@ impl Processor {
         }
         self.dcraw_process()?;
         let flip = self.sizes().flip;
-        let processed = self.dcraw_process_make_mem_image()?;
-        let data = processed.as_slice_u8();
-        let processed = processed.raw();
+        let _processed = self.dcraw_process_make_mem_image()?;
+        let processed = _processed.raw();
 
         // let data = unsafe {
         //     std::slice::from_raw_parts(
@@ -258,7 +257,7 @@ impl Processor {
                 };
                 let mut jpeg = Vec::new();
                 image::codecs::jpeg::JpegEncoder::new_with_quality(&mut jpeg, quality).encode(
-                    data,
+                    _processed.as_slice(),
                     processed.width as u32,
                     processed.height as u32,
                     colortype,
@@ -268,7 +267,7 @@ impl Processor {
             }
             ImageFormat::Jpeg => {
                 // structure contain in-memory image of JPEG file. Only type, data_size and data fields are valid (and nonzero);
-                let mut jpeg = data.to_vec();
+                let mut jpeg = _processed.as_slice().to_vec();
                 Orientation::from(Flip::from(flip)).add_to(&mut jpeg)?;
                 Ok(jpeg)
             }
@@ -295,36 +294,46 @@ impl Processor {
         }
         self.dcraw_process()?;
         let flip = self.sizes().flip;
-        let processed = self.dcraw_process_make_mem_image()?;
-        let processed = processed.raw();
+        let _processed = self.dcraw_process_make_mem_image()?;
+        let processed = _processed.raw();
 
-        let data = unsafe {
-            std::slice::from_raw_parts(
-                processed.data.as_ptr() as *const u8,
-                processed.data_size as usize,
-            )
-        };
+        // let data = unsafe {
+        //     std::slice::from_raw_parts(
+        //         processed.data.as_ptr() as *const u8,
+        //         processed.data_size as usize,
+        //     )
+        // };
         let res = resolution.into_resolution();
         match ImageFormat::from(processed.type_) {
             ImageFormat::Bitmap => {
-                let colortype = match processed.bits {
-                    8 => image::ColorType::Rgb8,
-                    16 => image::ColorType::Rgb16,
+                let mut jpeg = std::io::Cursor::new(Vec::new());
+                let dynimg = match processed.bits {
+                    8 => image::DynamicImage::from(
+                        image::ImageBuffer::<image::Rgb<u8>, Vec<u8>>::from_raw(
+                            processed.width.into(),
+                            processed.height.into(),
+                            _processed.as_slice().to_vec(),
+                        )
+                        .ok_or(LibrawError::EncodingError)?,
+                    ),
+                    16 => image::DynamicImage::from(
+                        image::ImageBuffer::<image::Rgb<u16>, Vec<u16>>::from_raw(
+                            processed.width.into(),
+                            processed.height.into(),
+                            _processed.as_slice().to_vec(),
+                        )
+                        .ok_or(LibrawError::EncodingError)?,
+                    ),
                     _ => return Err(LibrawError::InvalidColor(processed.bits)),
                 };
-                let mut jpeg = Vec::new();
-                image::codecs::jpeg::JpegEncoder::new_with_quality(&mut jpeg, quality).encode(
-                    data,
-                    processed.width.into(),
-                    processed.height.into(),
-                    colortype,
-                )?;
+                dynimg.write_to(&mut jpeg, image::ImageOutputFormat::Jpeg(quality))?;
+                let mut jpeg = jpeg.into_inner();
                 Orientation::from(Flip::from(flip)).add_to(&mut jpeg)?;
                 Ok(jpeg)
             }
             ImageFormat::Jpeg => {
                 // structure contain in-memory image of JPEG file. Only type, data_size and data fields are valid (and nonzero);
-                let mut jpeg = data.to_vec();
+                let mut jpeg = _processed.as_slice().to_vec();
                 if resize_jpeg {
                     use image::io::Reader;
                     use std::io::Cursor;
@@ -334,7 +343,7 @@ impl Processor {
                         .thumbnail(res.width, res.height);
                     dynimg.write_to(
                         &mut Cursor::new(&mut jpeg),
-                        image::ImageOutputFormat::Jpeg(80),
+                        image::ImageOutputFormat::Jpeg(quality),
                     )?;
                 }
                 Orientation::from(Flip::from(flip)).add_to(&mut jpeg)?;
@@ -462,6 +471,27 @@ impl ProcessedImage {
                 (*self.inner).data_size as usize / std::mem::size_of::<T>(),
             )
         }
+    }
+    pub fn width(&self) -> u32 {
+        self.raw().width.into()
+    }
+    pub fn height(&self) -> u32 {
+        self.raw().height.into()
+    }
+    pub fn type_(&self) -> ImageFormat {
+        ImageFormat::from(self.raw().type_)
+    }
+    pub fn bits(&self) -> u16 {
+        self.raw().bits
+    }
+    pub fn colors(&self) -> u16 {
+        self.raw().colors
+    }
+    pub fn size(&self) -> usize {
+        // if std::mem::size_of::<usize>() < std::mem::size_of::<u32>() {
+        //     compile_error!("unsupported platform");
+        // }
+        self.raw().data_size as usize
     }
 }
 
