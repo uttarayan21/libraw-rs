@@ -577,8 +577,8 @@ fn path_to_cstr(path: impl AsRef<Path>) -> Result<CString, std::ffi::NulError> {
 }
 #[cfg(windows)]
 fn path_to_cstr(path: impl AsRef<Path>) -> Result<CString, std::ffi::NulError> {
-    use std::os::windows::ffi::OsStrExt;
-    let path = path.as_ref().as_os_str().as_bytes();
+    let path = path.as_ref().display().to_string();
+    let path = path.as_bytes();
     CString::new(path)
 }
 
