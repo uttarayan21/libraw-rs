@@ -172,6 +172,10 @@ impl Processor {
         assert!(!data.is_null());
         LibrawError::to_result(errc, ProcessedImage { inner: data })
     }
+    pub fn get_color_maximum(&self) -> Result<i32, LibrawError> {
+        let data = unsafe { sys::libraw_get_color_maximum(self.inner) };
+        Ok(data)
+    }
 }
 
 #[cfg(feature = "jpeg")]
