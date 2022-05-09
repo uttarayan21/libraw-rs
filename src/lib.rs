@@ -176,6 +176,10 @@ impl Processor {
         let data = unsafe { sys::libraw_get_color_maximum(self.inner) };
         Ok(data)
     }
+    pub fn recycle(&mut self) -> Result<(), LibrawError> {
+        unsafe { sys::libraw_recycle(self.inner) };
+        Ok(())
+    }
 }
 
 #[cfg(feature = "jpeg")]
@@ -194,6 +198,7 @@ impl Processor {
         if unsafe { (*self.inner).thumbnail.thumb.is_null() } {
             self.unpack_thumb()?;
         }
+        let flip = self.sizes().flip;
         let thumbnail = self.thumbnail();
         let thumbnail_data = unsafe {
             std::slice::from_raw_parts(thumbnail.thumb as *const u8, thumbnail.tlength as usize)
@@ -205,7 +210,9 @@ impl Processor {
                 //
                 // Don't use a Vec since a Vec's internal memory representation is entirely dependent
                 // on the allocator used which might(is) be different in c/c++/rust
-                Ok(thumbnail_data.to_vec())
+                let jpeg = thumbnail_data.to_vec();
+                let jpeg = Orientation::from(Flip::from(flip)).add_to(jpeg)?;
+                Ok(jpeg)
             }
             ThumbnailFormat::Bitmap => {
                 // Since this is a bitmap we have to generate the thumbnail from the rgb data from
@@ -217,6 +224,7 @@ impl Processor {
                     thumbnail.theight as u32,
                     image::ColorType::Rgb8,
                 )?;
+                let jpeg = Orientation::from(Flip::from(flip)).add_to(jpeg)?;
                 Ok(jpeg)
             }
             _ => Err(LibrawError::UnsupportedThumbnail),
@@ -266,13 +274,13 @@ impl Processor {
                     processed.height as u32,
                     colortype,
                 )?;
-                Orientation::from(Flip::from(flip)).add_to(&mut jpeg)?;
+                let jpeg = Orientation::from(Flip::from(flip)).add_to(jpeg)?;
                 Ok(jpeg)
             }
             ImageFormat::Jpeg => {
                 // structure contain in-memory image of JPEG file. Only type, data_size and data fields are valid (and nonzero);
                 let mut jpeg = _processed.as_slice().to_vec();
-                Orientation::from(Flip::from(flip)).add_to(&mut jpeg)?;
+                let jpeg = Orientation::from(Flip::from(flip)).add_to(jpeg)?;
                 Ok(jpeg)
             }
         }
@@ -332,7 +340,7 @@ impl Processor {
                 };
                 dynimg.write_to(&mut jpeg, image::ImageOutputFormat::Jpeg(quality))?;
                 let mut jpeg = jpeg.into_inner();
-                Orientation::from(Flip::from(flip)).add_to(&mut jpeg)?;
+                let jpeg = Orientation::from(Flip::from(flip)).add_to(jpeg)?;
                 Ok(jpeg)
             }
             ImageFormat::Jpeg => {
@@ -350,7 +358,7 @@ impl Processor {
                         image::ImageOutputFormat::Jpeg(quality),
                     )?;
                 }
-                Orientation::from(Flip::from(flip)).add_to(&mut jpeg)?;
+                let jpeg = Orientation::from(Flip::from(flip)).add_to(jpeg)?;
                 Ok(jpeg)
             }
         }
@@ -492,9 +500,6 @@ impl ProcessedImage {
         self.raw().colors
     }
     pub fn size(&self) -> usize {
-        // if std::mem::size_of::<usize>() < std::mem::size_of::<u32>() {
-        //     compile_error!("unsupported platform");
-        // }
         self.raw().data_size as usize
     }
 }
@@ -696,10 +701,7 @@ impl Orientation {
     pub const CCW90: Self = Self(8);
 
     #[cfg(feature = "jpeg")]
-    pub fn add_to<B>(self, buffer: B) -> Result<(), LibrawError>
-    where
-        B: AsRef<[u8]> + std::io::Write,
-    {
+    pub fn add_to(self, mut buffer: Vec<u8>) -> Result<Vec<u8>, LibrawError> {
         use img_parts::ImageEXIF;
         if self.0 > 8 {
             return Err(
@@ -708,11 +710,10 @@ impl Orientation {
         }
 
         let mut jpeg =
-            img_parts::jpeg::Jpeg::from_bytes(img_parts::Bytes::copy_from_slice(buffer.as_ref()))?;
-        // img_parts::jpeg::Jpeg::from_bytes(img_parts::Bytes::from_iter(buffer.drain(..)))?;
+            img_parts::jpeg::Jpeg::from_bytes(img_parts::Bytes::from_iter(buffer.drain(..)))?;
         jpeg.set_exif(Some(Self::exif_data_with_orientation(self.0).into()));
-        jpeg.encoder().write_to(buffer)?;
-        Ok(())
+        jpeg.encoder().write_to(&mut buffer)?;
+        Ok(buffer)
     }
 
     /// This encodes the orientation into a raw exif container data

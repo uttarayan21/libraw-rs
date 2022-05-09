@@ -10,13 +10,15 @@ license = "MIT"
 image = { version = "0.24" , optional = true }
 img-parts = { version = "0.2", optional = true }
 libraw-sys = { git = "https://github.com/aftershootco/libraw-sys" }
-log = "0.4.16"
 semver = "1.0"
 thiserror = "1.0"
 
 [target.'cfg(windows)'.dependencies]
+log = "0.4.16"
 widestring = "0.5.1"
 
 [features]
 jpeg = ["dep:image", "dep:img-parts"]
+build = ["libraw-sys/build"]
+bindgen = ["libraw-sys/bindgen"]
 default = []
