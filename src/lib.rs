@@ -238,9 +238,6 @@ impl Processor {
     /// match the provided resolution
     /// Consider ~100ms
     pub fn to_jpeg(&mut self, quality: u8) -> Result<Vec<u8>, LibrawError> {
-        let params = self.params();
-        params.half_size = 1;
-        params.use_camera_wb = 1;
         // Since this image is possibly has a flip
 
         // Now check if libraw_unpack has been called already
@@ -295,10 +292,6 @@ impl Processor {
         resize_jpeg: bool,
         quality: u8,
     ) -> Result<Vec<u8>, LibrawError> {
-        let params = self.params();
-        params.half_size = 1;
-        params.use_camera_wb = 1;
-
         // Now check if libraw_unpack has been called already
         // If it has been call inner.image shouldn't be null
         if unsafe { (*self.inner).image.is_null() } {
@@ -373,6 +366,14 @@ impl Processor {
         } else {
             self.to_jpeg(quality)
         }
+    }
+
+    /// This will first try get_jpeg and then fallback to to_jpeg but won't have any exif embedded
+    /// in it
+    /// Might take from 5 ~ 500 ms depending on the image
+    #[inline]
+    pub fn jpeg_no_rotation(&mut self, quality: u8) -> Result<Vec<u8>, LibrawError> {
+        self.jpeg(quality)
     }
 }
 
