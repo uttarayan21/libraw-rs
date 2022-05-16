@@ -43,6 +43,12 @@ impl LibrawError {
             Ok(())
         }
     }
+    pub fn libraw_err_type(&self) -> Option<InternalLibrawError> {
+        match self {
+            LibrawError::InternalError(ierr, _) => Some(*ierr),
+            _ => None,
+        }
+    }
 }
 
 impl From<InternalLibrawError> for LibrawError {
