@@ -276,7 +276,7 @@ impl Processor {
             }
             ImageFormat::Jpeg => {
                 // structure contain in-memory image of JPEG file. Only type, data_size and data fields are valid (and nonzero);
-                let mut jpeg = _processed.as_slice().to_vec();
+                let jpeg = _processed.as_slice().to_vec();
                 let jpeg = Orientation::from(Flip::from(flip)).add_to(jpeg)?;
                 Ok(jpeg)
             }
@@ -332,7 +332,7 @@ impl Processor {
                     _ => return Err(LibrawError::InvalidColor(processed.bits)),
                 };
                 dynimg.write_to(&mut jpeg, image::ImageOutputFormat::Jpeg(quality))?;
-                let mut jpeg = jpeg.into_inner();
+                let jpeg = jpeg.into_inner();
                 let jpeg = Orientation::from(Flip::from(flip)).add_to(jpeg)?;
                 Ok(jpeg)
             }
@@ -379,7 +379,7 @@ impl Processor {
         let mut jpeg =
             img_parts::jpeg::Jpeg::from_bytes(img_parts::Bytes::from_iter(buffer.drain(..)))?;
         jpeg.set_exif(None);
-        jpeg.encoder().write_to(buffer)?;
+        jpeg.encoder().write_to(&mut buffer)?;
 
         Ok(buffer)
     }
