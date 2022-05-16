@@ -373,7 +373,15 @@ impl Processor {
     /// Might take from 5 ~ 500 ms depending on the image
     #[inline]
     pub fn jpeg_no_rotation(&mut self, quality: u8) -> Result<Vec<u8>, LibrawError> {
-        self.jpeg(quality)
+        use img_parts::ImageEXIF;
+
+        let mut buffer = self.jpeg(quality)?;
+        let mut jpeg =
+            img_parts::jpeg::Jpeg::from_bytes(img_parts::Bytes::from_iter(buffer.drain(..)))?;
+        jpeg.set_exif(None);
+        jpeg.encoder().write_to(buffer)?;
+
+        Ok(buffer)
     }
 }
 
