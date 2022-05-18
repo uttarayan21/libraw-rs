@@ -231,6 +231,45 @@ impl Processor {
         }
     }
 
+    pub fn get_jpeg_no_rotation(&mut self) -> Result<Vec<u8>, LibrawError> {
+        // First check if unpack_thumb has already been called.
+        // If yes then don't call it
+
+        // Check if (*inner).thumbnail.thumb is null
+        if unsafe { (*self.inner).thumbnail.thumb.is_null() } {
+            self.unpack_thumb()?;
+        }
+        let flip = self.sizes().flip;
+        let thumbnail = self.thumbnail();
+        let thumbnail_data = unsafe {
+            std::slice::from_raw_parts(thumbnail.thumb as *const u8, thumbnail.tlength as usize)
+        };
+
+        match ThumbnailFormat::from(thumbnail.tformat) {
+            ThumbnailFormat::Jpeg => {
+                // Since the buffer is already a jpeg buffer return it as-is
+                //
+                // Don't use a Vec since a Vec's internal memory representation is entirely dependent
+                // on the allocator used which might(is) be different in c/c++/rust
+                let jpeg = thumbnail_data.to_vec();
+                Ok(jpeg)
+            }
+            ThumbnailFormat::Bitmap => {
+                // Since this is a bitmap we have to generate the thumbnail from the rgb data from
+                // here
+                let mut jpeg = Vec::new();
+                image::codecs::jpeg::JpegEncoder::new(&mut jpeg).encode(
+                    thumbnail_data,
+                    thumbnail.twidth as u32,
+                    thumbnail.theight as u32,
+                    image::ColorType::Rgb8,
+                )?;
+                Ok(jpeg)
+            }
+            _ => Err(LibrawError::UnsupportedThumbnail),
+        }
+    }
+
     /// This will generate a thumbnail from the raw buffer
     /// It is **slower** than jpeg_thumb since it will unpack the rgb data
     ///
@@ -278,6 +317,51 @@ impl Processor {
                 // structure contain in-memory image of JPEG file. Only type, data_size and data fields are valid (and nonzero);
                 let jpeg = _processed.as_slice().to_vec();
                 let jpeg = Orientation::from(Flip::from(flip)).add_to(jpeg)?;
+                Ok(jpeg)
+            }
+        }
+    }
+
+    ///
+    pub fn to_jpeg_no_rotation(&mut self, quality: u8) -> Result<Vec<u8>, LibrawError> {
+        // Since this image is possibly has a flip
+
+        // Now check if libraw_unpack has been called already
+        // If it has been call inner.image shouldn't be null
+        if unsafe { (*self.inner).image.is_null() } {
+            self.unpack()?;
+        }
+        self.dcraw_process()?;
+        let flip = self.sizes().flip;
+        let _processed = self.dcraw_process_make_mem_image()?;
+        let processed = _processed.raw();
+
+        // let data = unsafe {
+        //     std::slice::from_raw_parts(
+        //         processed.data.as_ptr() as *const u8,
+        //         processed.data_size as usize,
+        //     )
+        // };
+
+        match ImageFormat::from(processed.type_) {
+            ImageFormat::Bitmap => {
+                let colortype = match processed.bits {
+                    8 => image::ColorType::Rgb8,
+                    16 => image::ColorType::Rgb16,
+                    _ => return Err(LibrawError::InvalidColor(processed.bits)),
+                };
+                let mut jpeg = Vec::new();
+                image::codecs::jpeg::JpegEncoder::new_with_quality(&mut jpeg, quality).encode(
+                    _processed.as_slice(),
+                    processed.width as u32,
+                    processed.height as u32,
+                    colortype,
+                )?;
+                Ok(jpeg)
+            }
+            ImageFormat::Jpeg => {
+                // structure contain in-memory image of JPEG file. Only type, data_size and data fields are valid (and nonzero);
+                let jpeg = _processed.as_slice().to_vec();
                 Ok(jpeg)
             }
         }
@@ -373,15 +457,12 @@ impl Processor {
     /// Might take from 5 ~ 500 ms depending on the image
     #[inline]
     pub fn jpeg_no_rotation(&mut self, quality: u8) -> Result<Vec<u8>, LibrawError> {
-        use img_parts::ImageEXIF;
-
-        let mut buffer = self.jpeg(quality)?;
-        let mut jpeg =
-            img_parts::jpeg::Jpeg::from_bytes(img_parts::Bytes::from_iter(buffer.drain(..)))?;
-        jpeg.set_exif(None);
-        jpeg.encoder().write_to(&mut buffer)?;
-
-        Ok(buffer)
+        let jpg = self.get_jpeg_no_rotation();
+        if jpg.is_ok() {
+            jpg
+        } else {
+            self.to_jpeg_no_rotation(quality)
+        }
     }
 }
 
@@ -396,7 +477,7 @@ impl ProcessorBuilder {
     pub fn build(self) -> Processor {
         Processor { inner: self.inner }
     }
-    pub fn with_params(self, params: Vec<Params>) -> Self {
+    pub fn with_params<P: Iterator<Item = Params>>(self, params: P) -> Self {
         let libraw_params = unsafe { &mut (*self.inner).params };
         use Params::*;
         for param in params {
