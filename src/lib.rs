@@ -475,7 +475,7 @@ impl ProcessorBuilder {
     pub fn build(self) -> Processor {
         Processor { inner: self.inner }
     }
-    pub fn with_params<P: Iterator<Item = Params>>(self, params: P) -> Self {
+    pub fn with_params<P: IntoIterator<Item = Params>>(self, params: P) -> Self {
         let libraw_params = unsafe { &mut (*self.inner).params };
         use Params::*;
         for param in params {
