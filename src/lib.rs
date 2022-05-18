@@ -239,7 +239,6 @@ impl Processor {
         if unsafe { (*self.inner).thumbnail.thumb.is_null() } {
             self.unpack_thumb()?;
         }
-        let flip = self.sizes().flip;
         let thumbnail = self.thumbnail();
         let thumbnail_data = unsafe {
             std::slice::from_raw_parts(thumbnail.thumb as *const u8, thumbnail.tlength as usize)
@@ -332,7 +331,6 @@ impl Processor {
             self.unpack()?;
         }
         self.dcraw_process()?;
-        let flip = self.sizes().flip;
         let _processed = self.dcraw_process_make_mem_image()?;
         let processed = _processed.raw();
 
