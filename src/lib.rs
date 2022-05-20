@@ -321,7 +321,7 @@ impl Processor {
         }
     }
 
-    ///
+    /// Get the original without any rotation
     pub fn to_jpeg_no_rotation(&mut self, quality: u8) -> Result<Vec<u8>, LibrawError> {
         // Since this image is possibly has a flip
 
@@ -446,11 +446,11 @@ impl Processor {
         if jpg.is_ok() {
             jpg
         } else {
-            self.to_jpeg(quality)
+            self.to_jpeg_no_rotation(quality)
         }
     }
 
-    /// This will first try get_jpeg and then fallback to to_jpeg but won't have any exif embedded
+    /// This will first try get_jpeg and then fallback to to_jpeg but won't modify any exif data
     /// in it
     /// Might take from 5 ~ 500 ms depending on the image
     #[inline]

@@ -19,6 +19,6 @@ widestring = "0.5.1"
 
 [features]
 jpeg = ["dep:image", "dep:img-parts"]
-# build = ["libraw-sys/?build"]
-# bindgen = ["libraw-sys/?bindgen"]
+build = ["libraw-sys/build"]
+bindgen = ["libraw-sys/bindgen"]
 default = []
