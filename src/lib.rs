@@ -74,10 +74,10 @@ impl Processor {
                 std::io::Error::new(std::io::ErrorKind::NotFound, "Raw file not found").into(),
             );
         }
-
         let c_path = path_to_cstr(&path)?;
-        #[allow(clippy::let_and_return)]
         // let ret = LibrawError::check(unsafe { sys::libraw_open_file(self.inner, c_path.as_ptr()) });
+        self.recycle()?;
+        #[allow(clippy::let_and_return)]
         let ret = LibrawError::check_with_context(
             unsafe { sys::libraw_open_file(self.inner, c_path.as_ptr()) },
             &path,
