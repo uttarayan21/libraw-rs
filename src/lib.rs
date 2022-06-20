@@ -799,7 +799,7 @@ impl Orientation {
 
         let mut jpeg =
             img_parts::jpeg::Jpeg::from_bytes(img_parts::Bytes::from_iter(buffer.drain(..)))?;
-        __remove_xmp(jpeg);
+        Orientation::__remove_xmp(jpeg);
         jpeg.set_exif(Some(Self::exif_data_with_orientation(self.0).into()));
         jpeg.encoder().write_to(&mut buffer)?;
         Ok(buffer)
