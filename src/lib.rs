@@ -1,6 +1,8 @@
+#[macro_use]
 pub mod error;
 pub mod orientation;
 pub use error::LibrawError;
+pub mod dcraw;
 
 #[cfg(windows)]
 use log::warn;
@@ -23,6 +25,8 @@ pub const fn version() -> Version {
 
 pub struct Processor {
     inner: *mut sys::libraw_data_t,
+    #[cfg(feature = "file")]
+    file: Option<std::path::PathBuf>,
 }
 
 impl Deref for Processor {
@@ -65,17 +69,24 @@ impl Processor {
     pub fn new(option: LibrawConstructorFlags) -> Self {
         let inner = unsafe { sys::libraw_init(option as u32) };
         assert!(!inner.is_null());
-        Self { inner }
+        Self {
+            inner,
+            #[cfg(feature = "file")]
+            file: None,
+        }
     }
 
     pub fn open(&mut self, path: impl AsRef<Path>) -> Result<(), LibrawError> {
         if !path.as_ref().exists() {
-            return Err(
-                std::io::Error::new(std::io::ErrorKind::NotFound, "Raw file not found").into(),
-            );
+            return Err(std::io::Error::new(std::io::ErrorKind::NotFound, "File not found").into());
         }
         let c_path = path_to_cstr(&path)?;
-        // let ret = LibrawError::check(unsafe { sys::libraw_open_file(self.inner, c_path.as_ptr()) });
+        // let ret = check!(self, unsafe { sys::libraw_open_file(self.inner, c_path.as_ptr()) });
+        #[cfg(feature = "file")]
+        {
+            self.file = Some(path.as_ref().to_path_buf());
+        }
+
         self.recycle()?;
         #[allow(clippy::let_and_return)]
         let ret = LibrawError::check_with_context(
@@ -115,6 +126,10 @@ impl Processor {
     pub fn shootinginfo(&'_ self) -> &'_ sys::libraw_shootinginfo_t {
         unsafe { &(*(self.inner)).shootinginfo }
     }
+
+    pub fn idata(&'_ self) -> &'_ sys::libraw_iparams_t {
+        unsafe { &(*(self.inner)).idata }
+    }
     pub fn sizes(&'_ self) -> &'_ sys::libraw_image_sizes_t {
         unsafe { &(*(self.inner)).sizes }
     }
@@ -145,33 +160,15 @@ impl Processor {
     }
 
     pub fn unpack_thumb(&mut self) -> Result<(), LibrawError> {
-        LibrawError::check(unsafe { sys::libraw_unpack_thumb(self.inner) })?;
+        check!(self, unsafe { sys::libraw_unpack_thumb(self.inner) })?;
         Ok(())
     }
 
     pub fn unpack(&mut self) -> Result<(), LibrawError> {
-        LibrawError::check(unsafe { sys::libraw_unpack(self.inner) })?;
+        check!(self, unsafe { sys::libraw_unpack(self.inner) })?;
         Ok(())
     }
 
-    pub fn dcraw_process_make_mem_thumb(&mut self) -> Result<ProcessedImage, LibrawError> {
-        let mut errc = 0;
-        let data = unsafe { sys::libraw_dcraw_make_mem_thumb(self.inner, &mut errc) };
-        assert!(!data.is_null());
-        LibrawError::to_result(errc, ProcessedImage { inner: data })
-    }
-
-    pub fn dcraw_process(&mut self) -> Result<(), LibrawError> {
-        LibrawError::check(unsafe { sys::libraw_dcraw_process(self.inner) })?;
-        Ok(())
-    }
-
-    pub fn dcraw_process_make_mem_image(&mut self) -> Result<ProcessedImage, LibrawError> {
-        let mut errc = 0;
-        let data = unsafe { sys::libraw_dcraw_make_mem_image(self.inner, &mut errc) };
-        assert!(!data.is_null());
-        LibrawError::to_result(errc, ProcessedImage { inner: data })
-    }
     pub fn get_color_maximum(&self) -> Result<i32, LibrawError> {
         let data = unsafe { sys::libraw_get_color_maximum(self.inner) };
         Ok(data)
@@ -179,6 +176,12 @@ impl Processor {
     pub fn recycle(&mut self) -> Result<(), LibrawError> {
         unsafe { sys::libraw_recycle(self.inner) };
         Ok(())
+    }
+
+    pub fn adjust_sizes_info_only(&mut self) -> Result<(), LibrawError> {
+        check!(self, unsafe {
+            sys::libraw_adjust_sizes_info_only(self.inner)
+        })
     }
 }
 
@@ -473,7 +476,11 @@ impl ProcessorBuilder {
         Self::default()
     }
     pub fn build(self) -> Processor {
-        Processor { inner: self.inner }
+        Processor {
+            inner: self.inner,
+            #[cfg(feature = "file")]
+            file: None,
+        }
     }
     pub fn with_params<P: IntoIterator<Item = Params>>(self, params: P) -> Self {
         let libraw_params = unsafe { &mut (*self.inner).params };
@@ -781,6 +788,89 @@ impl PartialEq<Orientation> for u8 {
     }
 }
 
+impl std::ops::Add for Orientation {
+    type Output = Self;
+    fn add(self, rhs: Orientation) -> Self::Output {
+        Self(match (self.0, rhs.0) {
+            (1, o) => o,
+            (o, 1) => o,
+
+            (2, 2) => 1,
+            (2, 3) => 4,
+            (2, 4) => 3,
+            (2, 5) => 6,
+            (2, 6) => 5,
+            (2, 7) => 8,
+            (2, 8) => 7,
+
+            (3, 2) => 4,
+            (3, 3) => 1,
+            (3, 4) => 2,
+            (3, 5) => 7,
+            (3, 6) => 8,
+            (3, 7) => 5,
+            (3, 8) => 6,
+
+            (4, 2) => 3,
+            (4, 3) => 2,
+            (4, 4) => 1,
+            (4, 5) => 8,
+            (4, 6) => 7,
+            (4, 7) => 6,
+            (4, 8) => 5,
+
+            (5, 2) => 8,
+            (5, 3) => 7,
+            (5, 4) => 6,
+            (5, 5) => 1,
+            (5, 6) => 4,
+            (5, 7) => 3,
+            (5, 8) => 2,
+
+            (6, 2) => 7,
+            (6, 3) => 8,
+            (6, 4) => 5,
+            (6, 5) => 2,
+            (6, 6) => 3,
+            (6, 7) => 4,
+            (6, 8) => 1,
+
+            (7, 2) => 6,
+            (7, 3) => 5,
+            (7, 4) => 8,
+            (7, 5) => 3,
+            (7, 6) => 2,
+            (7, 7) => 1,
+            (7, 8) => 4,
+
+            (8, 2) => 5,
+            (8, 3) => 6,
+            (8, 4) => 7,
+            (8, 5) => 4,
+            (8, 6) => 1,
+            (8, 7) => 2,
+            (8, 8) => 3,
+
+            (_, _) => 1,
+        })
+    }
+}
+impl std::ops::Neg for Orientation {
+    type Output = Self;
+    fn neg(self) -> Self::Output {
+        Self(match self.0 {
+            1 => 1,
+            2 => 2,
+            3 => 3,
+            4 => 4,
+            5 => 5,
+            6 => 8,
+            7 => 7,
+            8 => 6,
+            o => o,
+        })
+    }
+}
 impl Orientation {
     pub const NONE: Self = Self(1);
     pub const CW180: Self = Self(3);

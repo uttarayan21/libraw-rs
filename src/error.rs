@@ -26,6 +26,24 @@ pub enum LibrawError {
     EncodingError,
 }
 
+#[cfg(feature = "file")]
+macro_rules! check {
+    ($sf:expr, $($args:tt)*) => {
+            if let Some(ref file) = $sf.file {
+                $crate::error::LibrawError::check_with_context($($args)*, file)
+            } else {
+                $crate::error::LibrawError::check($($args)*)
+            }
+    };
+}
+
+#[cfg(not(feature = "file"))]
+macro_rules! check {
+    ($sf:expr, $($args:tt)*) => {
+        $crate::error::LibrawError::check($($args)*)
+    };
+}
+
 impl LibrawError {
     pub fn to_result<T>(code: i32, data: T) -> Result<T, Self> {
         Ok(InternalLibrawError::to_result(code, data)?)
