@@ -1,9 +1,11 @@
 #[macro_use]
 pub mod error;
-pub mod orientation;
-pub use error::LibrawError;
 pub mod dcraw;
+pub mod defaults;
+pub mod orientation;
 pub mod traits;
+
+pub use error::LibrawError;
 
 #[cfg(windows)]
 use log::warn;

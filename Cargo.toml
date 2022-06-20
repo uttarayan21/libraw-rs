@@ -1,6 +1,6 @@
 [package]
 name = "libraw_r"
-version = "0.3.6"
+version = "0.3.9"
 edition = "2021"
 license = "MIT"
 
@@ -22,7 +22,7 @@ jpeg = ["dep:image", "dep:img-parts"]
 build = ["libraw-sys/build"]
 bindgen = ["libraw-sys/bindgen"]
 file = []
-default = ["file"]
+default = ["build","file"]
 
 [dev-dependencies]
 anyhow = "1.0.58"
