@@ -799,9 +799,17 @@ impl Orientation {
 
         let mut jpeg =
             img_parts::jpeg::Jpeg::from_bytes(img_parts::Bytes::from_iter(buffer.drain(..)))?;
+        __remove_xmp(jpeg);
         jpeg.set_exif(Some(Self::exif_data_with_orientation(self.0).into()));
         jpeg.encoder().write_to(&mut buffer)?;
         Ok(buffer)
+    }
+
+    #[cfg(feature = "jpeg")]
+    fn __remove_xmp(jpeg: &mut img_parts::jpeg::Jpeg) {
+        jpeg.segments_mut().retain(|segment| {
+            !(segment.marker() == 0xe1 && segment.contents().starts_with(b"http://ns.adobe.com/"))
+        });
     }
 
     /// This encodes the orientation into a raw exif container data
