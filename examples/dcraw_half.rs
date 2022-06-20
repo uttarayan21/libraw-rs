@@ -1,4 +1,4 @@
-use libraw_r::*;
+use libraw_r::{traits::LRString, *};
 use std::path::Path;
 
 pub fn main() -> anyhow::Result<()> {
@@ -8,9 +8,9 @@ pub fn main() -> anyhow::Result<()> {
             .build();
         p.open(&arg)?;
         println!(
-            "Processing {arg} ({:?} {:?})",
-            p.idata().make,
-            p.idata().model
+            "Processing {arg} ({}, {})",
+            p.idata().make.as_ascii(),
+            p.idata().model.as_ascii(),
         );
         p.unpack()?;
         p.dcraw_process()?;

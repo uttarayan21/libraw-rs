@@ -3,6 +3,7 @@ pub mod error;
 pub mod orientation;
 pub use error::LibrawError;
 pub mod dcraw;
+pub mod traits;
 
 #[cfg(windows)]
 use log::warn;
