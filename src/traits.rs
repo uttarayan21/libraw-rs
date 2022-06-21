@@ -9,3 +9,11 @@ impl<'lrstr> LRString<'lrstr> for [i8; 64] {
             .unwrap_or_default()
     }
 }
+
+impl<'lrstr> LRString<'lrstr> for [i8; 128] {
+    fn as_ascii(&self) -> &str {
+        std::str::from_utf8(unsafe { std::mem::transmute::<&[i8; 128], &[u8; 128]>(self) })
+            .map(|ascii| ascii.trim_matches('\0'))
+            .unwrap_or_default()
+    }
+}
