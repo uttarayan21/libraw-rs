@@ -122,7 +122,27 @@ impl std::fmt::Display for InternalLibrawError {
         let code = *self as i32;
         let message =
             unsafe { std::ffi::CStr::from_ptr(sys::libraw_strerror(code)) }.to_string_lossy();
-        write!(f, "Error Code: {}, Error Message: {}", code, message)
+        use InternalLibrawError::*;
+        let ert: &str = match self {
+            UnspecifiedError => "UnspecifiedError",
+            FileUnsupported => "FileUnsupported",
+            RequestForNonexistentImage => "RequestForNonexistentImage",
+            OutOfOrderCall => "OutOfOrderCall",
+            NoThumbnail => "NoThumbnail",
+            UnsupportedThumbnail => "UnsupportedThumbnail",
+            InputClosed => "InputClosed",
+            NotImplemented => "NotImplemented",
+            UnsufficientMemory => "UnsufficientMemory",
+            DataError => "DataError",
+            IoError => "IoError",
+            CancelledByCallback => "CancelledByCallback",
+            BadCrop => "BadCrop",
+            TooBig => "TooBig",
+            MempoolOverflow => "MempoolOverflow",
+            // _ => "Unknown",
+        };
+
+        write!(f, "Error : {ert}, Error Message: {message}")
     }
 }
 

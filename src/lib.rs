@@ -468,6 +468,26 @@ impl Processor {
             self.to_jpeg_no_rotation(quality)
         }
     }
+    pub fn jpeg_min_size(&mut self, quality: u8, threshold: u32) -> Result<Vec<u8>, LibrawError> {
+        let t = self.thumbnail();
+        if u32::from(t.theight * t.twidth) > threshold && self.unpack_thumb().is_ok() {
+            self.get_jpeg()
+        } else {
+            self.to_jpeg_no_rotation(quality)
+        }
+    }
+
+    pub fn jpeg_thumb_or_else_post_process<F: Fn(&mut Self) -> bool>(
+        &mut self,
+        quality: u8,
+        f: F,
+    ) -> Result<Vec<u8>, LibrawError> {
+        if f(self) {
+            self.get_jpeg()
+        } else {
+            self.to_jpeg_no_rotation(quality)
+        }
+    }
 }
 
 pub struct ProcessorBuilder {
