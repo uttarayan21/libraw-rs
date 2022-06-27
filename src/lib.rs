@@ -148,6 +148,10 @@ impl Processor {
         unsafe { &*lensinfo }
     }
 
+    pub fn makernotes(&'_ self) -> &'_ sys::libraw_makernotes_t {
+        unsafe { &(*(self.inner)).makernotes }
+    }
+
     pub fn imgother(&'_ self) -> &'_ sys::libraw_imgother_t {
         let imgother = unsafe { sys::libraw_get_imgother(self.inner) };
         assert!(!imgother.is_null());
