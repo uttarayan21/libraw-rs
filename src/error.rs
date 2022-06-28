@@ -24,6 +24,8 @@ pub enum LibrawError {
     #[cfg(feature = "jpeg")]
     #[error("Failed to encode the processed image into and rgb image")]
     EncodingError,
+    #[error("Missing XMP header in raw file")]
+    XMPMissing,
 }
 
 #[cfg(feature = "file")]

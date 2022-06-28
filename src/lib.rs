@@ -152,6 +152,20 @@ impl Processor {
         unsafe { &(*(self.inner)).makernotes }
     }
 
+    pub fn xmpdata(&'_ self) -> Result<&'_ [u8], LibrawError> {
+        let iparams = self.iparams();
+        if iparams.xmplen == 0 || iparams.xmpdata.is_null() {
+            return Err(LibrawError::XMPMissing);
+        }
+        let xmp = unsafe {
+            std::slice::from_raw_parts(
+                std::mem::transmute(iparams.xmpdata),
+                iparams.xmplen as usize,
+            )
+        };
+        Ok(xmp)
+    }
+
     pub fn imgother(&'_ self) -> &'_ sys::libraw_imgother_t {
         let imgother = unsafe { sys::libraw_get_imgother(self.inner) };
         assert!(!imgother.is_null());
