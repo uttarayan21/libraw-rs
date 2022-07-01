@@ -16,6 +16,7 @@ use std::ffi::CString;
 use std::ops::{Deref, DerefMut, Drop};
 use std::path::Path;
 
+/// Returns the version of libraw
 pub const fn version() -> Version {
     Version {
         major: sys::LIBRAW_MAJOR_VERSION as u64,
@@ -26,6 +27,8 @@ pub const fn version() -> Version {
     }
 }
 
+/// A struct wrapping the libraw_data_t type
+///
 pub struct Processor {
     inner: *mut sys::libraw_data_t,
     #[cfg(feature = "file")]
@@ -55,20 +58,26 @@ impl Drop for Processor {
 }
 
 impl Default for Processor {
+    /// Returns libraw_init(0)
     fn default() -> Self {
         Self::new(LibrawConstructorFlags::None)
     }
 }
 
 impl Processor {
+    /// Drop the processor and get a handle to the inner type
+    ///
+    /// Processor also implements DerefMut so you can take that if you want
     pub fn into_inner(self) -> *mut sys::libraw_data_t {
         self.inner
     }
 
+    /// Build Processor with options and params
     pub fn builder() -> ProcessorBuilder {
         ProcessorBuilder::default()
     }
 
+    /// Calls libraw_init with the any of the constructor flags
     pub fn new(option: LibrawConstructorFlags) -> Self {
         let inner = unsafe { sys::libraw_init(option as u32) };
         assert!(!inner.is_null());
@@ -79,6 +88,9 @@ impl Processor {
         }
     }
 
+    /// Calls libraw_open_file
+    ///
+    /// Fallback to libraw_open_wfile on windows if the open fails
     pub fn open(&mut self, path: impl AsRef<Path>) -> Result<(), LibrawError> {
         if !path.as_ref().exists() {
             return Err(std::io::Error::new(std::io::ErrorKind::NotFound, "File not found").into());
@@ -126,32 +138,59 @@ impl Processor {
         )
     }
 
+    /// Get the shootinginfo struct from libraw_data_t
+    ///
+    /// Saftey:
+    /// Dereferences a raw pointer
     pub fn shootinginfo(&'_ self) -> &'_ sys::libraw_shootinginfo_t {
         unsafe { &(*(self.inner)).shootinginfo }
     }
 
+    /// Get the idata struct from libraw_data_t
+    ///
+    /// Saftey:
+    /// Dereferences a raw pointer
     pub fn idata(&'_ self) -> &'_ sys::libraw_iparams_t {
         unsafe { &(*(self.inner)).idata }
     }
+
+    /// Get the sizes struct from libraw_data_t
+    ///
+    /// Saftey:
+    /// Dereferences a raw pointer
     pub fn sizes(&'_ self) -> &'_ sys::libraw_image_sizes_t {
         unsafe { &(*(self.inner)).sizes }
     }
+
+    /// Get the iparams from libraw_data_t
+    ///
+    /// Saftey:
+    /// Dereferences a raw pointer
     pub fn iparams(&'_ self) -> &'_ sys::libraw_iparams_t {
         let iparams = unsafe { sys::libraw_get_iparams(self.inner) };
         assert!(!iparams.is_null());
         unsafe { &*iparams }
     }
 
+    /// Get the lensinfo from libraw_data_t
+    ///
+    /// Saftey:
+    /// Dereferences a raw pointer
     pub fn lensinfo(&'_ self) -> &'_ sys::libraw_lensinfo_t {
         let lensinfo = unsafe { sys::libraw_get_lensinfo(self.inner) };
         assert!(!lensinfo.is_null());
         unsafe { &*lensinfo }
     }
 
+    /// Get the lensinfo from libraw_data_t
+    ///
+    /// Saftey:
+    /// Dereferences a raw pointer
     pub fn makernotes(&'_ self) -> &'_ sys::libraw_makernotes_t {
         unsafe { &(*(self.inner)).makernotes }
     }
 
+    /// Get the xmpdata from the raw file
     pub fn xmpdata(&'_ self) -> Result<&'_ [u8], LibrawError> {
         let iparams = self.iparams();
         if iparams.xmplen == 0 || iparams.xmpdata.is_null() {
@@ -166,39 +205,55 @@ impl Processor {
         Ok(xmp)
     }
 
+    /// Get imgother by calling libraw_get_imgother
     pub fn imgother(&'_ self) -> &'_ sys::libraw_imgother_t {
         let imgother = unsafe { sys::libraw_get_imgother(self.inner) };
         assert!(!imgother.is_null());
         unsafe { &*imgother }
     }
 
+    /// Get the thumbnail struct from libraw_data_t
     pub fn thumbnail(&'_ self) -> &'_ sys::libraw_thumbnail_t {
         unsafe { &(*self.inner).thumbnail }
     }
 
+    /// Get the output parameters
     pub fn params(&'_ mut self) -> &'_ mut sys::libraw_output_params_t {
         unsafe { &mut (*self.inner).params }
     }
 
+    /// Get the colordata
+    pub fn color(&'_ self) -> &'_ sys::libraw_colordata_t {
+        unsafe { &(*self.inner).color }
+    }
+
+    /// Unpack the thumbnail for the file
     pub fn unpack_thumb(&mut self) -> Result<(), LibrawError> {
         check!(self, unsafe { sys::libraw_unpack_thumb(self.inner) })?;
         Ok(())
     }
 
+    /// Unpack the raw data and read it to memory
     pub fn unpack(&mut self) -> Result<(), LibrawError> {
         check!(self, unsafe { sys::libraw_unpack(self.inner) })?;
         Ok(())
     }
 
+    /// Get the maximum colors
     pub fn get_color_maximum(&self) -> Result<i32, LibrawError> {
         let data = unsafe { sys::libraw_get_color_maximum(self.inner) };
         Ok(data)
     }
+
+    /// All other references should be invalid when we recycle so we take a mutable value to self
     pub fn recycle(&mut self) -> Result<(), LibrawError> {
         unsafe { sys::libraw_recycle(self.inner) };
         Ok(())
     }
 
+    /// Adjusts sizes and changes the resolution according to the flip values
+    ///
+    /// Also considers 45 degree angles for fuji cameras
     pub fn adjust_sizes_info_only(&mut self) -> Result<(), LibrawError> {
         check!(self, unsafe {
             sys::libraw_adjust_sizes_info_only(self.inner)
@@ -255,6 +310,7 @@ impl Processor {
         }
     }
 
+    /// Get the jpeg without rotation
     pub fn get_jpeg_no_rotation(&mut self) -> Result<Vec<u8>, LibrawError> {
         // First check if unpack_thumb has already been called.
         // If yes then don't call it
@@ -508,6 +564,7 @@ impl Processor {
     }
 }
 
+/// The builder struct for Processor
 pub struct ProcessorBuilder {
     inner: *mut sys::libraw_data_t,
 }
@@ -523,6 +580,7 @@ impl ProcessorBuilder {
             file: None,
         }
     }
+
     pub fn with_params<P: IntoIterator<Item = Params>>(self, params: P) -> Self {
         let libraw_params = unsafe { &mut (*self.inner).params };
         use Params::*;
