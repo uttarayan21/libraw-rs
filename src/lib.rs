@@ -28,12 +28,17 @@ pub const fn version() -> Version {
 }
 
 /// A struct wrapping the libraw_data_t type
-///
 pub struct Processor {
     inner: *mut sys::libraw_data_t,
     #[cfg(feature = "file")]
     file: Option<std::path::PathBuf>,
 }
+
+/// You can pass the Processor to another thread since it doesn't use any thread_local values
+unsafe impl Send for Processor {}
+/// You can pass the reference to Processor to another thread since it cannot open / close / drop 
+/// Without a mutable reference to Self
+unsafe impl Sync for Processor {}
 
 impl Deref for Processor {
     type Target = *mut sys::libraw_data_t;
