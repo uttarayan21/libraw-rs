@@ -10,7 +10,7 @@ pub use error::LibrawError;
 #[cfg(windows)]
 use log::warn;
 
-use libraw_sys as sys;
+pub use libraw_sys as sys;
 use semver::Version;
 use std::ffi::CString;
 use std::ops::{Deref, DerefMut, Drop};
