@@ -36,7 +36,7 @@ pub struct Processor {
 
 /// You can pass the Processor to another thread since it doesn't use any thread_local values
 unsafe impl Send for Processor {}
-/// You can pass the reference to Processor to another thread since it cannot open / close / drop 
+/// You can pass the reference to Processor to another thread since it cannot open / close / drop
 /// Without a mutable reference to Self
 unsafe impl Sync for Processor {}
 
