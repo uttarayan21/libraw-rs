@@ -116,8 +116,11 @@ impl Processor {
         // Windows only fallback to open_wfile
         #[cfg(windows)]
         {
-            if ret.is_err() {
-                warn!("Failed to open file using libraw_open_file in windows");
+            if let Err(e) = ret {
+                warn!(
+                    "Failed to open file using libraw_open_file in windows {}",
+                    e
+                );
                 warn!("Fallback to open_wfile");
                 let wchar_path = path_to_widestring(&path)?;
                 return LibrawError::check_with_context(
