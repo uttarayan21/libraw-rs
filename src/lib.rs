@@ -113,10 +113,16 @@ impl Processor {
             unsafe { sys::libraw_open_file(self.inner, c_path.as_ptr()) },
             &path,
         );
+
         // Windows only fallback to open_wfile
         #[cfg(windows)]
         {
-            if let Err(e) = ret {
+            if let Err(ref e) = ret {
+                if let LibrawError::InternalError(ref lerr, ref _e) = e {
+                    if lerr.is_fatal() {
+                        return ret;
+                    }
+                }
                 warn!(
                     "Failed to open file using libraw_open_file in windows {}",
                     e
