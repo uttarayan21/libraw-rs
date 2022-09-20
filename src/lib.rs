@@ -121,7 +121,7 @@ impl Processor {
         {
             if let Err(ref e) = ret {
                 if let LibrawError::InternalError(ref lerr, ref _e) = e {
-                    if lerr != InternalLibrawError::IoError {
+                    if lerr != &InternalLibrawError::IoError {
                         return ret;
                     }
                 }
