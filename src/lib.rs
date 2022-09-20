@@ -5,6 +5,8 @@ pub mod defaults;
 pub mod orientation;
 pub mod traits;
 
+#[cfg(windows)]
+use error::InternalLibrawError;
 pub use error::LibrawError;
 
 #[cfg(windows)]
@@ -119,7 +121,7 @@ impl Processor {
         {
             if let Err(ref e) = ret {
                 if let LibrawError::InternalError(ref lerr, ref _e) = e {
-                    if lerr.is_fatal() {
+                    if lerr != InternalLibrawError::IoError {
                         return ret;
                     }
                 }
