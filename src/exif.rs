@@ -20,7 +20,7 @@ pub extern "C" fn exif_parser_callback(
     ifp: *mut libc::c_void,
     _base: INT64,
 ) {
-    if tag != 0x9003 || tag != 0x9004 {
+    if !(tag == 0x9003 || tag == 0x9004) {
         return;
     }
     let mut buffer = vec![0_i8; len as usize];
