@@ -8,7 +8,7 @@ fn main() -> anyhow::Result<()> {
         .define("LIBRAW_USE_DEPRECATED_IOSTREAMS_DATASTREAM", "true")
         .file("exif/libread.cpp")
         .static_flag(true)
-        .compile("libread");
+        .compile("read");
     println!("cargo:rustc-link-lib=static=read");
     println!(
         "cargo:rustc-link-search=native={}",
