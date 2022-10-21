@@ -2,6 +2,8 @@
 pub mod error;
 pub mod dcraw;
 pub mod defaults;
+#[cfg(feature = "exif")]
+pub mod exif;
 pub mod orientation;
 pub mod traits;
 
@@ -259,6 +261,16 @@ impl Processor {
     pub fn get_color_maximum(&self) -> Result<i32, LibrawError> {
         let data = unsafe { sys::libraw_get_color_maximum(self.inner) };
         Ok(data)
+    }
+
+    /// Set exif parser callback
+    pub unsafe fn set_exifparser_callback(
+        &self,
+        callback: sys::exif_parser_callback,
+        data: *mut libc::c_void,
+    ) -> Result<(), LibrawError> {
+        sys::libraw_set_exifparser_handler(self.inner, callback, data);
+        Ok(())
     }
 
     /// All other references should be invalid when we recycle so we take a mutable value to self
