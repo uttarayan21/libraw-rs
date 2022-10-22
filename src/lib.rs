@@ -263,13 +263,14 @@ impl Processor {
         Ok(data)
     }
 
+    #[cfg(feature = "exif")]
     /// Set exif parser callback
-    pub unsafe fn set_exifparser_callback(
+    pub unsafe fn set_exifparser_callback<T>(
         &self,
         callback: sys::exif_parser_callback,
-        data: *mut libc::c_void,
+        data: &mut T,
     ) -> Result<(), LibrawError> {
-        sys::libraw_set_exifparser_handler(self.inner, callback, data);
+        sys::libraw_set_exifparser_handler(self.inner, callback, std::mem::transmute(data));
         Ok(())
     }
 
