@@ -81,6 +81,11 @@ impl Processor {
         self.inner
     }
 
+    /// Get mutable inner
+    pub unsafe fn inner_mut(&mut self) -> &mut *mut sys::libraw_data_t {
+        &mut self.inner
+    }
+
     /// Build Processor with options and params
     pub fn builder() -> ProcessorBuilder {
         ProcessorBuilder::default()
@@ -263,16 +268,6 @@ impl Processor {
         Ok(data)
     }
 
-    #[cfg(feature = "exif")]
-    /// Set exif parser callback
-    pub unsafe fn set_exifparser_callback<T>(
-        &self,
-        callback: sys::exif_parser_callback,
-        data: &mut T,
-    ) -> Result<(), LibrawError> {
-        sys::libraw_set_exifparser_handler(self.inner, callback, std::mem::transmute(data));
-        Ok(())
-    }
 
     /// All other references should be invalid when we recycle so we take a mutable value to self
     pub fn recycle(&mut self) -> Result<(), LibrawError> {

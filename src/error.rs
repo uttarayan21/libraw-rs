@@ -2,7 +2,7 @@ use crate::{sys, Path};
 
 #[derive(Debug, thiserror::Error)]
 pub enum LibrawError {
-    #[error("{0}")]
+    #[error("{0} {1}")]
     InternalError(InternalLibrawError, String),
     #[error("{0}")]
     IoError(#[from] std::io::Error),
@@ -26,6 +26,8 @@ pub enum LibrawError {
     EncodingError,
     #[error("Missing XMP header in raw file")]
     XMPMissing,
+    #[error("{0}")]
+    CustomError(#[from] Box<dyn std::error::Error>),
 }
 
 #[cfg(feature = "file")]

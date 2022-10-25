@@ -5,7 +5,6 @@ fn main() -> anyhow::Result<()> {
     cc::Build::new()
         .include("includes")
         .cpp(true)
-        .define("LIBRAW_USE_DEPRECATED_IOSTREAMS_DATASTREAM", "true")
         .file("exif/libread.cpp")
         .static_flag(true)
         .compile("read");
