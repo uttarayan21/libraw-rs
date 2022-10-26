@@ -268,7 +268,6 @@ impl Processor {
         Ok(data)
     }
 
-
     /// All other references should be invalid when we recycle so we take a mutable value to self
     pub fn recycle(&mut self) -> Result<(), LibrawError> {
         unsafe { sys::libraw_recycle(self.inner) };
