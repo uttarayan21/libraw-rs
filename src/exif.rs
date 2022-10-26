@@ -59,7 +59,7 @@ impl Processor {
             + 'static,
     {
         let eread = ExifRead {
-            callback: Rc::new(RefCell::new(callback)),
+            callback: Rc::new(Box::new(callback)),
             data: Rc::new(RefCell::new(data)),
             errors: Default::default(),
             data_type,
@@ -85,7 +85,7 @@ pub struct ExifReader<T>(Rc<RefCell<ExifRead<T>>>);
 pub struct ExifRead<T> {
     data_type: DataStreamType,
     callback: Rc<
-        RefCell<
+        Box<
             dyn Fn(
                 &mut T,
                 i32,
@@ -145,15 +145,9 @@ impl<T: std::fmt::Debug> ExifReader<T> {
         }
 
         let mut data = context.data.borrow_mut();
-        if let Err(e) = (context.callback.borrow())(
-            &mut data,
-            tag,
-            _type,
-            len,
-            ord,
-            buffer.as_mut_slice(),
-            base,
-        ) {
+        if let Err(e) =
+            (context.callback)(&mut data, tag, _type, len, ord, buffer.as_mut_slice(), base)
+        {
             context
                 .errors
                 .borrow_mut()
