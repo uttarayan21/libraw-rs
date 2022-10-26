@@ -27,7 +27,7 @@ pub enum LibrawError {
     #[error("Missing XMP header in raw file")]
     XMPMissing,
     #[error("{0}")]
-    CustomError(#[from] Box<dyn std::error::Error>),
+    CustomError(#[from] Box<dyn std::error::Error + Send + Sync>),
 }
 
 #[cfg(feature = "file")]

@@ -55,7 +55,7 @@ impl Processor {
         callback: F,
     ) -> Result<ExifReader<T>, crate::error::LibrawError>
     where
-        F: Fn(&mut T, i32, i32, i32, u32, &mut [u8], i64) -> Result<(), Box<dyn std::error::Error>>
+        F: Fn(&mut T, i32, i32, i32, u32, &mut [u8], i64) -> Result<(), Box<dyn std::error::Error + Send + Sync>>
             + 'static,
     {
         let eread = ExifRead {
@@ -94,7 +94,7 @@ pub struct ExifRead<T> {
                 u32,
                 &mut [u8],
                 i64,
-            ) -> Result<(), Box<dyn std::error::Error>>,
+            ) -> Result<(), Box<dyn std::error::Error + Send + Sync>>,
         >,
     >,
     data: Rc<RefCell<T>>,
