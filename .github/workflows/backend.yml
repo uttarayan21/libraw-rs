@@ -31,7 +31,9 @@ jobs:
     steps:  
       - name: Install libs for Linux
         run: |
-          sudo apt update && sudo apt-get install -y libde265-dev libx265-dev libheif-dev libsqlite3-dev
+          echo "deb http://security.ubuntu.com/ubuntu xenial-security main" | sudo tee -a /etc/apt.d/sources.list
+          sudo apt-get update && sudo apt-get install -y libde265-dev libx265-dev libheif-dev libsqlite3-dev libjasper-dev
+
         if: matrix.name=='Linux'
 
       - name: Checkout
