@@ -34,6 +34,61 @@ pub enum DataStreamType {
     Buffer,
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum DataType {
+    Byte = 1,
+    Ascii = 2,
+    Short = 3,
+    Long = 4,
+    Rational = 5,
+    SByte = 6,
+    Undefined = 7,
+    SShort = 8,
+    SLong = 9,
+    SRational = 10,
+    Float = 11,
+    Double = 12,
+}
+
+impl From<libc::c_int> for DataType {
+    fn from(value: libc::c_int) -> Self {
+        match value {
+            1 => DataType::Byte,
+            2 => DataType::Ascii,
+            3 => DataType::Short,
+            4 => DataType::Long,
+            5 => DataType::Rational,
+            6 => DataType::SByte,
+            7 => DataType::Undefined,
+            8 => DataType::SShort,
+            9 => DataType::SLong,
+            10 => DataType::SRational,
+            11 => DataType::Float,
+            12 => DataType::Double,
+            _ => DataType::Undefined,
+        }
+    }
+}
+
+impl From<DataType> for libc::c_int {
+    fn from(value: DataType) -> Self {
+        match value {
+            DataType::Byte => 1,
+            DataType::Ascii => 2,
+            DataType::Short => 3,
+            DataType::Long => 4,
+            DataType::Rational => 5,
+            DataType::SByte => 6,
+            DataType::Undefined => 7,
+            DataType::SShort => 8,
+            DataType::SLong => 9,
+            DataType::SRational => 10,
+            DataType::Float => 11,
+            DataType::Double => 12,
+        }
+    }
+}
+
 impl DataStreamType {
     fn read(
         &self,
@@ -48,17 +103,34 @@ impl DataStreamType {
 }
 
 impl Processor {
+    /// Sets the data and the callback to parse the exif data.
+    /// The callback is called with the exif data as a byte slice.
+    /// The callback should return Ok(()) if the exif data was parsed successfully.
+    /// The callback should return Err(LibrawError) if the exif data could not be parsed.
+    ///
+    /// Args:
+    ///    data: The data we pass to the function to act as a temp storage
+    ///    data_steam_type: What type of data stream we are using (file, bigfile, buffer)
+    ///    callback: The callback function that will be called with the exif data as a byte slice.
+    ///       Args:
+    ///         data: &mut T => The data we pass to the function to act as a temp storage
+    ///         tag:  i32    => The tag of the exif data
+    ///         type: i32    => The type of the exif data
+    ///         len:  i32    => The length of the exif data
+    ///         ord:  u32    => The order of the exif data
+    ///         data: &[u8]  => The exif data as a byte slice
+    ///         base: i64    => Not sure
     pub fn set_exif_callback<T: std::fmt::Debug, F>(
         &mut self,
         data: T,
-        data_type: DataStreamType,
+        data_stream_type: DataStreamType,
         callback: F,
     ) -> Result<ExifReader<T>, crate::error::LibrawError>
     where
         F: Fn(
                 &mut T,
                 i32,
-                i32,
+                DataType,
                 i32,
                 u32,
                 &mut [u8],
@@ -70,7 +142,7 @@ impl Processor {
             callback: Rc::new(Box::new(callback)),
             data: Rc::new(RefCell::new(data)),
             errors: Default::default(),
-            data_type,
+            data_stream_type,
         };
         let eread = Rc::new(RefCell::new(eread));
 
@@ -91,13 +163,13 @@ impl Processor {
 pub struct ExifReader<T>(Rc<RefCell<ExifRead<T>>>);
 
 pub struct ExifRead<T> {
-    data_type: DataStreamType,
+    data_stream_type: DataStreamType,
     callback: Rc<
         Box<
             dyn Fn(
                 &mut T,
                 i32,
-                i32,
+                DataType,
                 i32,
                 u32,
                 &mut [u8],
@@ -134,7 +206,7 @@ impl<T: std::fmt::Debug> ExifReader<T> {
 
         let context = context.borrow_mut();
         let res = unsafe {
-            context.data_type.read()(
+            context.data_stream_type.read()(
                 ifp as *mut libc::c_void,
                 buffer.as_mut_slice().as_mut_ptr() as *mut libc::c_void,
                 buffer.len(),
@@ -153,9 +225,15 @@ impl<T: std::fmt::Debug> ExifReader<T> {
         }
 
         let mut data = context.data.borrow_mut();
-        if let Err(e) =
-            (context.callback)(&mut data, tag, _type, len, ord, buffer.as_mut_slice(), base)
-        {
+        if let Err(e) = (context.callback)(
+            &mut data,
+            tag & 0x0fffff, // Undo (ifdN + 1 ) << 20
+            _type.into(),
+            len,
+            ord,
+            buffer.as_mut_slice(),
+            base,
+        ) {
             context
                 .errors
                 .borrow_mut()
