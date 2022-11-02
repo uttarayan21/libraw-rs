@@ -8,8 +8,10 @@ rust-version = "1.65"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+el-noches = { git = "https://github.com/aftershootco/el-noches", version = "0.1.0" }
 image = { version = "0.24" , optional = true }
 img-parts = { version = "0.3.0", optional = true }
+itertools = "0.10.5"
 libc = { version = "0.2.135", optional = true }
 libraw-sys = { git = "https://github.com/aftershootco/libraw-sys" }
 semver = "1.0"
@@ -25,7 +27,7 @@ build = ["libraw-sys/build"]
 no-build = ["libraw-sys/no-build"]
 bindgen = ["libraw-sys/bindgen"]
 file = []
-default = ["build","file","exif"]
+default = ["build","file","exif", "jpeg"]
 exif = ["dep:libc"]
 
 [build-dependencies]
