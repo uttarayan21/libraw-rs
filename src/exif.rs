@@ -3,6 +3,17 @@ use std::{cell::RefCell, rc::Rc};
 use libraw_sys::*;
 
 use crate::{LibrawError, Processor};
+pub type Callback<T> = Box<
+    dyn Fn(
+        &mut T,
+        i32,
+        DataType,
+        i32,
+        u32,
+        &mut [u8],
+        i64,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>>,
+>;
 
 extern "C" {
     pub fn libraw_read_file_datastream(
@@ -164,19 +175,7 @@ pub struct ExifReader<T>(Rc<RefCell<ExifRead<T>>>);
 
 pub struct ExifRead<T> {
     data_stream_type: DataStreamType,
-    callback: Rc<
-        Box<
-            dyn Fn(
-                &mut T,
-                i32,
-                DataType,
-                i32,
-                u32,
-                &mut [u8],
-                i64,
-            ) -> Result<(), Box<dyn std::error::Error + Send + Sync>>,
-        >,
-    >,
+    callback: Rc<Callback<T>>,
     data: Rc<RefCell<T>>,
     errors: Rc<RefCell<Vec<LibrawError>>>,
 }
@@ -191,7 +190,7 @@ impl<T: std::fmt::Debug> std::fmt::Debug for ExifRead<T> {
 }
 
 impl<T: std::fmt::Debug> ExifReader<T> {
-    pub extern "C" fn exif_parser_callback(
+    unsafe extern "C" fn exif_parser_callback(
         context: *mut libc::c_void,
         tag: libc::c_int,
         _type: libc::c_int,
@@ -200,28 +199,26 @@ impl<T: std::fmt::Debug> ExifReader<T> {
         ifp: *mut libc::c_void,
         base: INT64,
     ) {
-        let context: Rc<RefCell<ExifRead<T>>> = unsafe { std::mem::transmute(context) };
-        unsafe { Rc::increment_strong_count(Rc::as_ptr(&context)) };
+        let context: Rc<RefCell<ExifRead<T>>> = std::mem::transmute(context);
+        Rc::increment_strong_count(Rc::as_ptr(&context));
         let mut buffer = vec![0_u8; len as usize];
 
         let context = context.borrow_mut();
-        let res = unsafe {
-            context.data_stream_type.read()(
-                ifp as *mut libc::c_void,
-                buffer.as_mut_slice().as_mut_ptr() as *mut libc::c_void,
-                buffer.len(),
-                1,
-            )
-        };
+        let res = context.data_stream_type.read()(
+            ifp as *mut libc::c_void,
+            buffer.as_mut_slice().as_mut_ptr() as *mut libc::c_void,
+            buffer.len(),
+            1,
+        );
 
         if res < 1 {
-            context.errors.borrow_mut().push(
-                crate::LibrawError::InternalError(
+            context
+                .errors
+                .borrow_mut()
+                .push(crate::LibrawError::InternalError(
                     crate::error::InternalLibrawError::IoError,
                     format!("libraw_read_datastream read {res} blocks"),
-                )
-                .into(),
-            );
+                ));
         }
 
         let mut data = context.data.borrow_mut();

@@ -82,6 +82,12 @@ impl Processor {
     }
 
     /// Get mutable inner
+    ///
+    /// # Safety
+    /// Since This returns a &mut reference to the inner type, you can do anything with it
+    /// including calling libraw_close and libraw_free_image
+    /// This is unsafe because you can cause UB by doing this
+    /// If you want to drop the processor, use Processor::drop
     pub unsafe fn inner_mut(&mut self) -> &mut *mut sys::libraw_data_t {
         &mut self.inner
     }
