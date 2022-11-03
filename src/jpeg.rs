@@ -1,6 +1,9 @@
 use crate::{
-    error::LibrawError, Flip, ImageFormat, IntoResolution, Orientation, Processor, ThumbnailFormat,
+    error::LibrawError, traits::LRString, Flip, ImageFormat, IntoResolution, Orientation,
+    Processor, ThumbnailFormat,
 };
+use el_noches::histmatch;
+use image::{load, GenericImageView};
 
 impl Processor {
     /// Returns a jpeg thumbnail
@@ -171,22 +174,70 @@ impl Processor {
                 // let mut r: Vec<u8> = Vec::with_capacity(processed.data_size as usize / 3);
                 // let mut g: Vec<u8> = Vec::with_capacity(processed.data_size as usize / 3);
                 // let mut b: Vec<u8> = Vec::with_capacity(processed.data_size as usize / 3);
+                let img_array = if self.iparams().make.as_ascii() == "Sony" {
+                    let (src_img_r, src_img_g, src_img_b): (Vec<u8>, Vec<u8>, Vec<u8>) =
+                        itertools::multiunzip(_processed.as_slice::<u8>().chunks_exact(3).map(
+                            |rgb| {
+                                let r = rgb[0];
+                                let g = rgb[1];
+                                let b = rgb[2];
+                                (r, g, b)
+                            },
+                        ));
+                    let src_width = processed.width;
+                    let src_height = processed.height;
+                    let refrence_img = &self.get_jpeg()?;
+                    let refrence_img_dyn =
+                        load(std::io::Cursor::new(refrence_img), image::ImageFormat::Jpeg)?;
 
-                let (r, g, b): (Vec<u8>, Vec<u8>, Vec<u8>) =
-                    itertools::multiunzip(_processed.as_slice::<u8>().chunks_exact(3).map(|rgb| {
-                        let r = rgb[0];
-                        let g = rgb[1];
-                        let b = rgb[2];
-                        (r, g, b)
-                    }));
+                    // Convert the DynamicImage to Vec<u8> of R, G, B.
+                    let ref_width = refrence_img_dyn.width();
+                    let ref_height = refrence_img_dyn.height();
+                    let mut ref_img_r: Vec<u8> =
+                        Vec::with_capacity((ref_width * ref_height) as usize);
+                    let mut ref_img_g: Vec<u8> =
+                        Vec::with_capacity((ref_width * ref_height) as usize);
+                    let mut ref_img_b: Vec<u8> =
+                        Vec::with_capacity((ref_width * ref_height) as usize);
+                    for i in 0..ref_height {
+                        for j in 0..ref_width {
+                            let pixel = refrence_img_dyn.get_pixel(j, i).0;
+                            ref_img_r.push(pixel[0] as u8);
+                            ref_img_g.push(pixel[1] as u8);
+                            ref_img_b.push(pixel[2] as u8);
+                        }
+                    }
+
+                    let src_img_channels = histmatch::ImageChannels::new(
+                        src_img_r,
+                        src_img_g,
+                        src_img_b,
+                        src_width as u32,
+                        src_height as u32,
+                    );
+                    let ref_img_channels = histmatch::ImageChannels::new(
+                        ref_img_r, ref_img_g, ref_img_b, ref_width, ref_height,
+                    );
+                    let (r, g, b) =
+                        histmatch::match_histogram_rgb_array(src_img_channels, ref_img_channels);
+                    let mut hist_matched: Vec<u8> = Vec::<u8>::with_capacity(r.len() * 3);
+                    for index in 0..r.len() {
+                        hist_matched.push(r[index]);
+                        hist_matched.push(g[index]);
+                        hist_matched.push(b[index]);
+                    }
+                    hist_matched
+                } else {
+                    _processed.as_slice().to_vec()
+                };
 
                 let mut jpeg = Vec::new();
                 image::codecs::jpeg::JpegEncoder::new_with_quality(&mut jpeg, quality).encode(
-                    _processed.as_slice(),
+                    &img_array,
                     processed.width as u32,
                     processed.height as u32,
                     colortype,
-                )?;
+                    )?;
                 Ok(jpeg)
             }
             ImageFormat::Jpeg => {
