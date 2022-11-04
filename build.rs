@@ -17,8 +17,7 @@ pub fn libread(out_dir: impl AsRef<Path>) -> anyhow::Result<()> {
         .cpp(true)
         .file("exif/libread.cpp")
         .static_flag(true)
-        .shared_flag(false)
-        .cpp_set_stdlib("c++");
+        .shared_flag(false);
 
     #[cfg(windows)]
     libread.static_crt(true);
