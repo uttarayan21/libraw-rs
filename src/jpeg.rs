@@ -3,7 +3,7 @@ use crate::{
     Processor, ThumbnailFormat,
 };
 use el_noches::histmatch;
-use image::{load, GenericImageView};
+use image::load;
 
 impl Processor {
     /// Returns a jpeg thumbnail
@@ -175,15 +175,6 @@ impl Processor {
                 // let mut g: Vec<u8> = Vec::with_capacity(processed.data_size as usize / 3);
                 // let mut b: Vec<u8> = Vec::with_capacity(processed.data_size as usize / 3);
                 let img_array = if self.iparams().make.as_ascii() == "Sony" {
-                    let (src_img_r, src_img_g, src_img_b): (Vec<u8>, Vec<u8>, Vec<u8>) =
-                        itertools::multiunzip(_processed.as_slice::<u8>().chunks_exact(3).map(
-                            |rgb| {
-                                let r = rgb[0];
-                                let g = rgb[1];
-                                let b = rgb[2];
-                                (r, g, b)
-                            },
-                        ));
                     let src_width = processed.width;
                     let src_height = processed.height;
                     let refrence_img = &self.get_jpeg()?;
@@ -191,42 +182,29 @@ impl Processor {
                         load(std::io::Cursor::new(refrence_img), image::ImageFormat::Jpeg)?;
 
                     // Convert the DynamicImage to Vec<u8> of R, G, B.
-                    let ref_width = refrence_img_dyn.width();
-                    let ref_height = refrence_img_dyn.height();
-                    let mut ref_img_r: Vec<u8> =
-                        Vec::with_capacity((ref_width * ref_height) as usize);
-                    let mut ref_img_g: Vec<u8> =
-                        Vec::with_capacity((ref_width * ref_height) as usize);
-                    let mut ref_img_b: Vec<u8> =
-                        Vec::with_capacity((ref_width * ref_height) as usize);
-                    for i in 0..ref_height {
-                        for j in 0..ref_width {
-                            let pixel = refrence_img_dyn.get_pixel(j, i).0;
-                            ref_img_r.push(pixel[0] as u8);
-                            ref_img_g.push(pixel[1] as u8);
-                            ref_img_b.push(pixel[2] as u8);
-                        }
-                    }
-
+                    let mut buffer = _processed.as_slice().to_vec();
                     let src_img_channels = histmatch::ImageChannels::new(
-                        src_img_r,
-                        src_img_g,
-                        src_img_b,
+                        &mut buffer,
                         src_width as u32,
                         src_height as u32,
                     );
-                    let ref_img_channels = histmatch::ImageChannels::new(
-                        ref_img_r, ref_img_g, ref_img_b, ref_width, ref_height,
-                    );
-                    let (r, g, b) =
-                        histmatch::match_histogram_rgb_array(src_img_channels, ref_img_channels);
-                    let mut hist_matched: Vec<u8> = Vec::<u8>::with_capacity(r.len() * 3);
-                    for index in 0..r.len() {
-                        hist_matched.push(r[index]);
-                        hist_matched.push(g[index]);
-                        hist_matched.push(b[index]);
-                    }
-                    hist_matched
+                    let ref_height = refrence_img_dyn.height();
+                    let ref_width = refrence_img_dyn.width();
+                    let b = match refrence_img_dyn {
+                        image::DynamicImage::ImageRgb8(img) => img.into_raw(),
+                        image::DynamicImage::ImageRgb16(_img) => unimplemented!(),
+                        _ => {
+                            return Err(LibrawError::InternalError(
+                                crate::error::InternalLibrawError::FileUnsupported,
+                                "[Richard Stallman]: What you are refering to as Linux is actually called GNU/Linux or as I've recently started calling it GNU + Linux".into(),
+                            ))
+                        }
+                    };
+                    let mut b = b.to_vec();
+                    let ref_img_channels =
+                        histmatch::ImageChannels::new(&mut b, ref_width, ref_height);
+                    histmatch::match_histogram_rgb_array(src_img_channels, ref_img_channels);
+                    buffer
                 } else {
                     _processed.as_slice().to_vec()
                 };
@@ -237,7 +215,7 @@ impl Processor {
                     processed.width as u32,
                     processed.height as u32,
                     colortype,
-                    )?;
+                )?;
                 Ok(jpeg)
             }
             ImageFormat::Jpeg => {
