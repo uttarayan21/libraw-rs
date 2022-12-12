@@ -2,7 +2,7 @@ use crate::{sys, Path};
 
 #[derive(Debug, thiserror::Error)]
 pub enum LibrawError {
-    #[error("{0} {1}")]
+    #[error("{0}")]
     InternalError(InternalLibrawError, String),
     #[error("{0}")]
     IoError(#[from] std::io::Error),
