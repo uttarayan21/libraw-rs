@@ -31,7 +31,7 @@ jobs:
     steps:  
       - name: Install libs for Linux
         run: |
-          echo "deb http://security.ubuntu.com/ubuntu xenial-security main" | sudo tee -a /etc/apt/sources.list
+          # echo "deb http://security.ubuntu.com/ubuntu xenial-security main" | sudo tee -a /etc/apt/sources.list
           sudo apt-get update && sudo apt-get install -y libde265-dev libx265-dev libheif-dev libsqlite3-dev libjasper-dev
 
         if: matrix.name=='Linux'
@@ -65,7 +65,7 @@ jobs:
         with:
           msystem: MINGW64
           update: true
-          install: git mingw-w64-x86_64-rust
+          install: git mingw-w64-x86_64-rust mingw-w64-x86_64-zlib mingw-w64-x86_64-jasper
         if: matrix.name == 'Windows'
 
       - name: Build for Windows
