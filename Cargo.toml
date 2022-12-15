@@ -1,9 +1,10 @@
 [package]
 name = "libraw_r"
-version = "0.4.2"
+version = "0.4.3"
 edition = "2021"
 license = "MIT"
 rust-version = "1.65"
+publish = ["ktra"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -11,7 +12,7 @@ rust-version = "1.65"
 image = { version = "0.24" , optional = true }
 img-parts = { version = "0.3.0", optional = true }
 libc = { version = "0.2.135", optional = true }
-libraw-sys = { git = "https://github.com/aftershootco/libraw-sys" }
+libraw-sys = { version = "0.6.4", registry = "ktra", path = "../libraw-sys" }
 semver = "1.0"
 thiserror = "1.0"
 
