@@ -3,7 +3,7 @@ use crate::{sys, Path};
 #[derive(Debug, thiserror::Error)]
 pub enum LibrawError {
     #[error("{0}")]
-    InternalError(InternalLibrawError, String),
+    InternalError(InternalLibrawError),
     #[error("{0}")]
     IoError(#[from] std::io::Error),
     #[error("{0}")]
@@ -57,17 +57,17 @@ impl LibrawError {
         Ok(InternalLibrawError::check(code)?)
     }
 
-    pub fn check_with_context(code: i32, file: impl AsRef<Path>) -> Result<(), Self> {
+    pub fn check_with_context(code: i32, _file: impl AsRef<Path>) -> Result<(), Self> {
         let e = InternalLibrawError::check(code);
         if let Err(e) = e {
-            Err(Self::InternalError(e, file.as_ref().display().to_string()))
+            Err(Self::InternalError(e))
         } else {
             Ok(())
         }
     }
     pub fn libraw_err_type(&self) -> Option<InternalLibrawError> {
         match self {
-            LibrawError::InternalError(ierr, _) => Some(*ierr),
+            LibrawError::InternalError(ierr) => Some(*ierr),
             _ => None,
         }
     }
@@ -75,7 +75,7 @@ impl LibrawError {
 
 impl From<InternalLibrawError> for LibrawError {
     fn from(e: InternalLibrawError) -> Self {
-        LibrawError::InternalError(e, String::new())
+        LibrawError::InternalError(e)
     }
 }
 

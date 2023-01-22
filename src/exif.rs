@@ -114,23 +114,33 @@ impl DataStreamType {
 }
 
 impl Processor {
-    /// Sets the data and the callback to parse the exif data.
-    /// The callback is called with the exif data as a byte slice.
-    /// The callback should return Ok(()) if the exif data was parsed successfully.
-    /// The callback should return Err(LibrawError) if the exif data could not be parsed.
+    /// Sets the data and the callback to parse the exif data.  
+    /// The callback is called with the exif data as a byte slice.  
+    /// It should return `Ok(())` if the exif data was parsed successfully.  
+    /// It should return `Err(LibrawError)` if the exif data could not be parsed.  
     ///
-    /// Args:
-    ///    data: The data we pass to the function to act as a temp storage
-    ///    data_steam_type: What type of data stream we are using (file, bigfile, buffer)
-    ///    callback: The callback function that will be called with the exif data as a byte slice.
-    ///       Args:
-    ///         data: &mut T => The data we pass to the function to act as a temp storage
-    ///         tag:  i32    => The tag of the exif data
-    ///         type: i32    => The type of the exif data
-    ///         len:  i32    => The length of the exif data
-    ///         ord:  u32    => The order of the exif data
-    ///         data: &[u8]  => The exif data as a byte slice
-    ///         base: i64    => Not sure
+    /// Args:-
+    ///    - data: The data we pass to the function to act as a temp storage
+    ///    - data_steam_type: What type of data stream we are using (file, bigfile, buffer)  
+    ///    - callback: The callback function that will be called with the exif data as a byte slice.  
+    ///      Args:-  
+    ///
+    ///      | Field | Type   | Description |
+    ///      |---|---|---|
+    ///      | data | &mut T | The data we pass to the function to act as a temp storage |
+    ///      | tag  |  i32   | The tag of the exif data |
+    ///      | type | i32    | The type of the exif data |
+    ///      | len  |  i32   | The length of the exif data |
+    ///      | ord  |  u32   | The order of the exif data |
+    ///      | data | &[u8]  | The exif data as a byte slice |
+    ///      | base | i64    | Not sure  |
+    ///
+    /// NOTE:-
+    ///
+    /// Currently this uses `Rc<RefCell<T>>` for the data  
+    /// and Rc<Box<T: Fn>> for the callback function  
+    /// So if libraw internally uses multithreading for a single image then this might cause UB  
+    /// Check <https://www.libraw.org/docs/API-CXX.html#callbacks>  
     pub fn set_exif_callback<T: std::fmt::Debug, F>(
         &mut self,
         data: T,
@@ -215,9 +225,8 @@ impl<T: std::fmt::Debug> ExifReader<T> {
             context
                 .errors
                 .borrow_mut()
-                .push(crate::LibrawError::InternalError(
-                    crate::error::InternalLibrawError::IoError,
-                    format!("libraw_read_datastream read {res} blocks"),
+                .push(crate::LibrawError::CustomError(
+                    format!("libraw_read_datastream read {res} blocks").into(),
                 ));
         }
 
