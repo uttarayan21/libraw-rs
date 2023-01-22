@@ -133,7 +133,7 @@ impl Processor {
         #[cfg(windows)]
         {
             if let Err(ref e) = ret {
-                if let LibrawError::InternalError(ref lerr, ref _e) = e {
+                if let LibrawError::InternalError(ref lerr) = e {
                     if lerr != &InternalLibrawError::IoError {
                         return ret;
                     }
