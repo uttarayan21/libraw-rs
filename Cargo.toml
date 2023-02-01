@@ -12,7 +12,7 @@ publish = ["ktra"]
 image = { version = "0.24" , optional = true }
 img-parts = { version = "0.3.0", optional = true }
 libc = { version = "0.2.135", optional = true }
-libraw-sys = { version = "0.7.0", registry = "ktra" }
+libraw-sys = { git = "https://github.com/aftershootco/libraw-sys.git", branch = "temp"}
 semver = "1.0"
 thiserror = "1.0"
 
