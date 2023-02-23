@@ -773,7 +773,8 @@ pub enum Params {
 }
 
 #[non_exhaustive]
-#[repr(u32)]
+#[cfg_attr(windows, repr(i32))]
+#[cfg_attr(unix, repr(u32))]
 pub enum LibrawConstructorFlags {
     None = sys::LibRaw_constructor_flags_LIBRAW_OPTIONS_NONE,
     // Depending on the version of libraw this is not generated
@@ -784,7 +785,8 @@ pub enum LibrawConstructorFlags {
 
 /// The thumbnail types that might be embedded inside a raw file
 #[non_exhaustive]
-#[repr(u32)]
+#[cfg_attr(windows, repr(i32))]
+#[cfg_attr(unix, repr(u32))]
 pub enum ThumbnailFormat {
     Unknown = sys::LibRaw_thumbnail_formats_LIBRAW_THUMBNAIL_UNKNOWN,
     Jpeg = sys::LibRaw_thumbnail_formats_LIBRAW_THUMBNAIL_JPEG,
@@ -813,7 +815,8 @@ impl From<sys::LibRaw_thumbnail_formats> for ThumbnailFormat {
 
 /// The format the raw file might be encoded in
 #[non_exhaustive]
-#[repr(u32)]
+#[cfg_attr(windows, repr(i32))]
+#[cfg_attr(unix, repr(u32))]
 pub enum ImageFormat {
     Jpeg = sys::LibRaw_image_formats_LIBRAW_IMAGE_JPEG,
     Bitmap = sys::LibRaw_image_formats_LIBRAW_IMAGE_BITMAP,
