@@ -1,0 +1,37 @@
+[package]
+name = "libraw-sys"
+version = "0.8.0"
+edition = "2021"
+license = "MIT"
+build = "build.rs"
+publish = ["ktra"]
+homepage = "https://github.com/aftershootco/libraw-sys"
+repository = "https://github.com/aftershootco/libraw-sys"
+description = "Bindings to the c api for libraw"
+links = "raw_r"
+
+[dependencies]
+libc = "0.2.123"
+# libjasper-sys = { version = "0.1.1", optional = true, registry = "ktra" }
+libz-sys = { version = "1.1.8", optional = true, features = ["static"], default-features = false }
+mozjpeg-sys = { version = "1.0.3", optional = true, features = ["jpeg80_abi"] }
+# libjpeg-sys = { git = "https://github.com/aftershootco/libjpeg-sys", optional = true }
+
+[build-dependencies]
+bindgen = { version = "0.63.0", optional = true }
+pkg-config = "0.3.26"
+cc = { version = "1.0.73", optional = true, features = ["parallel"]}
+# vergen = "7.3.2"
+# anyhow = "= 1.0.48"
+
+[features]
+default = ["build"]
+clone = []
+bindgen = ["dep:bindgen", "clone"]
+build = ["jpeg", "dep:cc", "clone", "zlib"]
+no-build = []
+copy = []
+zlib = ["dep:libz-sys"]
+jpeg = ["dep:mozjpeg-sys"]
+# asper = ["dep:libjasper-sys"]
+

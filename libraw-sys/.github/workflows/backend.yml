@@ -1,0 +1,82 @@
+on: [push, pull_request]
+
+name: CI
+
+jobs:
+  checks:
+    name: ${{ matrix.name }} (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - x86_64-unknown-linux-gnu
+          - x86_64-apple-darwin
+          - x86_64-pc-windows-msvc
+
+        include:
+          - os: ubuntu-latest
+            name: Linux
+            target: x86_64-unknown-linux-gnu
+
+          - os: macos-latest
+            name: macOS
+            target: x86_64-apple-darwin
+
+          - os: windows-latest
+            name: Windows
+            target: x86_64-pc-windows-msvc
+
+
+    steps:  
+      - name: Install libs for Linux
+        run: |
+          # echo "deb http://security.ubuntu.com/ubuntu xenial-security main" | sudo tee -a /etc/apt/sources.list
+          sudo apt-get update && sudo apt-get install -y libde265-dev libx265-dev libheif-dev
+
+        if: matrix.name=='Linux'
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Bootstrap
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+          target: ${{ matrix.target }}
+
+      - name: Formatting
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+        continue-on-error: false
+
+      - name: Lints
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --target=${{ matrix.target }} -- --no-deps -D warnings
+        continue-on-error: false
+
+      - name: Setup MSYS2 windows
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: git mingw-w64-x86_64-rust mingw-w64-x86_64-zlib mingw-w64-x86_64-jasper
+        if: matrix.name == 'Windows'
+
+      - name: Build for Windows
+        run: |
+          cargo build --release
+        shell: msys2 {0}
+        if: matrix.name == 'Windows'
+
+      - name: Build for Non windows
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --target=${{ matrix.target }} --release
+        if: matrix.name !='Windows'

@@ -1,8 +1,5 @@
-# libraw bindings to rust
+# [LibRaw][libraw]
 
-Yet another binding to libraw
+Rust Bindings and Safe(er) api over the C Api of [libraw][libraw] + some extra stuff.
 
-This just has the very basic features that we need
-
-If you want a binding with more features use [this](https://github.com/paolobarbolini/libraw-rs) one or [this](https://github.com/dcuddeback/libraw-rs) one.
-
+[libraw]: https://libraw.org
