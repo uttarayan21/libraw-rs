@@ -364,6 +364,8 @@ fn clone(out_dir: &Path) {
     eprintln!("\x1b[31mCloning libraw\x1b[0m");
     let libraw_dir = std::env::var("LIBRAW_DIR");
 
+    // FIXME: Use std::fs::copy or something instead of spawning external commands.
+    // Should build fine on linux / macos and windows powershell but not cmd.exe
     if let Ok(libraw_dir) = libraw_dir {
         Command::new("cp")
             .arg("-r")
