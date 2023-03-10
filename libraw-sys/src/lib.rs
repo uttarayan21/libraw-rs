@@ -7,11 +7,11 @@
 
 pub use self::bindings::*;
 
-#[cfg(all(windows, target_env = "msvc",  not(feature = "bindgen")))]
+#[cfg(all(windows, target_env = "msvc", not(feature = "bindgen")))]
 #[path = "windows.rs"]
 mod bindings;
 
-#[cfg(all(windows, target_env = "gnu",  not(feature = "bindgen")))]
+#[cfg(all(windows, target_env = "gnu", not(feature = "bindgen")))]
 #[path = "windows_gnu.rs"]
 mod bindings;
 
