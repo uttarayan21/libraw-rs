@@ -373,7 +373,7 @@ fn clone(out_dir: &Path) {
             .arg(out_dir.join("libraw"))
             .stdout(Stdio::inherit())
             .output()
-            .unwrap_or_else(|_| panic!("Failed to copy {}", libraw_dir));
+            .unwrap_or_else(|_| panic!("Failed to copy {libraw_dir}"));
         if !out.status.success() {
             panic!("Failed to copy");
         }
@@ -389,7 +389,7 @@ fn clone(out_dir: &Path) {
             .arg(out_dir.join("libraw"))
             .stdout(Stdio::inherit())
             .output()
-            .unwrap_or_else(|_| panic!("Failed to clone libraw from {}", libraw_repo_url));
+            .unwrap_or_else(|_| panic!("Failed to clone libraw from {libraw_repo_url}"));
     }
 }
 
