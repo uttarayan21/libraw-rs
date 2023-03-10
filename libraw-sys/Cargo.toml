@@ -21,6 +21,7 @@ mozjpeg-sys = { version = "1.0.3", optional = true, features = ["jpeg80_abi"] }
 bindgen = { version = "0.63.0", optional = true }
 pkg-config = "0.3.26"
 cc = { version = "1.0.73", optional = true, features = ["parallel"]}
+shellexpand = "3.0.0"
 # vergen = "7.3.2"
 # anyhow = "= 1.0.48"
 

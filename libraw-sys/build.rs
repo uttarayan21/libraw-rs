@@ -367,13 +367,16 @@ fn clone(out_dir: &Path) {
     // FIXME: Use std::fs::copy or something instead of spawning external commands.
     // Should build fine on linux / macos and windows powershell but not cmd.exe
     if let Ok(libraw_dir) = libraw_dir {
-        Command::new("cp")
+        let out = Command::new("cp")
             .arg("-r")
             .arg(&libraw_dir)
             .arg(out_dir.join("libraw"))
             .stdout(Stdio::inherit())
             .output()
             .unwrap_or_else(|_| panic!("Failed to copy {}", libraw_dir));
+        if !out.status.success() {
+            panic!("Failed to copy");
+        }
     } else {
         let libraw_repo_url = std::env::var("LIBRAW_REPO")
             .unwrap_or_else(|_| String::from("https://github.com/libraw/libraw"));
