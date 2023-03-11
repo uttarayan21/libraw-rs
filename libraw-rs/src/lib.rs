@@ -5,6 +5,7 @@ pub mod defaults;
 #[cfg(feature = "exif")]
 pub mod exif;
 pub mod orientation;
+pub mod progress;
 pub mod traits;
 
 #[cfg(windows)]
@@ -14,7 +15,8 @@ pub use error::LibrawError;
 #[cfg(windows)]
 use log::warn;
 
-pub use libraw_sys as sys;
+extern crate alloc;
+extern crate libraw_sys as sys;
 use semver::Version;
 use std::ffi::CString;
 use std::ops::{Deref, DerefMut, Drop};
@@ -34,8 +36,6 @@ pub const fn version() -> Version {
 /// A struct wrapping the libraw_data_t type
 pub struct Processor {
     inner: *mut sys::libraw_data_t,
-    #[cfg(feature = "file")]
-    file: Option<std::path::PathBuf>,
 }
 
 /// You can pass the Processor to another thread since it doesn't use any thread_local values
@@ -101,11 +101,7 @@ impl Processor {
     pub fn new(option: LibrawConstructorFlags) -> Self {
         let inner = unsafe { sys::libraw_init(option as u32) };
         assert!(!inner.is_null());
-        Self {
-            inner,
-            #[cfg(feature = "file")]
-            file: None,
-        }
+        Self { inner }
     }
 
     /// Calls libraw_open_file
@@ -115,42 +111,20 @@ impl Processor {
         if !path.as_ref().exists() {
             return Err(std::io::Error::new(std::io::ErrorKind::NotFound, "File not found").into());
         }
-        let c_path = path_to_cstr(&path)?;
-        // let ret = check!(self, unsafe { sys::libraw_open_file(self.inner, c_path.as_ptr()) });
-        #[cfg(feature = "file")]
-        {
-            self.file = Some(path.as_ref().to_path_buf());
-        }
 
         self.recycle()?;
-        #[allow(clippy::let_and_return)]
-        let ret = LibrawError::check_with_context(
-            unsafe { sys::libraw_open_file(self.inner, c_path.as_ptr()) },
-            &path,
-        );
 
-        // Windows only fallback to open_wfile
+        #[cfg(unix)]
+        {
+            let c_path = path_to_cstr(&path)?;
+            LibrawError::check(unsafe { sys::libraw_open_file(self.inner, c_path.as_ptr()) })
+        }
+
         #[cfg(windows)]
         {
-            if let Err(ref e) = ret {
-                if let LibrawError::InternalError(ref lerr) = e {
-                    if lerr != &InternalLibrawError::IoError {
-                        return ret;
-                    }
-                }
-                warn!(
-                    "Failed to open file using libraw_open_file in windows {}",
-                    e
-                );
-                warn!("Fallback to open_wfile");
-                let wchar_path = path_to_widestring(&path)?;
-                return LibrawError::check_with_context(
-                    unsafe { sys::libraw_open_wfile(self.inner, wchar_path.as_ptr()) },
-                    &path,
-                );
-            }
+            let c_path = path_to_widestring(&path)?;
+            LibrawError::check(unsafe { sys::libraw_open_wfile(self.inner, c_path.as_ptr()) })
         }
-        ret
     }
 
     #[cfg(windows)]
@@ -161,10 +135,7 @@ impl Processor {
             );
         }
         let c_path = path_to_cstr(&path)?;
-        LibrawError::check_with_context(
-            unsafe { sys::libraw_open_file(self.inner, c_path.as_ptr()) },
-            &path,
-        )
+        LibrawError::check(unsafe { sys::libraw_open_file(self.inner, c_path.as_ptr()) })
     }
 
     /// Get the shootinginfo struct from libraw_data_t
@@ -258,13 +229,13 @@ impl Processor {
 
     /// Unpack the thumbnail for the file
     pub fn unpack_thumb(&mut self) -> Result<(), LibrawError> {
-        check!(self, unsafe { sys::libraw_unpack_thumb(self.inner) })?;
+        LibrawError::check(unsafe { sys::libraw_unpack_thumb(self.inner) })?;
         Ok(())
     }
 
     /// Unpack the raw data and read it to memory
     pub fn unpack(&mut self) -> Result<(), LibrawError> {
-        check!(self, unsafe { sys::libraw_unpack(self.inner) })?;
+        LibrawError::check(unsafe { sys::libraw_unpack(self.inner) })?;
         Ok(())
     }
 
@@ -284,9 +255,7 @@ impl Processor {
     ///
     /// Also considers 45 degree angles for fuji cameras
     pub fn adjust_sizes_info_only(&mut self) -> Result<(), LibrawError> {
-        check!(self, unsafe {
-            sys::libraw_adjust_sizes_info_only(self.inner)
-        })
+        LibrawError::check(unsafe { sys::libraw_adjust_sizes_info_only(self.inner) })
     }
 }
 
@@ -603,11 +572,7 @@ impl ProcessorBuilder {
         Self::default()
     }
     pub fn build(self) -> Processor {
-        Processor {
-            inner: self.inner,
-            #[cfg(feature = "file")]
-            file: None,
-        }
+        Processor { inner: self.inner }
     }
 
     pub fn with_params<P: IntoIterator<Item = Params>>(self, params: P) -> Self {

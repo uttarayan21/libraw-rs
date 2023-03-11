@@ -1,4 +1,4 @@
-use crate::{sys, Path};
+use crate::sys;
 
 #[derive(Debug, thiserror::Error)]
 pub enum LibrawError {
@@ -30,24 +30,6 @@ pub enum LibrawError {
     CustomError(#[from] Box<dyn std::error::Error + Send + Sync>),
 }
 
-#[cfg(feature = "file")]
-macro_rules! check {
-    ($sf:expr, $($args:tt)*) => {
-            if let Some(ref file) = $sf.file {
-                $crate::error::LibrawError::check_with_context($($args)*, file)
-            } else {
-                $crate::error::LibrawError::check($($args)*)
-            }
-    };
-}
-
-#[cfg(not(feature = "file"))]
-macro_rules! check {
-    ($sf:expr, $($args:tt)*) => {
-        $crate::error::LibrawError::check($($args)*)
-    };
-}
-
 impl LibrawError {
     pub fn to_result<T>(code: i32, data: T) -> Result<T, Self> {
         Ok(InternalLibrawError::to_result(code, data)?)
@@ -57,14 +39,6 @@ impl LibrawError {
         Ok(InternalLibrawError::check(code)?)
     }
 
-    pub fn check_with_context(code: i32, _file: impl AsRef<Path>) -> Result<(), Self> {
-        let e = InternalLibrawError::check(code);
-        if let Err(e) = e {
-            Err(Self::InternalError(e))
-        } else {
-            Ok(())
-        }
-    }
     pub fn libraw_err_type(&self) -> Option<InternalLibrawError> {
         match self {
             LibrawError::InternalError(ierr) => Some(*ierr),
