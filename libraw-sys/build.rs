@@ -13,7 +13,7 @@ fn main() -> Result<()> {
     let out_dir = Path::new(_out_dir);
 
     #[cfg(all(feature = "clone", not(feature = "no-build")))]
-    clone(out_dir);
+    clone(out_dir)?;
     // #[cfg(feature = "clone")]
     // let __head = commit(out_dir.join("libraw"))?;
 
@@ -359,7 +359,7 @@ fn bindings(out_dir: &Path) -> Result<()> {
 }
 
 #[cfg(all(feature = "clone", not(feature = "no-build")))]
-fn clone(out_dir: &Path) {
+fn clone(out_dir: &Path) -> Result<()> {
     use std::process::{Command, Stdio};
     eprintln!("\x1b[31mCloning libraw\x1b[0m");
     let libraw_dir = std::env::var("LIBRAW_DIR");
@@ -367,16 +367,26 @@ fn clone(out_dir: &Path) {
     // FIXME: Use std::fs::copy or something instead of spawning external commands.
     // Should build fine on linux / macos and windows powershell but not cmd.exe
     if let Ok(libraw_dir) = libraw_dir {
-        let out = Command::new("cp")
-            .arg("-r")
-            .arg(&libraw_dir)
-            .arg(out_dir.join("libraw"))
-            .stdout(Stdio::inherit())
-            .output()
-            .unwrap_or_else(|_| panic!("Failed to copy {libraw_dir}"));
-        if !out.status.success() {
-            panic!("Failed to copy");
-        }
+        // let out = Command::new("cp")
+        //     .arg("-r")
+        //     .arg(&libraw_dir)
+        //     .arg(out_dir.join("libraw"))
+        //     .stdout(Stdio::inherit())
+        //     .output()
+        //     .unwrap_or_else(|e| panic!("Failed to copy {libraw_dir}: {e}"));
+        // if !out.status.success() {
+        //     eprintln!("{}", String::from_utf8_lossy(&out.stdout));
+        //     eprintln!("{}", String::from_utf8_lossy(&out.stderr));
+        //     panic!("Failed to copy");
+        // }
+        fs_extra::copy_items(
+            &[libraw_dir],
+            out_dir,
+            &fs_extra::dir::CopyOptions {
+                overwrite: true,
+                ..Default::default()
+            },
+        )?;
     } else {
         let libraw_repo_url = std::env::var("LIBRAW_REPO")
             .unwrap_or_else(|_| String::from("https://github.com/libraw/libraw"));
@@ -391,6 +401,7 @@ fn clone(out_dir: &Path) {
             .output()
             .unwrap_or_else(|_| panic!("Failed to clone libraw from {libraw_repo_url}"));
     }
+    Ok(())
 }
 
 fn __check() {
