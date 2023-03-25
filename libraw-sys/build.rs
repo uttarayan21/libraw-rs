@@ -369,7 +369,6 @@ fn clone(out_dir: &Path) -> Result<()> {
     // Should build fine on linux / macos and windows powershell but not cmd.exe
     if let Ok(libraw_dir) = libraw_dir {
         let files: Vec<PathBuf> = std::fs::read_dir(libraw_dir)?
-            .into_iter()
             .flatten()
             .map(|e| e.path())
             .collect();
