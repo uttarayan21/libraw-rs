@@ -379,6 +379,9 @@ fn clone(out_dir: &Path) -> Result<()> {
         //     eprintln!("{}", String::from_utf8_lossy(&out.stderr));
         //     panic!("Failed to copy");
         // }
+        if Path::new(&libraw_dir).exists() {
+            std::fs::remove_dir_all(&libraw_dir).ok();
+        }
         fs_extra::copy_items(
             &[libraw_dir],
             out_dir,
