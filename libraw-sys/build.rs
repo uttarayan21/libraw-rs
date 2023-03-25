@@ -372,6 +372,7 @@ fn clone(out_dir: &Path) -> Result<()> {
             .flatten()
             .map(|e| e.path())
             .collect();
+        std::fs::remove_dir_all(out_dir.join("libraw")).ok();
         std::fs::create_dir_all(out_dir.join("libraw")).ok();
         fs_extra::copy_items(
             &files,
