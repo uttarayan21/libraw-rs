@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 9 commits contributed to the release over the course of 28 calendar days.
+ - 15 commits contributed to the release over the course of 28 calendar days.
  - 0 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 0 issues like '(#ID)' were seen in commit messages
 
@@ -22,6 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <details><summary>view details</summary>
 
  * **Uncategorized**
+    - [fix] Use proper copying ([`aefeabb`](https://github.com/aftershootco/libraw-rs/commit/aefeabb9d8c1218eb3fbbc72d62706ba5e037798))
+    - Revert "[fix] Remove existing" ([`25d92e4`](https://github.com/aftershootco/libraw-rs/commit/25d92e46398eb717af976d6f5143a8a4d65ac89b))
+    - [fix] Bump version ([`2818da8`](https://github.com/aftershootco/libraw-rs/commit/2818da8a586682c293e48263f47a7373ee93c3d8))
+    - Merge branch 'master' of github.com:aftershootco/libraw-rs ([`bb50662`](https://github.com/aftershootco/libraw-rs/commit/bb506624ba4a95ab974c05d2a48c5c51ab8058a8))
+    - [fix] Remove existing ([`0c804a3`](https://github.com/aftershootco/libraw-rs/commit/0c804a3aaf6f39f3fe0a49653c9ac9967fc82428))
+    - [feat]  add changelogs ([`f2c0a13`](https://github.com/aftershootco/libraw-rs/commit/f2c0a13521b3d3bc808dfb5070514e718f75e29a))
     - [fix] Use fs_extra crate for copying files instead of cp ([`4827574`](https://github.com/aftershootco/libraw-rs/commit/48275745a6f05dac888972db7dd18440a23f9bca))
     - [bump] ([`2c5e865`](https://github.com/aftershootco/libraw-rs/commit/2c5e8654fa3b99365fe6ccce8fe97426f09f6a47))
     - [fmt] Clippy ([`deb768d`](https://github.com/aftershootco/libraw-rs/commit/deb768df62a0b0c43c7cc5dd613bb915f0301347))
