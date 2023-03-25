@@ -360,6 +360,7 @@ fn bindings(out_dir: &Path) -> Result<()> {
 
 #[cfg(all(feature = "clone", not(feature = "no-build")))]
 fn clone(out_dir: &Path) -> Result<()> {
+    use std::path::PathBuf;
     use std::process::{Command, Stdio};
     eprintln!("\x1b[31mCloning libraw\x1b[0m");
     let libraw_dir = std::env::var("LIBRAW_DIR");
@@ -367,21 +368,15 @@ fn clone(out_dir: &Path) -> Result<()> {
     // FIXME: Use std::fs::copy or something instead of spawning external commands.
     // Should build fine on linux / macos and windows powershell but not cmd.exe
     if let Ok(libraw_dir) = libraw_dir {
-        // let out = Command::new("cp")
-        //     .arg("-r")
-        //     .arg(&libraw_dir)
-        //     .arg(out_dir.join("libraw"))
-        //     .stdout(Stdio::inherit())
-        //     .output()
-        //     .unwrap_or_else(|e| panic!("Failed to copy {libraw_dir}: {e}"));
-        // if !out.status.success() {
-        //     eprintln!("{}", String::from_utf8_lossy(&out.stdout));
-        //     eprintln!("{}", String::from_utf8_lossy(&out.stderr));
-        //     panic!("Failed to copy");
-        // }
+        let files: Vec<PathBuf> = std::fs::read_dir(libraw_dir)?
+            .into_iter()
+            .flatten()
+            .map(|e| e.path())
+            .collect();
+        std::fs::create_dir_all(out_dir.join("libraw")).ok();
         fs_extra::copy_items(
-            &[libraw_dir],
-            out_dir,
+            &files,
+            out_dir.join("libraw"),
             &fs_extra::dir::CopyOptions {
                 overwrite: true,
                 ..Default::default()
