@@ -403,19 +403,3 @@ fn __check() {
     #[cfg(all(feature = "build", not(any(feature = "clone", feature = "tarball"))))]
     compile_error!("You need to have clone enabled to use build");
 }
-
-// #[cfg(feature = "clone")]
-// fn commit(out_dir: impl AsRef<Path>) -> Result<git2::Oid> {
-//     let repo = git2::Repository::open(out_dir)?;
-//     let head = repo
-//         .head()?
-//         .target()
-//         .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::NotFound, "HEAD not found"))?;
-
-//     std::fs::write(
-//         std::path::Path::new(&std::env::var_os("OUT_DIR").unwrap()).join("commit.rs"),
-//         format!("const LIBRAW_COMMIT: &str = \"{head}\"").as_bytes(),
-//     )?;
-
-//     Ok(head)
-// }
