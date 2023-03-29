@@ -262,7 +262,7 @@ pub const LIBRAW_XTRANS: u32 = 9;
 pub const LIBRAW_PROGRESS_THUMB_MASK: u32 = 268435455;
 pub const LIBRAW_MAJOR_VERSION: u32 = 0;
 pub const LIBRAW_MINOR_VERSION: u32 = 21;
-pub const LIBRAW_PATCH_VERSION: u32 = 1;
+pub const LIBRAW_PATCH_VERSION: u32 = 0;
 pub const LIBRAW_SHLIB_CURRENT: u32 = 23;
 pub const LIBRAW_SHLIB_REVISION: u32 = 0;
 pub const LIBRAW_SHLIB_AGE: u32 = 0;
@@ -2401,6 +2401,7 @@ pub const LibRaw_As_Shot_WB_Applied_codes_LIBRAW_ASWB_NIKON: LibRaw_As_Shot_WB_A
 pub const LibRaw_As_Shot_WB_Applied_codes_LIBRAW_ASWB_NIKON_SRAW: LibRaw_As_Shot_WB_Applied_codes =
     8;
 pub const LibRaw_As_Shot_WB_Applied_codes_LIBRAW_ASWB_PENTAX: LibRaw_As_Shot_WB_Applied_codes = 16;
+pub const LibRaw_As_Shot_WB_Applied_codes_LIBRAW_ASWB_SONY: LibRaw_As_Shot_WB_Applied_codes = 32;
 pub type LibRaw_As_Shot_WB_Applied_codes = libc::c_int;
 pub const LibRaw_ExifTagTypes_LIBRAW_EXIFTAG_TYPE_UNKNOWN: LibRaw_ExifTagTypes = 0;
 pub const LibRaw_ExifTagTypes_LIBRAW_EXIFTAG_TYPE_BYTE: LibRaw_ExifTagTypes = 1;
@@ -2966,6 +2967,8 @@ pub const LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_PPM16:
     LibRaw_internal_thumbnail_formats = 8;
 pub const LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_X3F:
     LibRaw_internal_thumbnail_formats = 9;
+pub const LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_DNG_YCBCR:
+    LibRaw_internal_thumbnail_formats = 10;
 pub type LibRaw_internal_thumbnail_formats = libc::c_int;
 pub const LibRaw_thumbnail_formats_LIBRAW_THUMBNAIL_UNKNOWN: LibRaw_thumbnail_formats = 0;
 pub const LibRaw_thumbnail_formats_LIBRAW_THUMBNAIL_JPEG: LibRaw_thumbnail_formats = 1;
@@ -4993,6 +4996,8 @@ pub struct libraw_fuji_info_t {
     pub DRangePriority: ushort,
     pub DRangePriorityAuto: ushort,
     pub DRangePriorityFixed: ushort,
+    pub FujiModel: [libc::c_char; 33usize],
+    pub FujiModel2: [libc::c_char; 33usize],
     pub BrightnessCompensation: f32,
     pub FocusMode: ushort,
     pub AFMode: ushort,
@@ -5030,7 +5035,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::core::mem::size_of::<libraw_fuji_info_t>(),
-        280usize,
+        348usize,
         concat!("Size of: ", stringify!(libraw_fuji_info_t))
     );
     assert_eq!(
@@ -5129,8 +5134,28 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
         )
     );
     assert_eq!(
-        unsafe { ::core::ptr::addr_of!((*ptr).BrightnessCompensation) as usize - ptr as usize },
+        unsafe { ::core::ptr::addr_of!((*ptr).FujiModel) as usize - ptr as usize },
         20usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(libraw_fuji_info_t),
+            "::",
+            stringify!(FujiModel)
+        )
+    );
+    assert_eq!(
+        unsafe { ::core::ptr::addr_of!((*ptr).FujiModel2) as usize - ptr as usize },
+        53usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(libraw_fuji_info_t),
+            "::",
+            stringify!(FujiModel2)
+        )
+    );
+    assert_eq!(
+        unsafe { ::core::ptr::addr_of!((*ptr).BrightnessCompensation) as usize - ptr as usize },
+        88usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5140,7 +5165,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).FocusMode) as usize - ptr as usize },
-        24usize,
+        92usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5150,7 +5175,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).AFMode) as usize - ptr as usize },
-        26usize,
+        94usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5160,7 +5185,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).FocusPixel) as usize - ptr as usize },
-        28usize,
+        96usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5170,7 +5195,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).PrioritySettings) as usize - ptr as usize },
-        32usize,
+        100usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5180,7 +5205,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).FocusSettings) as usize - ptr as usize },
-        36usize,
+        104usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5190,7 +5215,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).AF_C_Settings) as usize - ptr as usize },
-        40usize,
+        108usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5200,7 +5225,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).FocusWarning) as usize - ptr as usize },
-        44usize,
+        112usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5210,7 +5235,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).ImageStabilization) as usize - ptr as usize },
-        46usize,
+        114usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5220,7 +5245,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).FlashMode) as usize - ptr as usize },
-        52usize,
+        120usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5230,7 +5255,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).WB_Preset) as usize - ptr as usize },
-        54usize,
+        122usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5240,7 +5265,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).ShutterType) as usize - ptr as usize },
-        56usize,
+        124usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5250,7 +5275,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).ExrMode) as usize - ptr as usize },
-        58usize,
+        126usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5260,7 +5285,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).Macro) as usize - ptr as usize },
-        60usize,
+        128usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5270,7 +5295,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).Rating) as usize - ptr as usize },
-        64usize,
+        132usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5280,7 +5305,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).CropMode) as usize - ptr as usize },
-        68usize,
+        136usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5290,7 +5315,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).SerialSignature) as usize - ptr as usize },
-        70usize,
+        138usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5300,7 +5325,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).SensorID) as usize - ptr as usize },
-        83usize,
+        151usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5310,7 +5335,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).RAFVersion) as usize - ptr as usize },
-        88usize,
+        156usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5320,7 +5345,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).RAFDataGeneration) as usize - ptr as usize },
-        96usize,
+        164usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5330,7 +5355,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).RAFDataVersion) as usize - ptr as usize },
-        100usize,
+        168usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5340,7 +5365,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).isTSNERDTS) as usize - ptr as usize },
-        104usize,
+        172usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5350,7 +5375,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).DriveMode) as usize - ptr as usize },
-        108usize,
+        176usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5360,7 +5385,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).BlackLevel) as usize - ptr as usize },
-        110usize,
+        178usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5370,7 +5395,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).RAFData_ImageSizeTable) as usize - ptr as usize },
-        128usize,
+        196usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5380,7 +5405,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).AutoBracketing) as usize - ptr as usize },
-        256usize,
+        324usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5390,7 +5415,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).SequenceNumber) as usize - ptr as usize },
-        260usize,
+        328usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5400,7 +5425,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).SeriesLength) as usize - ptr as usize },
-        264usize,
+        332usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5410,7 +5435,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).PixelShiftOffset) as usize - ptr as usize },
-        268usize,
+        336usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -5420,7 +5445,7 @@ fn bindgen_test_layout_libraw_fuji_info_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).ImageCount) as usize - ptr as usize },
-        276usize,
+        344usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_fuji_info_t),
@@ -10508,7 +10533,7 @@ fn bindgen_test_layout_libraw_makernotes_t() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::core::mem::size_of::<libraw_makernotes_t>(),
-        2952usize,
+        3024usize,
         concat!("Size of: ", stringify!(libraw_makernotes_t))
     );
     assert_eq!(
@@ -10558,7 +10583,7 @@ fn bindgen_test_layout_libraw_makernotes_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).olympus) as usize - ptr as usize },
-        1056usize,
+        1128usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_makernotes_t),
@@ -10568,7 +10593,7 @@ fn bindgen_test_layout_libraw_makernotes_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).sony) as usize - ptr as usize },
-        1464usize,
+        1536usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_makernotes_t),
@@ -10578,7 +10603,7 @@ fn bindgen_test_layout_libraw_makernotes_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).kodak) as usize - ptr as usize },
-        1644usize,
+        1716usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_makernotes_t),
@@ -10588,7 +10613,7 @@ fn bindgen_test_layout_libraw_makernotes_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).panasonic) as usize - ptr as usize },
-        1888usize,
+        1960usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_makernotes_t),
@@ -10598,7 +10623,7 @@ fn bindgen_test_layout_libraw_makernotes_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).pentax) as usize - ptr as usize },
-        1956usize,
+        2028usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_makernotes_t),
@@ -10608,7 +10633,7 @@ fn bindgen_test_layout_libraw_makernotes_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).phaseone) as usize - ptr as usize },
-        1988usize,
+        2060usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_makernotes_t),
@@ -10618,7 +10643,7 @@ fn bindgen_test_layout_libraw_makernotes_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).ricoh) as usize - ptr as usize },
-        2440usize,
+        2512usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_makernotes_t),
@@ -10628,7 +10653,7 @@ fn bindgen_test_layout_libraw_makernotes_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).samsung) as usize - ptr as usize },
-        2512usize,
+        2584usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_makernotes_t),
@@ -10638,7 +10663,7 @@ fn bindgen_test_layout_libraw_makernotes_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).common) as usize - ptr as usize },
-        2648usize,
+        2720usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_makernotes_t),
@@ -10966,7 +10991,7 @@ fn bindgen_test_layout_libraw_data_t() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::core::mem::size_of::<libraw_data_t>(),
-        381256usize,
+        381328usize,
         concat!("Size of: ", stringify!(libraw_data_t))
     );
     assert_eq!(
@@ -11026,7 +11051,7 @@ fn bindgen_test_layout_libraw_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).shootinginfo) as usize - ptr as usize },
-        4880usize,
+        4952usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_data_t),
@@ -11036,7 +11061,7 @@ fn bindgen_test_layout_libraw_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).params) as usize - ptr as usize },
-        5024usize,
+        5096usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_data_t),
@@ -11046,7 +11071,7 @@ fn bindgen_test_layout_libraw_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).rawparams) as usize - ptr as usize },
-        5328usize,
+        5400usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_data_t),
@@ -11056,7 +11081,7 @@ fn bindgen_test_layout_libraw_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).progress_flags) as usize - ptr as usize },
-        5376usize,
+        5448usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_data_t),
@@ -11066,7 +11091,7 @@ fn bindgen_test_layout_libraw_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).process_warnings) as usize - ptr as usize },
-        5380usize,
+        5452usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_data_t),
@@ -11076,7 +11101,7 @@ fn bindgen_test_layout_libraw_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).color) as usize - ptr as usize },
-        5384usize,
+        5456usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_data_t),
@@ -11086,7 +11111,7 @@ fn bindgen_test_layout_libraw_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).other) as usize - ptr as usize },
-        192416usize,
+        192488usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_data_t),
@@ -11096,7 +11121,7 @@ fn bindgen_test_layout_libraw_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).thumbnail) as usize - ptr as usize },
-        193216usize,
+        193288usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_data_t),
@@ -11106,7 +11131,7 @@ fn bindgen_test_layout_libraw_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).thumbs_list) as usize - ptr as usize },
-        193240usize,
+        193312usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_data_t),
@@ -11116,7 +11141,7 @@ fn bindgen_test_layout_libraw_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).rawdata) as usize - ptr as usize },
-        193504usize,
+        193576usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_data_t),
@@ -11126,7 +11151,7 @@ fn bindgen_test_layout_libraw_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).parent_class) as usize - ptr as usize },
-        381248usize,
+        381320usize,
         concat!(
             "Offset of field: ",
             stringify!(libraw_data_t),
@@ -11866,6 +11891,179 @@ fn bindgen_test_layout_crx_data_header_t() {
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub struct pana8_tags_t {
+    pub tag39: [u32; 6usize],
+    pub tag3A: [u16; 6usize],
+    pub tag3B: u16,
+    pub initial: [u16; 4usize],
+    pub tag40a: [u16; 17usize],
+    pub tag40b: [u16; 17usize],
+    pub tag41: [u16; 17usize],
+    pub stripe_count: u16,
+    pub tag43: u16,
+    pub stripe_offsets: [INT64; 5usize],
+    pub stripe_left: [u16; 5usize],
+    pub stripe_compressed_size: [u32; 5usize],
+    pub stripe_width: [u16; 5usize],
+    pub stripe_height: [u16; 5usize],
+}
+#[test]
+fn bindgen_test_layout_pana8_tags_t() {
+    const UNINIT: ::core::mem::MaybeUninit<pana8_tags_t> = ::core::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::core::mem::size_of::<pana8_tags_t>(),
+        248usize,
+        concat!("Size of: ", stringify!(pana8_tags_t))
+    );
+    assert_eq!(
+        ::core::mem::align_of::<pana8_tags_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(pana8_tags_t))
+    );
+    assert_eq!(
+        unsafe { ::core::ptr::addr_of!((*ptr).tag39) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(pana8_tags_t),
+            "::",
+            stringify!(tag39)
+        )
+    );
+    assert_eq!(
+        unsafe { ::core::ptr::addr_of!((*ptr).tag3A) as usize - ptr as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(pana8_tags_t),
+            "::",
+            stringify!(tag3A)
+        )
+    );
+    assert_eq!(
+        unsafe { ::core::ptr::addr_of!((*ptr).tag3B) as usize - ptr as usize },
+        36usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(pana8_tags_t),
+            "::",
+            stringify!(tag3B)
+        )
+    );
+    assert_eq!(
+        unsafe { ::core::ptr::addr_of!((*ptr).initial) as usize - ptr as usize },
+        38usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(pana8_tags_t),
+            "::",
+            stringify!(initial)
+        )
+    );
+    assert_eq!(
+        unsafe { ::core::ptr::addr_of!((*ptr).tag40a) as usize - ptr as usize },
+        46usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(pana8_tags_t),
+            "::",
+            stringify!(tag40a)
+        )
+    );
+    assert_eq!(
+        unsafe { ::core::ptr::addr_of!((*ptr).tag40b) as usize - ptr as usize },
+        80usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(pana8_tags_t),
+            "::",
+            stringify!(tag40b)
+        )
+    );
+    assert_eq!(
+        unsafe { ::core::ptr::addr_of!((*ptr).tag41) as usize - ptr as usize },
+        114usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(pana8_tags_t),
+            "::",
+            stringify!(tag41)
+        )
+    );
+    assert_eq!(
+        unsafe { ::core::ptr::addr_of!((*ptr).stripe_count) as usize - ptr as usize },
+        148usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(pana8_tags_t),
+            "::",
+            stringify!(stripe_count)
+        )
+    );
+    assert_eq!(
+        unsafe { ::core::ptr::addr_of!((*ptr).tag43) as usize - ptr as usize },
+        150usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(pana8_tags_t),
+            "::",
+            stringify!(tag43)
+        )
+    );
+    assert_eq!(
+        unsafe { ::core::ptr::addr_of!((*ptr).stripe_offsets) as usize - ptr as usize },
+        152usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(pana8_tags_t),
+            "::",
+            stringify!(stripe_offsets)
+        )
+    );
+    assert_eq!(
+        unsafe { ::core::ptr::addr_of!((*ptr).stripe_left) as usize - ptr as usize },
+        192usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(pana8_tags_t),
+            "::",
+            stringify!(stripe_left)
+        )
+    );
+    assert_eq!(
+        unsafe { ::core::ptr::addr_of!((*ptr).stripe_compressed_size) as usize - ptr as usize },
+        204usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(pana8_tags_t),
+            "::",
+            stringify!(stripe_compressed_size)
+        )
+    );
+    assert_eq!(
+        unsafe { ::core::ptr::addr_of!((*ptr).stripe_width) as usize - ptr as usize },
+        224usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(pana8_tags_t),
+            "::",
+            stringify!(stripe_width)
+        )
+    );
+    assert_eq!(
+        unsafe { ::core::ptr::addr_of!((*ptr).stripe_height) as usize - ptr as usize },
+        234usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(pana8_tags_t),
+            "::",
+            stringify!(stripe_height)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct unpacker_data_t {
     pub order: libc::c_short,
     pub sraw_mul: [ushort; 4usize],
@@ -11904,6 +12102,7 @@ pub struct unpacker_data_t {
     pub fuji_lossless: libc::c_int,
     pub pana_encoding: libc::c_int,
     pub pana_bpp: libc::c_int,
+    pub pana8: pana8_tags_t,
     pub crx_header: [crx_data_header_t; 16usize],
     pub crx_track_selected: libc::c_int,
     pub crx_track_count: libc::c_int,
@@ -11925,7 +12124,7 @@ fn bindgen_test_layout_unpacker_data_t() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::core::mem::size_of::<unpacker_data_t>(),
-        2368usize,
+        2616usize,
         concat!("Size of: ", stringify!(unpacker_data_t))
     );
     assert_eq!(
@@ -12304,8 +12503,18 @@ fn bindgen_test_layout_unpacker_data_t() {
         )
     );
     assert_eq!(
-        unsafe { ::core::ptr::addr_of!((*ptr).crx_header) as usize - ptr as usize },
+        unsafe { ::core::ptr::addr_of!((*ptr).pana8) as usize - ptr as usize },
         192usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(unpacker_data_t),
+            "::",
+            stringify!(pana8)
+        )
+    );
+    assert_eq!(
+        unsafe { ::core::ptr::addr_of!((*ptr).crx_header) as usize - ptr as usize },
+        440usize,
         concat!(
             "Offset of field: ",
             stringify!(unpacker_data_t),
@@ -12315,7 +12524,7 @@ fn bindgen_test_layout_unpacker_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).crx_track_selected) as usize - ptr as usize },
-        2240usize,
+        2488usize,
         concat!(
             "Offset of field: ",
             stringify!(unpacker_data_t),
@@ -12325,7 +12534,7 @@ fn bindgen_test_layout_unpacker_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).crx_track_count) as usize - ptr as usize },
-        2244usize,
+        2492usize,
         concat!(
             "Offset of field: ",
             stringify!(unpacker_data_t),
@@ -12335,7 +12544,7 @@ fn bindgen_test_layout_unpacker_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).CR3_CTMDtag) as usize - ptr as usize },
-        2248usize,
+        2496usize,
         concat!(
             "Offset of field: ",
             stringify!(unpacker_data_t),
@@ -12345,7 +12554,7 @@ fn bindgen_test_layout_unpacker_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).CR3_Version) as usize - ptr as usize },
-        2250usize,
+        2498usize,
         concat!(
             "Offset of field: ",
             stringify!(unpacker_data_t),
@@ -12355,7 +12564,7 @@ fn bindgen_test_layout_unpacker_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).CM_found) as usize - ptr as usize },
-        2252usize,
+        2500usize,
         concat!(
             "Offset of field: ",
             stringify!(unpacker_data_t),
@@ -12365,7 +12574,7 @@ fn bindgen_test_layout_unpacker_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).is_NikonTransfer) as usize - ptr as usize },
-        2256usize,
+        2504usize,
         concat!(
             "Offset of field: ",
             stringify!(unpacker_data_t),
@@ -12375,7 +12584,7 @@ fn bindgen_test_layout_unpacker_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).is_Olympus) as usize - ptr as usize },
-        2260usize,
+        2508usize,
         concat!(
             "Offset of field: ",
             stringify!(unpacker_data_t),
@@ -12387,7 +12596,7 @@ fn bindgen_test_layout_unpacker_data_t() {
         unsafe {
             ::core::ptr::addr_of!((*ptr).OlympusDNG_SubDirOffsetValid) as usize - ptr as usize
         },
-        2264usize,
+        2512usize,
         concat!(
             "Offset of field: ",
             stringify!(unpacker_data_t),
@@ -12397,7 +12606,7 @@ fn bindgen_test_layout_unpacker_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).is_Sony) as usize - ptr as usize },
-        2268usize,
+        2516usize,
         concat!(
             "Offset of field: ",
             stringify!(unpacker_data_t),
@@ -12407,7 +12616,7 @@ fn bindgen_test_layout_unpacker_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).is_pana_raw) as usize - ptr as usize },
-        2272usize,
+        2520usize,
         concat!(
             "Offset of field: ",
             stringify!(unpacker_data_t),
@@ -12417,7 +12626,7 @@ fn bindgen_test_layout_unpacker_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).is_PentaxRicohMakernotes) as usize - ptr as usize },
-        2276usize,
+        2524usize,
         concat!(
             "Offset of field: ",
             stringify!(unpacker_data_t),
@@ -12427,7 +12636,7 @@ fn bindgen_test_layout_unpacker_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).dng_frames) as usize - ptr as usize },
-        2280usize,
+        2528usize,
         concat!(
             "Offset of field: ",
             stringify!(unpacker_data_t),
@@ -12437,7 +12646,7 @@ fn bindgen_test_layout_unpacker_data_t() {
     );
     assert_eq!(
         unsafe { ::core::ptr::addr_of!((*ptr).raw_stride) as usize - ptr as usize },
-        2360usize,
+        2608usize,
         concat!(
             "Offset of field: ",
             stringify!(unpacker_data_t),
@@ -12462,7 +12671,7 @@ fn bindgen_test_layout_libraw_internal_data_t() {
     let ptr = UNINIT.as_ptr();
     assert_eq!(
         ::core::mem::size_of::<libraw_internal_data_t>(),
-        2504usize,
+        2752usize,
         concat!("Size of: ", stringify!(libraw_internal_data_t))
     );
     assert_eq!(

@@ -1,5 +1,4 @@
 use libraw_r::traits::LRString;
-use std::path::Path;
 
 pub fn main() -> anyhow::Result<()> {
     for arg in std::env::args().skip(1) {
@@ -7,7 +6,8 @@ pub fn main() -> anyhow::Result<()> {
         //     .with_params([Params::HalfSize(true)])
         //     .build();
         let mut p = libraw_r::defaults::half_size();
-        p.open(&arg)?;
+        let r = p.open(&arg);
+        r?;
         println!(
             "Processing {arg} ({}, {})",
             p.idata().make.as_ascii(),
