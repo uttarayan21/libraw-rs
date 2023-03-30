@@ -13,7 +13,8 @@ links = "raw_r"
 [dependencies]
 libc = "0.2.123"
 libz-sys = { version = "1.1.8", optional = true, features = ["static"], default-features = false }
-libjpeg-sys = { version = "1.0", optional = true,  features = ["jpeg80_abi"], registry = "ktra" }
+# libjpeg-sys = { version = "1.0", optional = true,  features = ["jpeg80_abi"], registry = "ktra" }
+mozjpeg-sys = { version = "1.0", optional = true,  features = ["jpeg80_abi"], registry = "ktra" }
 # mozjpeg-sys = { version = "1.0.3", optional = true, features = ["jpeg80_abi"] }
 # libjpeg-sys = { git = "https://github.com/aftershootco/libjpeg-sys", optional = true }
 # libjasper-sys = { version = "0.1.1", optional = true, registry = "ktra" }
@@ -35,4 +36,4 @@ build = ["jpeg", "dep:cc", "clone", "zlib"]
 no-build = []
 copy = []
 zlib = ["dep:libz-sys"]
-jpeg = ["dep:libjpeg-sys"]
+jpeg = ["dep:mozjpeg-sys"]
