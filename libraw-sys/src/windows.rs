@@ -765,7 +765,6 @@ extern "C" {
 extern "C" {
     pub fn realloc(_Block: *mut libc::c_void, _Size: libc::c_ulonglong) -> *mut libc::c_void;
 }
-pub type max_align_t = f64;
 pub type _CoreCrtSecureSearchSortCompareFunction = ::core::option::Option<
     unsafe extern "C" fn(
         arg1: *mut libc::c_void,

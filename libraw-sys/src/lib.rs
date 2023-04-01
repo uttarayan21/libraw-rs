@@ -4,6 +4,7 @@
 #![allow(deref_nullptr)]
 #![allow(clippy::useless_transmute)]
 #![allow(clippy::approx_constant)]
+#![allow(clippy::too_many_arguments)]
 
 pub use self::bindings::*;
 
