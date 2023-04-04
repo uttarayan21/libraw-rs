@@ -8,6 +8,7 @@ pub mod orientation;
 pub mod progress;
 pub mod traits;
 
+use alloc::sync::Arc;
 #[cfg(windows)]
 use error::InternalLibrawError;
 pub use error::LibrawError;
@@ -17,6 +18,8 @@ use log::warn;
 
 extern crate alloc;
 extern crate libraw_sys as sys;
+use core::ptr::NonNull;
+use core::sync::atomic::AtomicBool;
 use semver::Version;
 use std::ffi::CString;
 use std::ops::{Deref, DerefMut, Drop};
@@ -35,7 +38,8 @@ pub const fn version() -> Version {
 
 /// A struct wrapping the libraw_data_t type
 pub struct Processor {
-    inner: *mut sys::libraw_data_t,
+    inner: NonNull<sys::libraw_data_t>,
+    dropped: Arc<AtomicBool>,
 }
 
 /// You can pass the Processor to another thread since it doesn't use any thread_local values
@@ -44,25 +48,27 @@ unsafe impl Send for Processor {}
 /// Without a mutable reference to Self
 unsafe impl Sync for Processor {}
 
-impl Deref for Processor {
-    type Target = *mut sys::libraw_data_t;
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
-}
+// impl Deref for Processor {
+//     type Target = *mut sys::libraw_data_t;
+//     fn deref(&self) -> &Self::Target {
+//         &self.inner
+//     }
+// }
 
-impl DerefMut for Processor {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.inner
-    }
-}
+// impl DerefMut for Processor {
+//     fn deref_mut(&mut self) -> &mut Self::Target {
+//         &mut self.inner
+//     }
+// }
 
 impl Drop for Processor {
     fn drop(&mut self) {
         unsafe {
-            sys::libraw_free_image(self.inner);
-            sys::libraw_close(self.inner);
+            sys::libraw_free_image(self.inner.as_ptr());
+            sys::libraw_close(self.inner.as_ptr());
         }
+        self.dropped
+            .store(true, core::sync::atomic::Ordering::SeqCst);
     }
 }
 
@@ -77,7 +83,7 @@ impl Processor {
     /// Drop the processor and get a handle to the inner type
     ///
     /// Processor also implements DerefMut so you can take that if you want
-    pub fn into_inner(self) -> *mut sys::libraw_data_t {
+    pub fn into_inner(self) -> NonNull<sys::libraw_data_t> {
         self.inner
     }
 
@@ -88,7 +94,7 @@ impl Processor {
     /// including calling libraw_close and libraw_free_image
     /// This is unsafe because you can cause UB by doing this
     /// If you want to drop the processor, use Processor::drop
-    pub unsafe fn inner_mut(&mut self) -> &mut *mut sys::libraw_data_t {
+    pub unsafe fn inner_mut(&mut self) -> &mut NonNull<sys::libraw_data_t> {
         &mut self.inner
     }
 
@@ -98,10 +104,28 @@ impl Processor {
     }
 
     /// Calls libraw_init with the any of the constructor flags
+    /// # May panic
     pub fn new(option: LibrawConstructorFlags) -> Self {
         let inner = unsafe { sys::libraw_init(option as u32) };
         assert!(!inner.is_null());
-        Self { inner }
+        Self {
+            inner: NonNull::new(inner).expect("Failed to initialize libraw"),
+            dropped: Arc::new(AtomicBool::new(false)),
+        }
+    }
+
+    pub fn try_new(option: LibrawConstructorFlags) -> Result<Self, LibrawError> {
+        let inner = unsafe { sys::libraw_init(option as u32) };
+        if inner.is_null() {
+            Err(LibrawError::CustomError(
+                "Got back null pointer from libraw_init(0)".into(),
+            ))
+        } else {
+            Ok(Self {
+                inner: NonNull::new(inner).expect("Failed to initialize libraw"),
+                dropped: Arc::new(AtomicBool::new(false)),
+            })
+        }
     }
 
     /// Calls libraw_open_file
@@ -117,13 +141,17 @@ impl Processor {
         #[cfg(unix)]
         {
             let c_path = path_to_cstr(&path)?;
-            LibrawError::check(unsafe { sys::libraw_open_file(self.inner, c_path.as_ptr()) })
+            LibrawError::check(unsafe {
+                sys::libraw_open_file(self.inner.as_ptr(), c_path.as_ptr())
+            })
         }
 
         #[cfg(windows)]
         {
             let c_path = path_to_widestring(&path)?;
-            LibrawError::check(unsafe { sys::libraw_open_wfile(self.inner, c_path.as_ptr()) })
+            LibrawError::check(unsafe {
+                sys::libraw_open_wfile(self.inner.as_ptr(), c_path.as_ptr())
+            })
         }
     }
 
@@ -135,7 +163,7 @@ impl Processor {
             );
         }
         let c_path = path_to_cstr(&path)?;
-        LibrawError::check(unsafe { sys::libraw_open_file(self.inner, c_path.as_ptr()) })
+        LibrawError::check(unsafe { sys::libraw_open_file(self.inner.as_ptr(), c_path.as_ptr()) })
     }
 
     /// Get the shootinginfo struct from libraw_data_t
@@ -143,7 +171,7 @@ impl Processor {
     /// Saftey:
     /// Dereferences a raw pointer
     pub fn shootinginfo(&'_ self) -> &'_ sys::libraw_shootinginfo_t {
-        unsafe { &(*(self.inner)).shootinginfo }
+        unsafe { &self.inner.as_ref().shootinginfo }
     }
 
     /// Get the idata struct from libraw_data_t
@@ -151,7 +179,7 @@ impl Processor {
     /// Saftey:
     /// Dereferences a raw pointer
     pub fn idata(&'_ self) -> &'_ sys::libraw_iparams_t {
-        unsafe { &(*(self.inner)).idata }
+        unsafe { &self.inner.as_ref().idata }
     }
 
     /// Get the sizes struct from libraw_data_t
@@ -159,7 +187,7 @@ impl Processor {
     /// Saftey:
     /// Dereferences a raw pointer
     pub fn sizes(&'_ self) -> &'_ sys::libraw_image_sizes_t {
-        unsafe { &(*(self.inner)).sizes }
+        unsafe { &self.inner.as_ref().sizes }
     }
 
     /// Get the iparams from libraw_data_t
@@ -167,7 +195,7 @@ impl Processor {
     /// Saftey:
     /// Dereferences a raw pointer
     pub fn iparams(&'_ self) -> &'_ sys::libraw_iparams_t {
-        let iparams = unsafe { sys::libraw_get_iparams(self.inner) };
+        let iparams = unsafe { sys::libraw_get_iparams(self.inner.as_ptr()) };
         assert!(!iparams.is_null());
         unsafe { &*iparams }
     }
@@ -177,7 +205,7 @@ impl Processor {
     /// Saftey:
     /// Dereferences a raw pointer
     pub fn lensinfo(&'_ self) -> &'_ sys::libraw_lensinfo_t {
-        let lensinfo = unsafe { sys::libraw_get_lensinfo(self.inner) };
+        let lensinfo = unsafe { sys::libraw_get_lensinfo(self.inner.as_ptr()) };
         assert!(!lensinfo.is_null());
         unsafe { &*lensinfo }
     }
@@ -187,7 +215,7 @@ impl Processor {
     /// Saftey:
     /// Dereferences a raw pointer
     pub fn makernotes(&'_ self) -> &'_ sys::libraw_makernotes_t {
-        unsafe { &(*(self.inner)).makernotes }
+        unsafe { &self.inner.as_ref().makernotes }
     }
 
     /// Get the xmpdata from the raw file
@@ -207,47 +235,47 @@ impl Processor {
 
     /// Get imgother by calling libraw_get_imgother
     pub fn imgother(&'_ self) -> &'_ sys::libraw_imgother_t {
-        let imgother = unsafe { sys::libraw_get_imgother(self.inner) };
+        let imgother = unsafe { sys::libraw_get_imgother(self.inner.as_ptr()) };
         assert!(!imgother.is_null());
         unsafe { &*imgother }
     }
 
     /// Get the thumbnail struct from libraw_data_t
     pub fn thumbnail(&'_ self) -> &'_ sys::libraw_thumbnail_t {
-        unsafe { &(*self.inner).thumbnail }
+        unsafe { &self.inner.as_ref().thumbnail }
     }
 
     /// Get the output parameters
     pub fn params(&'_ mut self) -> &'_ mut sys::libraw_output_params_t {
-        unsafe { &mut (*self.inner).params }
+        unsafe { &mut self.inner.as_mut().params }
     }
 
     /// Get the colordata
     pub fn color(&'_ self) -> &'_ sys::libraw_colordata_t {
-        unsafe { &(*self.inner).color }
+        unsafe { &self.inner.as_ref().color }
     }
 
     /// Unpack the thumbnail for the file
     pub fn unpack_thumb(&mut self) -> Result<(), LibrawError> {
-        LibrawError::check(unsafe { sys::libraw_unpack_thumb(self.inner) })?;
+        LibrawError::check(unsafe { sys::libraw_unpack_thumb(self.inner.as_ptr()) })?;
         Ok(())
     }
 
     /// Unpack the raw data and read it to memory
     pub fn unpack(&mut self) -> Result<(), LibrawError> {
-        LibrawError::check(unsafe { sys::libraw_unpack(self.inner) })?;
+        LibrawError::check(unsafe { sys::libraw_unpack(self.inner.as_ptr()) })?;
         Ok(())
     }
 
     /// Get the maximum colors
     pub fn get_color_maximum(&self) -> Result<i32, LibrawError> {
-        let data = unsafe { sys::libraw_get_color_maximum(self.inner) };
+        let data = unsafe { sys::libraw_get_color_maximum(self.inner.as_ptr()) };
         Ok(data)
     }
 
     /// All other references should be invalid when we recycle so we take a mutable value to self
     pub fn recycle(&mut self) -> Result<(), LibrawError> {
-        unsafe { sys::libraw_recycle(self.inner) };
+        unsafe { sys::libraw_recycle(self.inner.as_ptr()) };
         Ok(())
     }
 
@@ -255,7 +283,7 @@ impl Processor {
     ///
     /// Also considers 45 degree angles for fuji cameras
     pub fn adjust_sizes_info_only(&mut self) -> Result<(), LibrawError> {
-        LibrawError::check(unsafe { sys::libraw_adjust_sizes_info_only(self.inner) })
+        LibrawError::check(unsafe { sys::libraw_adjust_sizes_info_only(self.inner.as_ptr()) })
     }
 }
 
@@ -272,7 +300,7 @@ impl Processor {
         // If yes then don't call it
 
         // Check if (*inner).thumbnail.thumb is null
-        if unsafe { (*self.inner).thumbnail.thumb.is_null() } {
+        if unsafe { (*self.inner.as_ptr()).thumbnail.thumb.is_null() } {
             self.unpack_thumb()?;
         }
         let flip = self.sizes().flip;
@@ -314,7 +342,7 @@ impl Processor {
         // If yes then don't call it
 
         // Check if (*inner).thumbnail.thumb is null
-        if unsafe { (*self.inner).thumbnail.thumb.is_null() } {
+        if unsafe { self.inner.as_ref().thumbnail.thumb.is_null() } {
             self.unpack_thumb()?;
         }
         let thumbnail = self.thumbnail();
@@ -358,7 +386,7 @@ impl Processor {
 
         // Now check if libraw_unpack has been called already
         // If it has been call inner.image shouldn't be null
-        if unsafe { (*self.inner).image.is_null() } {
+        if unsafe { self.inner.as_ref().image.is_null() } {
             self.unpack()?;
         }
         self.dcraw_process()?;
@@ -405,7 +433,7 @@ impl Processor {
 
         // Now check if libraw_unpack has been called already
         // If it has been call inner.image shouldn't be null
-        if unsafe { (*self.inner).image.is_null() } {
+        if unsafe { self.inner.as_ref().image.is_null() } {
             self.unpack()?;
         }
         self.dcraw_process()?;
@@ -454,7 +482,7 @@ impl Processor {
     ) -> Result<Vec<u8>, LibrawError> {
         // Now check if libraw_unpack has been called already
         // If it has been call inner.image shouldn't be null
-        if unsafe { (*self.inner).image.is_null() } {
+        if unsafe { self.inner.as_ref().image.is_null() } {
             self.unpack()?;
         }
         self.dcraw_process()?;
@@ -564,19 +592,23 @@ impl Processor {
 
 /// The builder struct for Processor
 pub struct ProcessorBuilder {
-    inner: *mut sys::libraw_data_t,
+    inner: NonNull<sys::libraw_data_t>,
 }
 
 impl ProcessorBuilder {
     pub fn new() -> Self {
         Self::default()
     }
+
     pub fn build(self) -> Processor {
-        Processor { inner: self.inner }
+        Processor {
+            inner: self.inner,
+            dropped: Arc::new(AtomicBool::new(false)),
+        }
     }
 
-    pub fn with_params<P: IntoIterator<Item = Params>>(self, params: P) -> Self {
-        let libraw_params = unsafe { &mut (*self.inner).params };
+    pub fn with_params<P: IntoIterator<Item = Params>>(mut self, params: P) -> Self {
+        let libraw_params = unsafe { &mut self.inner.as_mut().params };
         use Params::*;
         for param in params {
             match param {
@@ -625,37 +657,39 @@ impl Default for ProcessorBuilder {
     fn default() -> Self {
         let inner = unsafe { sys::libraw_init(LibrawConstructorFlags::None as u32) };
         assert!(!inner.is_null());
-        Self { inner }
+        Self {
+            inner: NonNull::new(inner).expect("non null"),
+        }
     }
 }
 
 #[derive(Debug)]
 pub struct ProcessedImage {
-    inner: *mut sys::libraw_processed_image_t,
+    inner: NonNull<sys::libraw_processed_image_t>,
 }
 
 impl Drop for ProcessedImage {
     fn drop(&mut self) {
-        unsafe { sys::libraw_dcraw_clear_mem(self.inner) }
+        unsafe { sys::libraw_dcraw_clear_mem(self.inner.as_ptr()) }
     }
 }
 
-impl Deref for ProcessedImage {
-    type Target = *mut sys::libraw_processed_image_t;
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
-}
+// impl Deref for ProcessedImage {
+//     type Target = *mut sys::libraw_processed_image_t;
+//     fn deref(&self) -> &Self::Target {
+//         &self.inner
+//     }
+// }
 
-impl DerefMut for ProcessedImage {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.inner
-    }
-}
+// impl DerefMut for ProcessedImage {
+//     fn deref_mut(&mut self) -> &mut Self::Target {
+//         &mut self.inner
+//     }
+// }
 
 impl ProcessedImage {
     pub fn raw(&self) -> &sys::libraw_processed_image_t {
-        unsafe { &*self.inner }
+        unsafe { self.inner.as_ref() }
     }
     pub fn as_slice_u8(&self) -> &[u8] {
         self.as_slice::<u8>()
@@ -667,8 +701,8 @@ impl ProcessedImage {
     pub fn as_slice<T>(&self) -> &[T] {
         unsafe {
             std::slice::from_raw_parts(
-                (*self.inner).data.as_ptr() as *const T,
-                (*self.inner).data_size as usize / std::mem::size_of::<T>(),
+                self.inner.as_ref().data.as_ptr() as *const T,
+                self.inner.as_ref().data_size as usize / std::mem::size_of::<T>(),
             )
         }
     }
