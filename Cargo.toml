@@ -2,4 +2,5 @@
 members = [
     "libraw-rs",
     "libraw-sys",
+    "tests",
 ]

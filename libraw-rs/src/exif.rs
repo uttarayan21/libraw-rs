@@ -1,19 +1,24 @@
-use std::{cell::RefCell, rc::Rc};
+use core::ptr::NonNull;
+use core::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Mutex;
 
+use alloc::sync::Arc;
 use libraw_sys::*;
 
 use crate::{LibrawError, Processor};
-pub type Callback<T> = Box<
-    dyn Fn(
-        &mut T,
-        i32,
-        DataType,
-        i32,
-        u32,
-        &mut [u8],
-        i64,
-    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>>,
->;
+pub type Callback<T> =
+    Box<dyn Fn(ExifCallbackArgs<T>) -> Result<(), Box<dyn std::error::Error + Send + Sync>>>;
+
+#[derive(Debug)]
+pub struct ExifCallbackArgs<'a, T> {
+    pub callback_data: &'a mut T,
+    pub tag: i32,
+    pub data_type: DataType,
+    pub len: i32,
+    pub ord: u32,
+    pub data: &'a mut [u8],
+    pub base: i64,
+}
 
 extern "C" {
     pub fn libraw_read_file_datastream(
@@ -141,53 +146,76 @@ impl Processor {
     /// and Rc<Box<T: Fn>> for the callback function  
     /// So if libraw internally uses multithreading for a single image then this might cause UB  
     /// Check <https://www.libraw.org/docs/API-CXX.html#callbacks>  
-    pub fn set_exif_callback<T: std::fmt::Debug, F>(
+    ///
+    /// Saftey.
+    /// BUG:
+    /// There's a bug which doens't unset the callback from the libraw when you the data is
+    /// dropped.
+    /// Since the callback is stored in memory allocated by rust, it will be dropped when the
+    /// returned data is dropped. But libraw doesn't know that and will try to access the data.
+    /// Possibly causing a SEGFAULT.
+    pub fn set_exif_callback<T, F>(
         &mut self,
         data: T,
         data_stream_type: DataStreamType,
         callback: F,
     ) -> Result<ExifReader<T>, crate::error::LibrawError>
     where
-        F: Fn(
-                &mut T,
-                i32,
-                DataType,
-                i32,
-                u32,
-                &mut [u8],
-                i64,
-            ) -> Result<(), Box<dyn std::error::Error + Send + Sync>>
+        F: Fn(ExifCallbackArgs<T>) -> Result<(), Box<dyn std::error::Error + Send + Sync>>
             + 'static,
     {
         let eread = ExifRead {
-            callback: Rc::new(Box::new(callback)),
-            data: Rc::new(RefCell::new(data)),
-            errors: Default::default(),
+            callback: Box::new(callback),
+            data: Mutex::new(data),
+            errors: Mutex::new(Default::default()),
             data_stream_type,
         };
-        let eread = Rc::new(RefCell::new(eread));
+        let eread = Arc::new(eread);
 
         unsafe {
             libraw_set_exifparser_handler(
-                self.inner,
+                self.inner.as_ptr(),
                 Some(ExifReader::<T>::exif_parser_callback),
-                std::mem::transmute(Rc::clone(&eread)),
+                Arc::<ExifRead<T>>::into_raw(Arc::clone(&eread)) as *mut libc::c_void,
             );
         };
 
-        Ok(ExifReader(eread))
+        Ok(ExifReader {
+            inner: eread,
+            libraw_data_t: self.inner,
+            libraw_data_t_dropped: self.dropped.clone(),
+        })
     }
 }
 
-#[repr(transparent)]
+/// Currently we assume that ExifReader<T> won't cross any threads. So there is no chance of any
+/// function accessing this data at the same time in multiple threds.
+/// But it's entirely possible that libraw internally calls the callback function in multiple
+/// threads ( like when using openmp )
 #[derive(Debug)]
-pub struct ExifReader<T>(Rc<RefCell<ExifRead<T>>>);
+#[must_use = ".data() method must be called to get back the data"]
+pub struct ExifReader<T> {
+    inner: Arc<ExifRead<T>>,
+    libraw_data_t: NonNull<libraw_data_t>,
+    libraw_data_t_dropped: Arc<AtomicBool>,
+}
+
+impl<T> Drop for ExifReader<T> {
+    fn drop(&mut self) {
+        if self.libraw_data_t_dropped.load(Ordering::SeqCst) {
+            return;
+        }
+        unsafe {
+            libraw_set_exifparser_handler(self.libraw_data_t.as_ptr(), None, core::ptr::null_mut());
+        };
+    }
+}
 
 pub struct ExifRead<T> {
     data_stream_type: DataStreamType,
-    callback: Rc<Callback<T>>,
-    data: Rc<RefCell<T>>,
-    errors: Rc<RefCell<Vec<LibrawError>>>,
+    callback: Callback<T>,
+    data: Mutex<T>,
+    errors: Mutex<Vec<LibrawError>>,
 }
 
 impl<T: std::fmt::Debug> std::fmt::Debug for ExifRead<T> {
@@ -199,8 +227,8 @@ impl<T: std::fmt::Debug> std::fmt::Debug for ExifRead<T> {
     }
 }
 
-impl<T: std::fmt::Debug> ExifReader<T> {
-    unsafe extern "C" fn exif_parser_callback(
+impl<T> ExifReader<T> {
+    extern "C" fn exif_parser_callback(
         context: *mut libc::c_void,
         tag: libc::c_int,
         _type: libc::c_int,
@@ -209,60 +237,79 @@ impl<T: std::fmt::Debug> ExifReader<T> {
         ifp: *mut libc::c_void,
         base: INT64,
     ) {
-        let context: Rc<RefCell<ExifRead<T>>> = std::mem::transmute(context);
-        Rc::increment_strong_count(Rc::as_ptr(&context));
+        let context: Arc<ExifRead<T>> = unsafe { Arc::from_raw(context as *const ExifRead<T>) };
         let mut buffer = vec![0_u8; len as usize];
 
-        let context = context.borrow_mut();
-        let res = context.data_stream_type.read()(
-            ifp as *mut libc::c_void,
-            buffer.as_mut_slice().as_mut_ptr() as *mut libc::c_void,
-            buffer.len(),
-            1,
-        );
+        let res = unsafe {
+            context.data_stream_type.read()(
+                ifp as *mut libc::c_void,
+                buffer.as_mut_slice().as_mut_ptr() as *mut libc::c_void,
+                buffer.len(),
+                1,
+            )
+        };
 
         if res < 1 {
-            context
-                .errors
-                .borrow_mut()
-                .push(crate::LibrawError::CustomError(
+            if let Ok(mut errors) = context.errors.lock() {
+                errors.push(crate::LibrawError::CustomError(
                     format!("libraw_read_datastream read {res} blocks").into(),
                 ));
+            }
         }
 
-        let mut data = context.data.borrow_mut();
-        if let Err(e) = (context.callback)(
-            &mut data,
-            tag & 0x0fffff, // Undo (ifdN + 1 ) << 20
-            _type.into(),
-            len,
-            ord,
-            buffer.as_mut_slice(),
-            base,
-        ) {
-            context
-                .errors
-                .borrow_mut()
-                .push(LibrawError::CustomError(e));
-        };
+        if let Ok(mut data) = context.data.lock() {
+            if let Err(e) = (context.callback)(ExifCallbackArgs::<T> {
+                callback_data: &mut data,
+                tag: tag & 0x0fffff, // Undo (ifdN + 1 ) << 20
+                data_type: _type.into(),
+                len,
+                ord,
+                data: buffer.as_mut_slice(),
+                base,
+            }) {
+                if let Ok(mut errors) = context.errors.lock() {
+                    errors.push(crate::LibrawError::CustomError(e));
+                }
+            };
+        }
+        core::mem::forget(context); // Don't decrement the refcount for arc we should only
+                                    // decrement that when the data function is called or
+                                    // ExifReader is dropped
     }
 
-    pub fn errors(&self) -> Rc<RefCell<Vec<crate::error::LibrawError>>> {
-        Rc::clone(&self.0.borrow().errors)
+    pub fn errors(&mut self) -> Result<Vec<crate::error::LibrawError>, LibrawError> {
+        let mut errors = self.inner.errors.lock().map_err(|_| {
+            crate::error::LibrawError::CustomError("Unable to lock the mutex to get errors".into())
+        })?;
+        let mut ret: Vec<LibrawError> = Default::default();
+        core::mem::swap(&mut (*errors), &mut ret);
+        Ok(ret)
     }
 
-    pub fn data(self, processor: &mut Processor) -> Result<T, LibrawError> {
-        unsafe { libraw_set_exifparser_handler(processor.inner, None, std::ptr::null_mut()) };
-        unsafe { Rc::decrement_strong_count(Rc::as_ptr(&self.0)) };
-        Ok(Rc::try_unwrap(
-            Rc::try_unwrap(self.0)
-                .map_err(|_| {
-                    LibrawError::CustomError("Multiple References found for ExifReader".into())
-                })?
-                .into_inner()
-                .data,
-        )
-        .map_err(|_| LibrawError::CustomError("Multiple References found for data".into()))?
-        .into_inner())
+    // pub fn data(self, processor: &mut Processor) -> Result<T, LibrawError> {
+    pub fn data(self) -> Result<T, LibrawError> {
+        if !self.libraw_data_t_dropped.load(Ordering::SeqCst) {
+            unsafe {
+                libraw_set_exifparser_handler(
+                    self.libraw_data_t.as_ptr(),
+                    None,
+                    core::ptr::null_mut(),
+                )
+            };
+        }
+        unsafe { Arc::decrement_strong_count(Arc::as_ptr(&self.inner)) };
+        let inner = unsafe { core::ptr::read(&self.inner) };
+        // Since this needs to be dropped we have to take it out of self before forgetting self
+        let dropped = unsafe { core::ptr::read(&self.libraw_data_t_dropped) };
+        drop(dropped);
+        core::mem::forget(self); // Circumvent drop impl
+
+        Arc::try_unwrap(inner)
+            .map_err(|_| LibrawError::CustomError("Multiple references to data found".into()))?
+            .data
+            .into_inner()
+            .map_err(|_| {
+                LibrawError::CustomError("Unable to consume the mutex to get owned data".into())
+            })
     }
 }
