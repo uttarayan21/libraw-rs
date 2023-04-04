@@ -21,7 +21,7 @@ thiserror = "1.0"
 
 [target.'cfg(windows)'.dependencies]
 log = "0.4.16"
-widestring = "0.5.1"
+widestring = "1.0.2"
 
 [features]
 jpeg = ["dep:image", "dep:img-parts"]
