@@ -12,8 +12,11 @@ fn main() -> anyhow::Result<()> {
 #[cfg(feature = "exif")]
 pub fn libread(out_dir: impl AsRef<Path>) -> anyhow::Result<()> {
     let mut libread = cc::Build::new();
+
+    let includes = std::env::var("DEP_RAW_R_INCLUDE")?;
+    let includes = std::env::split_paths(&includes).collect::<Vec<_>>();
     libread
-        .include("includes")
+        .includes(includes)
         .cpp(true)
         .file("exif/libread.cpp")
         .static_flag(true)

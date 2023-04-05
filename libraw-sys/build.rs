@@ -13,11 +13,21 @@ fn main() -> Result<()> {
         .ok()
         .and_then(|p| shellexpand::full(&p).ok().map(|x| x.to_string()))
         .unwrap_or(concat!(env!("CARGO_MANIFEST_DIR"), "/vendor").to_string());
+    println!("cargo:rerun-if-changed={}", libraw_dir);
 
-    #[cfg(all(feature = "bindgen", not(feature = "no-build")))]
+    println!(
+        "cargo:include={}",
+        std::env::join_paths([
+            Path::new(&libraw_dir).join("libraw"),
+            Path::new(&libraw_dir).to_path_buf()
+        ])
+        .expect("Display")
+        .to_string_lossy()
+    );
+
+    #[cfg(all(feature = "bindgen"))]
     bindings(out_dir, &libraw_dir)?;
 
-    #[cfg(all(feature = "build", not(feature = "no-build")))]
     build(out_dir, &libraw_dir)?;
 
     let _ = out_dir;
@@ -25,18 +35,12 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-#[cfg(all(feature = "build", not(feature = "no-build")))]
 fn build(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> {
     std::env::set_current_dir(out_dir.as_ref()).expect("Unable to set current dir");
 
     let mut libraw = cc::Build::new();
     libraw.cpp(true);
     libraw.include(libraw_dir.as_ref());
-
-    println!(
-        "cargo:include={}",
-        libraw_dir.as_ref().join("libraw").display()
-    );
 
     #[cfg(feature = "zlib")]
     if let Ok(path) = std::env::var("DEP_Z_INCLUDE") {
@@ -163,6 +167,10 @@ fn build(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> 
         })
         .collect::<Vec<_>>();
 
+    if sources.is_empty() {
+        panic!("Sources not found. Maybe try running \"git submodule update --init --recursive\"?");
+    }
+
     libraw.files(sources);
 
     libraw.warnings(false);
@@ -215,11 +223,6 @@ fn build(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> 
 
 #[cfg(feature = "bindgen")]
 fn bindings(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> {
-    println!(
-        "cargo:include={}",
-        libraw_dir.as_ref().join("libraw").display()
-    );
-
     let bindings = bindgen::Builder::default()
         .header(
             libraw_dir
