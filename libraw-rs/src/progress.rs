@@ -34,6 +34,7 @@ pub struct ProgressCallbackArgs<'a, T: Send + Sync> {
     pub expected: i32,
 }
 
+#[must_use = "ProgressMonitor must be used else it will get immediately dropped and the functions will no loner have a callback"]
 pub struct ProgressMonitor<T: Send + Sync> {
     inner: Arc<ProgressData<T>>,
     libraw_data_t: NonNull<sys::libraw_data_t>,
