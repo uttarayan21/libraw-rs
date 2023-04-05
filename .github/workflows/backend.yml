@@ -40,6 +40,8 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          submodules: true
 
       - name: Bootstrap
         uses: actions-rs/toolchain@v1
