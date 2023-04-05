@@ -3,26 +3,22 @@ use std::path::Path;
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 fn main() -> Result<()> {
-    __check();
-
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=LIBRAW_DIR");
-    println!("cargo:rerun-if-env-changed=LIBRAW_REPO");
 
     let _out_dir = &std::env::var_os("OUT_DIR").unwrap();
     let out_dir = Path::new(_out_dir);
 
-    #[cfg(all(feature = "clone", not(feature = "no-build")))]
-    clone(out_dir)?;
-
-    // #[cfg(feature = "clone")]
-    // let __head = commit(out_dir.join("libraw"))?;
+    let libraw_dir = std::env::var("LIBRAW_DIR")
+        .ok()
+        .and_then(|p| shellexpand::full(&p).ok().map(|x| x.to_string()))
+        .unwrap_or(concat!(env!("CARGO_MANIFEST_DIR"), "/vendor").to_string());
 
     #[cfg(all(feature = "bindgen", not(feature = "no-build")))]
-    bindings(out_dir)?;
+    bindings(out_dir, &libraw_dir)?;
 
     #[cfg(all(feature = "build", not(feature = "no-build")))]
-    build(out_dir)?;
+    build(out_dir, &libraw_dir)?;
 
     let _ = out_dir;
 
@@ -30,16 +26,16 @@ fn main() -> Result<()> {
 }
 
 #[cfg(all(feature = "build", not(feature = "no-build")))]
-fn build(out_dir: &Path) -> Result<()> {
-    std::env::set_current_dir(out_dir).expect("Unable to set current dir");
+fn build(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> {
+    std::env::set_current_dir(out_dir.as_ref()).expect("Unable to set current dir");
 
     let mut libraw = cc::Build::new();
     libraw.cpp(true);
-    libraw.include("libraw/");
+    libraw.include(libraw_dir.as_ref());
 
     println!(
         "cargo:include={}",
-        out_dir.join("libraw").join("libraw").display()
+        libraw_dir.as_ref().join("libraw").display()
     );
 
     #[cfg(feature = "zlib")]
@@ -71,93 +67,100 @@ fn build(out_dir: &Path) -> Result<()> {
     // }
 
     let sources = [
-        "libraw/src/decoders/canon_600.cpp",
-        "libraw/src/decoders/crx.cpp",
-        "libraw/src/decoders/decoders_dcraw.cpp",
-        "libraw/src/decoders/decoders_libraw.cpp",
-        "libraw/src/decoders/decoders_libraw_dcrdefs.cpp",
-        "libraw/src/decoders/dng.cpp",
-        "libraw/src/decoders/fp_dng.cpp",
-        "libraw/src/decoders/fuji_compressed.cpp",
-        "libraw/src/decoders/generic.cpp",
-        "libraw/src/decoders/kodak_decoders.cpp",
-        "libraw/src/decoders/load_mfbacks.cpp",
-        "libraw/src/decoders/pana8.cpp",
-        "libraw/src/decoders/sonycc.cpp",
-        "libraw/src/decompressors/losslessjpeg.cpp",
-        "libraw/src/decoders/smal.cpp",
-        "libraw/src/decoders/unpack.cpp",
-        "libraw/src/decoders/unpack_thumb.cpp",
-        "libraw/src/demosaic/aahd_demosaic.cpp",
-        "libraw/src/demosaic/ahd_demosaic.cpp",
-        "libraw/src/demosaic/dcb_demosaic.cpp",
-        "libraw/src/demosaic/dht_demosaic.cpp",
-        "libraw/src/demosaic/misc_demosaic.cpp",
-        "libraw/src/demosaic/xtrans_demosaic.cpp",
-        "libraw/src/integration/dngsdk_glue.cpp",
-        "libraw/src/integration/rawspeed_glue.cpp",
-        "libraw/src/metadata/adobepano.cpp",
-        "libraw/src/metadata/canon.cpp",
-        "libraw/src/metadata/ciff.cpp",
-        "libraw/src/metadata/cr3_parser.cpp",
-        "libraw/src/metadata/epson.cpp",
-        "libraw/src/metadata/exif_gps.cpp",
-        "libraw/src/metadata/fuji.cpp",
-        "libraw/src/metadata/hasselblad_model.cpp",
-        "libraw/src/metadata/identify.cpp",
-        "libraw/src/metadata/identify_tools.cpp",
-        "libraw/src/metadata/kodak.cpp",
-        "libraw/src/metadata/leica.cpp",
-        "libraw/src/metadata/makernotes.cpp",
-        "libraw/src/metadata/mediumformat.cpp",
-        "libraw/src/metadata/minolta.cpp",
-        "libraw/src/metadata/misc_parsers.cpp",
-        "libraw/src/metadata/nikon.cpp",
-        "libraw/src/metadata/normalize_model.cpp",
-        "libraw/src/metadata/olympus.cpp",
-        "libraw/src/metadata/p1.cpp",
-        "libraw/src/metadata/pentax.cpp",
-        "libraw/src/metadata/samsung.cpp",
-        "libraw/src/metadata/sony.cpp",
-        "libraw/src/metadata/tiff.cpp",
-        "libraw/src/postprocessing/aspect_ratio.cpp",
-        "libraw/src/postprocessing/dcraw_process.cpp",
-        "libraw/src/postprocessing/mem_image.cpp",
-        "libraw/src/postprocessing/postprocessing_aux.cpp",
-        //"libraw/src/postprocessing/postprocessing_ph.cpp",
-        "libraw/src/postprocessing/postprocessing_utils.cpp",
-        "libraw/src/postprocessing/postprocessing_utils_dcrdefs.cpp",
-        "libraw/src/preprocessing/ext_preprocess.cpp",
-        //"libraw/src/preprocessing/preprocessing_ph.cpp"
-        "libraw/src/preprocessing/raw2image.cpp",
-        "libraw/src/preprocessing/subtract_black.cpp",
-        "libraw/src/tables/cameralist.cpp",
-        "libraw/src/tables/colorconst.cpp",
-        "libraw/src/tables/colordata.cpp",
-        "libraw/src/tables/wblists.cpp",
-        "libraw/src/utils/curves.cpp",
-        "libraw/src/utils/decoder_info.cpp",
-        "libraw/src/utils/init_close_utils.cpp",
-        "libraw/src/utils/open.cpp",
-        "libraw/src/utils/phaseone_processing.cpp",
-        "libraw/src/utils/read_utils.cpp",
-        "libraw/src/utils/thumb_utils.cpp",
-        "libraw/src/utils/utils_dcraw.cpp",
-        "libraw/src/utils/utils_libraw.cpp",
-        "libraw/src/write/apply_profile.cpp",
-        "libraw/src/write/file_write.cpp",
-        "libraw/src/write/tiff_writer.cpp",
-        //"libraw/src/write/write_ph.cpp"
-        "libraw/src/x3f/x3f_parse_process.cpp",
-        "libraw/src/x3f/x3f_utils_patched.cpp",
-        "libraw/src/libraw_c_api.cpp",
-        //"libraw/src/libraw_cxx.cpp"
-        "libraw/src/libraw_datastream.cpp",
+        "src/decoders/canon_600.cpp",
+        "src/decoders/crx.cpp",
+        "src/decoders/decoders_dcraw.cpp",
+        "src/decoders/decoders_libraw.cpp",
+        "src/decoders/decoders_libraw_dcrdefs.cpp",
+        "src/decoders/dng.cpp",
+        "src/decoders/fp_dng.cpp",
+        "src/decoders/fuji_compressed.cpp",
+        "src/decoders/generic.cpp",
+        "src/decoders/kodak_decoders.cpp",
+        "src/decoders/load_mfbacks.cpp",
+        "src/decoders/pana8.cpp",
+        "src/decoders/sonycc.cpp",
+        "src/decompressors/losslessjpeg.cpp",
+        "src/decoders/smal.cpp",
+        "src/decoders/unpack.cpp",
+        "src/decoders/unpack_thumb.cpp",
+        "src/demosaic/aahd_demosaic.cpp",
+        "src/demosaic/ahd_demosaic.cpp",
+        "src/demosaic/dcb_demosaic.cpp",
+        "src/demosaic/dht_demosaic.cpp",
+        "src/demosaic/misc_demosaic.cpp",
+        "src/demosaic/xtrans_demosaic.cpp",
+        "src/integration/dngsdk_glue.cpp",
+        "src/integration/rawspeed_glue.cpp",
+        "src/metadata/adobepano.cpp",
+        "src/metadata/canon.cpp",
+        "src/metadata/ciff.cpp",
+        "src/metadata/cr3_parser.cpp",
+        "src/metadata/epson.cpp",
+        "src/metadata/exif_gps.cpp",
+        "src/metadata/fuji.cpp",
+        "src/metadata/hasselblad_model.cpp",
+        "src/metadata/identify.cpp",
+        "src/metadata/identify_tools.cpp",
+        "src/metadata/kodak.cpp",
+        "src/metadata/leica.cpp",
+        "src/metadata/makernotes.cpp",
+        "src/metadata/mediumformat.cpp",
+        "src/metadata/minolta.cpp",
+        "src/metadata/misc_parsers.cpp",
+        "src/metadata/nikon.cpp",
+        "src/metadata/normalize_model.cpp",
+        "src/metadata/olympus.cpp",
+        "src/metadata/p1.cpp",
+        "src/metadata/pentax.cpp",
+        "src/metadata/samsung.cpp",
+        "src/metadata/sony.cpp",
+        "src/metadata/tiff.cpp",
+        "src/postprocessing/aspect_ratio.cpp",
+        "src/postprocessing/dcraw_process.cpp",
+        "src/postprocessing/mem_image.cpp",
+        "src/postprocessing/postprocessing_aux.cpp",
+        //"src/postprocessing/postprocessing_ph.cpp",
+        "src/postprocessing/postprocessing_utils.cpp",
+        "src/postprocessing/postprocessing_utils_dcrdefs.cpp",
+        "src/preprocessing/ext_preprocess.cpp",
+        //"src/preprocessing/preprocessing_ph.cpp"
+        "src/preprocessing/raw2image.cpp",
+        "src/preprocessing/subtract_black.cpp",
+        "src/tables/cameralist.cpp",
+        "src/tables/colorconst.cpp",
+        "src/tables/colordata.cpp",
+        "src/tables/wblists.cpp",
+        "src/utils/curves.cpp",
+        "src/utils/decoder_info.cpp",
+        "src/utils/init_close_utils.cpp",
+        "src/utils/open.cpp",
+        "src/utils/phaseone_processing.cpp",
+        "src/utils/read_utils.cpp",
+        "src/utils/thumb_utils.cpp",
+        "src/utils/utils_dcraw.cpp",
+        "src/utils/utils_libraw.cpp",
+        "src/write/apply_profile.cpp",
+        "src/write/file_write.cpp",
+        "src/write/tiff_writer.cpp",
+        //"src/write/write_ph.cpp"
+        "src/x3f/x3f_parse_process.cpp",
+        "src/x3f/x3f_utils_patched.cpp",
+        "src/libraw_c_api.cpp",
+        //"src/libraw_cxx.cpp"
+        "src/libraw_datastream.cpp",
     ];
 
     let sources = sources
         .iter()
-        .filter_map(|s| dunce::canonicalize(out_dir.join(s)).ok())
+        .filter_map(|s| {
+            dunce::canonicalize(dbg!(std::path::PathBuf::from(concat!(
+                env!("CARGO_MANIFEST_DIR"),
+                "/vendor"
+            ))
+            .join(s)))
+            .ok()
+        })
         .collect::<Vec<_>>();
 
     libraw.files(sources);
@@ -197,7 +200,7 @@ fn build(out_dir: &Path) -> Result<()> {
 
     println!(
         "cargo:rustc-link-search=native={}",
-        out_dir.join("lib").display()
+        out_dir.as_ref().join("lib").display()
     );
     println!("cargo:rustc-link-lib=static=raw_r");
     // #[cfg(feature = "jpeg")]
@@ -211,16 +214,20 @@ fn build(out_dir: &Path) -> Result<()> {
 }
 
 #[cfg(feature = "bindgen")]
-fn bindings(out_dir: &Path) -> Result<()> {
-    std::env::set_current_dir(out_dir).expect("Unable to set current dir");
-
+fn bindings(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> {
     println!(
         "cargo:include={}",
-        out_dir.join("libraw").join("libraw").display()
+        libraw_dir.as_ref().join("libraw").display()
     );
 
     let bindings = bindgen::Builder::default()
-        .header("libraw/libraw/libraw.h")
+        .header(
+            libraw_dir
+                .as_ref()
+                .join("libraw")
+                .join("libraw.h")
+                .to_string_lossy(),
+        )
         .use_core()
         .ctypes_prefix("libc")
         .generate_comments(true)
@@ -326,7 +333,7 @@ fn bindings(out_dir: &Path) -> Result<()> {
         .expect("Unable to generate bindings");
 
     bindings
-        .write_to_file(out_dir.join("bindings.rs"))
+        .write_to_file(out_dir.as_ref().join("bindings.rs"))
         .expect("Couldn't write bindings!");
 
     #[cfg(feature = "copy")]
@@ -347,50 +354,4 @@ fn bindings(out_dir: &Path) -> Result<()> {
         )
         .expect("Failed to write bindings");
     Ok(())
-}
-
-#[cfg(all(feature = "clone", not(feature = "no-build")))]
-fn clone(out_dir: &Path) -> Result<()> {
-    use std::path::PathBuf;
-    use std::process::{Command, Stdio};
-    eprintln!("\x1b[31mCloning libraw\x1b[0m");
-    let libraw_dir = std::env::var("LIBRAW_DIR");
-
-    // FIXME: Use std::fs::copy or something instead of spawning external commands.
-    // Should build fine on linux / macos and windows powershell but not cmd.exe
-    if let Ok(libraw_dir) = libraw_dir {
-        let files: Vec<PathBuf> = std::fs::read_dir(libraw_dir)?
-            .flatten()
-            .map(|e| e.path())
-            .collect();
-        std::fs::remove_dir_all(out_dir.join("libraw")).ok();
-        std::fs::create_dir_all(out_dir.join("libraw")).ok();
-        fs_extra::copy_items(
-            &files,
-            out_dir.join("libraw"),
-            &fs_extra::dir::CopyOptions {
-                overwrite: true,
-                ..Default::default()
-            },
-        )?;
-    } else {
-        let libraw_repo_url = std::env::var("LIBRAW_REPO")
-            .unwrap_or_else(|_| String::from("https://github.com/libraw/libraw"));
-
-        let _git_out = Command::new("git")
-            .arg("clone")
-            .arg("--depth")
-            .arg("1")
-            .arg(&libraw_repo_url)
-            .arg(out_dir.join("libraw"))
-            .stdout(Stdio::inherit())
-            .output()
-            .unwrap_or_else(|_| panic!("Failed to clone libraw from {libraw_repo_url}"));
-    }
-    Ok(())
-}
-
-fn __check() {
-    #[cfg(all(feature = "build", not(any(feature = "clone", feature = "tarball"))))]
-    compile_error!("You need to have clone enabled to use build");
 }
