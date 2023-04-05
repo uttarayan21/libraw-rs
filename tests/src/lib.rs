@@ -1,3 +1,2 @@
-
 mod exif;
 mod progress;
