@@ -82,17 +82,21 @@ fn build(out_dir: &Path) -> Result<()> {
     if let Ok(path) = std::env::var("DEP_JPEG_INCLUDE") {
         libraw.includes(std::env::split_paths(&path));
     }
-    libraw.file("libraw/src/decoders/canon_600.cpp");
-    libraw.file("libraw/src/decoders/crx.cpp");
-    libraw.file("libraw/src/decoders/decoders_dcraw.cpp");
-    libraw.file("libraw/src/decoders/decoders_libraw.cpp");
-    libraw.file("libraw/src/decoders/decoders_libraw_dcrdefs.cpp");
-    libraw.file("libraw/src/decoders/dng.cpp");
-    libraw.file("libraw/src/decoders/fp_dng.cpp");
-    libraw.file("libraw/src/decoders/fuji_compressed.cpp");
-    libraw.file("libraw/src/decoders/generic.cpp");
-    libraw.file("libraw/src/decoders/kodak_decoders.cpp");
-    libraw.file("libraw/src/decoders/load_mfbacks.cpp");
+
+    let sources = [
+        "libraw/src/decoders/canon_600.cpp",
+        "libraw/src/decoders/crx.cpp",
+        "libraw/src/decoders/decoders_dcraw.cpp",
+        "libraw/src/decoders/decoders_libraw.cpp",
+        "libraw/src/decoders/decoders_libraw_dcrdefs.cpp",
+        "libraw/src/decoders/dng.cpp",
+        "libraw/src/decoders/fp_dng.cpp",
+        "libraw/src/decoders/fuji_compressed.cpp",
+        "libraw/src/decoders/generic.cpp",
+        "libraw/src/decoders/kodak_decoders.cpp",
+        "libraw/src/decoders/load_mfbacks.cpp",
+    ];
+    libraw.files(sources);
     if Path::new("libraw/src/decoders/pana8.cpp").exists() {
         libraw.file("libraw/src/decoders/pana8.cpp");
     }
