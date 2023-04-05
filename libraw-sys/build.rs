@@ -158,11 +158,9 @@ fn build(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> 
     let sources = sources
         .iter()
         .filter_map(|s| {
-            dunce::canonicalize(dbg!(std::path::PathBuf::from(concat!(
-                env!("CARGO_MANIFEST_DIR"),
-                "/vendor"
-            ))
-            .join(s)))
+            dunce::canonicalize(
+                std::path::PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/vendor")).join(s),
+            )
             .ok()
         })
         .collect::<Vec<_>>();
@@ -212,7 +210,6 @@ fn build(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> 
 
     #[cfg(windows)]
     libraw.static_crt(true);
-
 
     libraw.compile("raw_r");
 
