@@ -2,7 +2,7 @@
 name = "libraw_r"
 version = "0.8.3"
 edition = "2021"
-license = "MIT"
+license = "LGPL-2.1-or-later or CDDL-1.0"
 rust-version = "1.65"
 description = "High level api over libraw-sys"
 repository = "https://github.com/aftershootco/libraw-sys"

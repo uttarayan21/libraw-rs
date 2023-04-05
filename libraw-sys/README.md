@@ -17,7 +17,7 @@ Set `LIBRAW_DIR` to a locally cloned version of [LibRaw][libraw] to not clone fr
 export LIBRAW_DIR=/Users/fs0c131y/Projects/aftershoot/LibRaw
 ```
 
-This repo is license under MIT but [LibRaw][libraw] itself uses either of the two
+[LibRaw][libraw] uses either of the two
 1. GNU LESSER GENERAL PUBLIC LICENSE version 2.1
 2. COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
 
