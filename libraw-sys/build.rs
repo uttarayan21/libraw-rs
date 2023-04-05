@@ -179,8 +179,19 @@ fn build(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> 
     libraw.flag_if_supported("-Wno-format-truncation");
     libraw.flag_if_supported("-Wno-unused-result");
     libraw.flag_if_supported("-Wno-format-overflow");
-    libraw.flag_if_supported("-fopenmp");
-
+    #[cfg(feature = "openmp")]
+    {
+        // #[cfg(target_family = "unix")]
+        // libraw.flag_if_supported("-fopenmp");
+        // #[cfg(target_family = "windows")]
+        // libraw.flag_if_supported("-openmp");
+        std::env::var("DEP_OPENMP_FLAG")
+            .unwrap()
+            .split(" ")
+            .for_each(|f| {
+                libraw.flag(f);
+            });
+    }
     // thread safety
     libraw.flag_if_supported("-pthread");
 
