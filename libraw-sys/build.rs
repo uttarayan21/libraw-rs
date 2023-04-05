@@ -181,10 +181,6 @@ fn build(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> 
     libraw.flag_if_supported("-Wno-format-overflow");
     #[cfg(feature = "openmp")]
     {
-        // #[cfg(target_family = "unix")]
-        // libraw.flag_if_supported("-fopenmp");
-        // #[cfg(target_family = "windows")]
-        // libraw.flag_if_supported("-openmp");
         std::env::var("DEP_OPENMP_FLAG")
             .unwrap()
             .split(" ")
@@ -207,13 +203,16 @@ fn build(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> 
 
     #[cfg(target_os = "linux")]
     libraw.cpp_link_stdlib("stdc++");
+
     #[cfg(target_os = "macos")]
     libraw.cpp_link_stdlib("c++");
 
-    #[cfg(windows)]
-    libraw.static_crt(true);
     #[cfg(unix)]
     libraw.static_flag(true);
+
+    #[cfg(windows)]
+    libraw.static_crt(true);
+
 
     libraw.compile("raw_r");
 
@@ -222,8 +221,6 @@ fn build(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> 
         out_dir.as_ref().join("lib").display()
     );
     println!("cargo:rustc-link-lib=static=raw_r");
-    // #[cfg(feature = "jpeg")]
-    // println!("cargo:rustc-link-lib=static=mozjpeg80");
     #[cfg(feature = "jpeg")]
     println!("cargo:rustc-link-lib=static=mozjpeg80");
     #[cfg(feature = "zlib")]
