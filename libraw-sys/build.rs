@@ -14,6 +14,7 @@ fn main() -> Result<()> {
 
     #[cfg(all(feature = "clone", not(feature = "no-build")))]
     clone(out_dir)?;
+
     // #[cfg(feature = "clone")]
     // let __head = commit(out_dir.join("libraw"))?;
 
@@ -41,34 +42,10 @@ fn build(out_dir: &Path) -> Result<()> {
         out_dir.join("libraw").join("libraw").display()
     );
 
-    // #[cfg(feature = "jasper")]
-    // if let Ok(jasper) = std::env::var("DEP_JASPER_INCLUDE") {
-    //     let paths = std::env::split_paths(&jasper).collect::<Vec<_>>();
-    //     for path in paths {
-    //         if !path.exists() {
-    //             panic!("{:?}", path);
-    //         }
-    //         libraw.include(&path);
-    //     }
-    //     // // panic!("{:?}", std::env::split_paths(&jasper).collect::<Vec<_>>());
-    //     // panic!();
-    //     libraw.includes(std::env::split_paths(&jasper));
-    // }
-    // if let Ok(jasper) = pkg_config::Config::new().probe("jasper") {
-    //     libraw.includes(jasper.include_paths);
-    // } else {
-    //     eprintln!("jasper not found");
-    //     return Err("jasper not found".into());
-    // }
-
     #[cfg(feature = "zlib")]
-    if let Ok(path) = dbg!(std::env::var("DEP_Z_INCLUDE")) {
+    if let Ok(path) = std::env::var("DEP_Z_INCLUDE") {
         libraw.include(path);
     }
-    // for (key, value) in std::env::vars() {
-    //     dbg!(key, value);
-    // }
-    // panic!();
 
     // Fix builds on msys2
     #[cfg(windows)]
@@ -82,6 +59,16 @@ fn build(out_dir: &Path) -> Result<()> {
     if let Ok(path) = std::env::var("DEP_JPEG_INCLUDE") {
         libraw.includes(std::env::split_paths(&path));
     }
+    // libraw.files(sources);
+    // if Path::new("libraw/src/decoders/pana8.cpp").exists() {
+    //     libraw.file("libraw/src/decoders/pana8.cpp");
+    // }
+    // if Path::new("libraw/src/decoders/sonycc.cpp").exists() {
+    //     libraw.file("libraw/src/decoders/sonycc.cpp");
+    // }
+    // if Path::new("libraw/src/decompressors/losslessjpeg.cpp").exists() {
+    //     libraw.file("libraw/src/decompressors/losslessjpeg.cpp");
+    // }
 
     let sources = [
         "libraw/src/decoders/canon_600.cpp",
@@ -95,85 +82,85 @@ fn build(out_dir: &Path) -> Result<()> {
         "libraw/src/decoders/generic.cpp",
         "libraw/src/decoders/kodak_decoders.cpp",
         "libraw/src/decoders/load_mfbacks.cpp",
+        "libraw/src/decoders/pana8.cpp",
+        "libraw/src/decoders/sonycc.cpp",
+        "libraw/src/decompressors/losslessjpeg.cpp",
+        "libraw/src/decoders/smal.cpp",
+        "libraw/src/decoders/unpack.cpp",
+        "libraw/src/decoders/unpack_thumb.cpp",
+        "libraw/src/demosaic/aahd_demosaic.cpp",
+        "libraw/src/demosaic/ahd_demosaic.cpp",
+        "libraw/src/demosaic/dcb_demosaic.cpp",
+        "libraw/src/demosaic/dht_demosaic.cpp",
+        "libraw/src/demosaic/misc_demosaic.cpp",
+        "libraw/src/demosaic/xtrans_demosaic.cpp",
+        "libraw/src/integration/dngsdk_glue.cpp",
+        "libraw/src/integration/rawspeed_glue.cpp",
+        "libraw/src/metadata/adobepano.cpp",
+        "libraw/src/metadata/canon.cpp",
+        "libraw/src/metadata/ciff.cpp",
+        "libraw/src/metadata/cr3_parser.cpp",
+        "libraw/src/metadata/epson.cpp",
+        "libraw/src/metadata/exif_gps.cpp",
+        "libraw/src/metadata/fuji.cpp",
+        "libraw/src/metadata/hasselblad_model.cpp",
+        "libraw/src/metadata/identify.cpp",
+        "libraw/src/metadata/identify_tools.cpp",
+        "libraw/src/metadata/kodak.cpp",
+        "libraw/src/metadata/leica.cpp",
+        "libraw/src/metadata/makernotes.cpp",
+        "libraw/src/metadata/mediumformat.cpp",
+        "libraw/src/metadata/minolta.cpp",
+        "libraw/src/metadata/misc_parsers.cpp",
+        "libraw/src/metadata/nikon.cpp",
+        "libraw/src/metadata/normalize_model.cpp",
+        "libraw/src/metadata/olympus.cpp",
+        "libraw/src/metadata/p1.cpp",
+        "libraw/src/metadata/pentax.cpp",
+        "libraw/src/metadata/samsung.cpp",
+        "libraw/src/metadata/sony.cpp",
+        "libraw/src/metadata/tiff.cpp",
+        "libraw/src/postprocessing/aspect_ratio.cpp",
+        "libraw/src/postprocessing/dcraw_process.cpp",
+        "libraw/src/postprocessing/mem_image.cpp",
+        "libraw/src/postprocessing/postprocessing_aux.cpp",
+        //"libraw/src/postprocessing/postprocessing_ph.cpp",
+        "libraw/src/postprocessing/postprocessing_utils.cpp",
+        "libraw/src/postprocessing/postprocessing_utils_dcrdefs.cpp",
+        "libraw/src/preprocessing/ext_preprocess.cpp",
+        //"libraw/src/preprocessing/preprocessing_ph.cpp"
+        "libraw/src/preprocessing/raw2image.cpp",
+        "libraw/src/preprocessing/subtract_black.cpp",
+        "libraw/src/tables/cameralist.cpp",
+        "libraw/src/tables/colorconst.cpp",
+        "libraw/src/tables/colordata.cpp",
+        "libraw/src/tables/wblists.cpp",
+        "libraw/src/utils/curves.cpp",
+        "libraw/src/utils/decoder_info.cpp",
+        "libraw/src/utils/init_close_utils.cpp",
+        "libraw/src/utils/open.cpp",
+        "libraw/src/utils/phaseone_processing.cpp",
+        "libraw/src/utils/read_utils.cpp",
+        "libraw/src/utils/thumb_utils.cpp",
+        "libraw/src/utils/utils_dcraw.cpp",
+        "libraw/src/utils/utils_libraw.cpp",
+        "libraw/src/write/apply_profile.cpp",
+        "libraw/src/write/file_write.cpp",
+        "libraw/src/write/tiff_writer.cpp",
+        //"libraw/src/write/write_ph.cpp"
+        "libraw/src/x3f/x3f_parse_process.cpp",
+        "libraw/src/x3f/x3f_utils_patched.cpp",
+        "libraw/src/libraw_c_api.cpp",
+        //"libraw/src/libraw_cxx.cpp"
+        "libraw/src/libraw_datastream.cpp",
     ];
+
+    let sources = sources
+        .iter()
+        .filter_map(|s| dunce::canonicalize(out_dir.join(s)).ok())
+        .collect::<Vec<_>>();
+
     libraw.files(sources);
-    if Path::new("libraw/src/decoders/pana8.cpp").exists() {
-        libraw.file("libraw/src/decoders/pana8.cpp");
-    }
-    if Path::new("libraw/src/decoders/sonycc.cpp").exists() {
-        libraw.file("libraw/src/decoders/sonycc.cpp");
-    }
-    if Path::new("libraw/src/decompressors/losslessjpeg.cpp").exists() {
-        libraw.file("libraw/src/decompressors/losslessjpeg.cpp");
-    }
-    libraw.file("libraw/src/decoders/smal.cpp");
-    libraw.file("libraw/src/decoders/unpack.cpp");
-    libraw.file("libraw/src/decoders/unpack_thumb.cpp");
-    libraw.file("libraw/src/demosaic/aahd_demosaic.cpp");
-    libraw.file("libraw/src/demosaic/ahd_demosaic.cpp");
-    libraw.file("libraw/src/demosaic/dcb_demosaic.cpp");
-    libraw.file("libraw/src/demosaic/dht_demosaic.cpp");
-    libraw.file("libraw/src/demosaic/misc_demosaic.cpp");
-    libraw.file("libraw/src/demosaic/xtrans_demosaic.cpp");
-    libraw.file("libraw/src/integration/dngsdk_glue.cpp");
-    libraw.file("libraw/src/integration/rawspeed_glue.cpp");
-    libraw.file("libraw/src/metadata/adobepano.cpp");
-    libraw.file("libraw/src/metadata/canon.cpp");
-    libraw.file("libraw/src/metadata/ciff.cpp");
-    libraw.file("libraw/src/metadata/cr3_parser.cpp");
-    libraw.file("libraw/src/metadata/epson.cpp");
-    libraw.file("libraw/src/metadata/exif_gps.cpp");
-    libraw.file("libraw/src/metadata/fuji.cpp");
-    libraw.file("libraw/src/metadata/hasselblad_model.cpp");
-    libraw.file("libraw/src/metadata/identify.cpp");
-    libraw.file("libraw/src/metadata/identify_tools.cpp");
-    libraw.file("libraw/src/metadata/kodak.cpp");
-    libraw.file("libraw/src/metadata/leica.cpp");
-    libraw.file("libraw/src/metadata/makernotes.cpp");
-    libraw.file("libraw/src/metadata/mediumformat.cpp");
-    libraw.file("libraw/src/metadata/minolta.cpp");
-    libraw.file("libraw/src/metadata/misc_parsers.cpp");
-    libraw.file("libraw/src/metadata/nikon.cpp");
-    libraw.file("libraw/src/metadata/normalize_model.cpp");
-    libraw.file("libraw/src/metadata/olympus.cpp");
-    libraw.file("libraw/src/metadata/p1.cpp");
-    libraw.file("libraw/src/metadata/pentax.cpp");
-    libraw.file("libraw/src/metadata/samsung.cpp");
-    libraw.file("libraw/src/metadata/sony.cpp");
-    libraw.file("libraw/src/metadata/tiff.cpp");
-    libraw.file("libraw/src/postprocessing/aspect_ratio.cpp");
-    libraw.file("libraw/src/postprocessing/dcraw_process.cpp");
-    libraw.file("libraw/src/postprocessing/mem_image.cpp");
-    libraw.file("libraw/src/postprocessing/postprocessing_aux.cpp");
-    //libraw.file("libraw/src/postprocessing/postprocessing_ph.cpp");
-    libraw.file("libraw/src/postprocessing/postprocessing_utils.cpp");
-    libraw.file("libraw/src/postprocessing/postprocessing_utils_dcrdefs.cpp");
-    libraw.file("libraw/src/preprocessing/ext_preprocess.cpp");
-    //libraw.file("libraw/src/preprocessing/preprocessing_ph.cpp");
-    libraw.file("libraw/src/preprocessing/raw2image.cpp");
-    libraw.file("libraw/src/preprocessing/subtract_black.cpp");
-    libraw.file("libraw/src/tables/cameralist.cpp");
-    libraw.file("libraw/src/tables/colorconst.cpp");
-    libraw.file("libraw/src/tables/colordata.cpp");
-    libraw.file("libraw/src/tables/wblists.cpp");
-    libraw.file("libraw/src/utils/curves.cpp");
-    libraw.file("libraw/src/utils/decoder_info.cpp");
-    libraw.file("libraw/src/utils/init_close_utils.cpp");
-    libraw.file("libraw/src/utils/open.cpp");
-    libraw.file("libraw/src/utils/phaseone_processing.cpp");
-    libraw.file("libraw/src/utils/read_utils.cpp");
-    libraw.file("libraw/src/utils/thumb_utils.cpp");
-    libraw.file("libraw/src/utils/utils_dcraw.cpp");
-    libraw.file("libraw/src/utils/utils_libraw.cpp");
-    libraw.file("libraw/src/write/apply_profile.cpp");
-    libraw.file("libraw/src/write/file_write.cpp");
-    libraw.file("libraw/src/write/tiff_writer.cpp");
-    //libraw.file("libraw/src/write/write_ph.cpp");
-    libraw.file("libraw/src/x3f/x3f_parse_process.cpp");
-    libraw.file("libraw/src/x3f/x3f_utils_patched.cpp");
-    libraw.file("libraw/src/libraw_c_api.cpp");
-    // libraw.file("libraw/src/libraw_cxx.cpp");
-    libraw.file("libraw/src/libraw_datastream.cpp");
 
     libraw.warnings(false);
     libraw.extra_warnings(false);
@@ -181,7 +168,7 @@ fn build(out_dir: &Path) -> Result<()> {
     libraw.flag_if_supported("-Wno-format-truncation");
     libraw.flag_if_supported("-Wno-unused-result");
     libraw.flag_if_supported("-Wno-format-overflow");
-    // libraw.flag_if_supported("-fopenmp");
+    libraw.flag_if_supported("-fopenmp");
 
     // thread safety
     libraw.flag_if_supported("-pthread");

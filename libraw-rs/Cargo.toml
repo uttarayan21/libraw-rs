@@ -12,12 +12,14 @@ publish = ["ktra"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+futures = { version = "0.3.28", optional = true }
 image = { version = "0.24" , optional = true }
 img-parts = { version = "0.3.0", optional = true }
 libc = { version = "0.2.135", optional = true }
 libraw-sys = { version = "0.8", path = "../libraw-sys",  registry = "ktra" }
 semver = "1.0"
 thiserror = "1.0"
+
 
 [target.'cfg(windows)'.dependencies]
 log = "0.4.16"
@@ -30,6 +32,7 @@ no-build = ["libraw-sys/no-build"]
 bindgen = ["libraw-sys/bindgen"]
 default = ["build", "exif"]
 exif = ["dep:libc"]
+async = ["dep:futures"]
 
 [build-dependencies]
 anyhow = "1.0.58"
