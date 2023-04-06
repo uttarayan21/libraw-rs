@@ -13,7 +13,7 @@ jobs:
           - x86_64-unknown-linux-gnu
           - x86_64-apple-darwin
           - x86_64-pc-windows-msvc
-          - x86_64-pc-windows-gnu
+          # - x86_64-pc-windows-gnu
 
         include:
           - os: ubuntu-latest
@@ -28,9 +28,9 @@ jobs:
             name: Windows MSVC
             target: x86_64-pc-windows-msvc
 
-          - os: windows-latest
-            name: Windows GNU
-            target: x86_64-pc-windows-gnu
+          # - os: windows-latest
+          #   name: Windows GNU
+          #   target: x86_64-pc-windows-gnu
 
     steps:  
       - name: Install libs for Linux

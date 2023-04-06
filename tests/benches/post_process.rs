@@ -17,7 +17,7 @@ fn libraw_benches(c: &mut Criterion) {
         .sample_size(20)
         .measurement_time(std::time::Duration::from_secs(32))
         .bench_function("Post Processing", |b| {
-            b.iter(|| post_process(black_box(IMAGE)))
+            b.iter(|| post_process(IMAGE))
         });
     group.finish();
 }

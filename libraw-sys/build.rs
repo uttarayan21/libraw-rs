@@ -174,9 +174,10 @@ fn build(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> 
     libraw.flag_if_supported("-Wno-format-overflow");
     #[cfg(feature = "openmp")]
     {
+        libraw.define("LIBRAW_USE_OPENMP", None);
         std::env::var("DEP_OPENMP_FLAG")
             .unwrap()
-            .split(" ")
+            .split(' ')
             .for_each(|f| {
                 libraw.flag(f);
             });

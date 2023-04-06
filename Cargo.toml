@@ -15,3 +15,6 @@ panic = 'unwind'
 incremental = true
 codegen-units = 256
 rpath = false
+
+[profile.bench]
+debug = true
