@@ -25,10 +25,10 @@ fn main() -> Result<()> {
         .to_string_lossy()
     );
 
+    build(out_dir, &libraw_dir)?;
+
     #[cfg(all(feature = "bindgen"))]
     bindings(out_dir, &libraw_dir)?;
-
-    build(out_dir, &libraw_dir)?;
 
     let _ = out_dir;
 
@@ -174,7 +174,7 @@ fn build(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> 
     libraw.flag_if_supported("-Wno-format-overflow");
     #[cfg(feature = "openmp")]
     {
-        libraw.define("LIBRAW_USE_OPENMP", None);
+        libraw.define("LIBRAW_FORCE_OPENMP", None);
         std::env::var("DEP_OPENMP_FLAG")
             .unwrap()
             .split(' ')
