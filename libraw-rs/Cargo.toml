@@ -30,6 +30,8 @@ jpeg = ["dep:image", "dep:img-parts"]
 bindgen = ["libraw-sys/bindgen"]
 default = ["exif"]
 exif = ["dep:libc"]
+openmp = ["libraw-sys/openmp"]
+openmp_static = ["libraw-sys/openmp_static"]
 async = ["dep:futures"]
 
 [build-dependencies]

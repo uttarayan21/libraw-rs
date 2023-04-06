@@ -7,13 +7,3 @@ publish = false
 [dependencies]
 libraw_r = { path = "../libraw-rs/" }
 
-[profile.dev]
-opt-level = 0
-debug = true
-debug-assertions = true
-overflow-checks = true
-lto = false
-panic = 'unwind'
-incremental = true
-codegen-units = 256
-rpath = false
