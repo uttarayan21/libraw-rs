@@ -161,6 +161,18 @@ impl Processor {
         LibrawError::check(unsafe { sys::libraw_open_file(self.inner.as_ptr(), c_path.as_ptr()) })
     }
 
+    pub fn open_buffer(&mut self, buffer: impl AsRef<[u8]>) -> Result<(), LibrawError> {
+        self.recycle()?;
+        let buffer = buffer.as_ref();
+        LibrawError::check(unsafe {
+            sys::libraw_open_buffer(
+                self.inner.as_ptr(),
+                buffer.as_ptr() as *const libc::c_void,
+                buffer.len(),
+            )
+        })
+    }
+
     /// Get the shootinginfo struct from libraw_data_t
     ///
     /// Saftey:
