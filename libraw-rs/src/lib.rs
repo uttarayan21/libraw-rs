@@ -9,12 +9,7 @@ pub mod progress;
 pub mod traits;
 
 use alloc::sync::Arc;
-#[cfg(windows)]
-use error::InternalLibrawError;
 pub use error::LibrawError;
-
-#[cfg(windows)]
-use log::warn;
 
 extern crate alloc;
 extern crate libraw_sys as sys;
@@ -851,9 +846,9 @@ fn path_to_cstr(path: impl AsRef<Path>) -> Result<CString, std::ffi::NulError> {
 #[cfg(windows)]
 fn path_to_widestring(
     path: impl AsRef<Path>,
-) -> Result<widestring::U16CString, widestring::NulError<u16>> {
+) -> Result<widestring::U16CString, widestring::error::NulError<u16>> {
     let path = path.as_ref().as_os_str();
-    widestring::U16CString::from_os_str(path)
+    Ok(widestring::U16CString::from_os_str(path)?)
 }
 
 /// Represents the resolution for an image

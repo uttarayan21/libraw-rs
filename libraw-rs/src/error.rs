@@ -10,7 +10,7 @@ pub enum LibrawError {
     NulError(#[from] std::ffi::NulError),
     #[cfg(windows)]
     #[error("{0}")]
-    WidestringError(#[from] widestring::NulError<u16>),
+    WidestringError(#[from] widestring::error::NulError<u16>),
     #[cfg(feature = "jpeg")]
     #[error("{0}")]
     ImageError(#[from] image::error::ImageError),
@@ -89,8 +89,8 @@ impl From<std::ffi::NulError> for InternalLibrawError {
 }
 
 #[cfg(windows)]
-impl From<widestring::NulError<u16>> for InternalLibrawError {
-    fn from(_: widestring::NulError<u16>) -> Self {
+impl From<widestring::error::NulError<u16>> for InternalLibrawError {
+    fn from(_: widestring::error::NulError<u16>) -> Self {
         Self::UnspecifiedError
     }
 }
