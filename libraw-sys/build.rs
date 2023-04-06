@@ -157,12 +157,7 @@ fn build(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> 
 
     let sources = sources
         .iter()
-        .filter_map(|s| {
-            dunce::canonicalize(
-                std::path::PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/vendor")).join(s),
-            )
-            .ok()
-        })
+        .filter_map(|s| dunce::canonicalize(libraw_dir.as_ref().join(s)).ok())
         .collect::<Vec<_>>();
 
     if sources.is_empty() {
