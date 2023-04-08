@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -11,9 +11,17 @@ fn main() -> Result<()> {
 
     let libraw_dir = std::env::var("LIBRAW_DIR")
         .ok()
-        .and_then(|p| shellexpand::full(&p).ok().map(|x| x.to_string()))
-        .unwrap_or(concat!(env!("CARGO_MANIFEST_DIR"), "/vendor").to_string());
-    println!("cargo:rerun-if-changed={}", libraw_dir);
+        .and_then(|p| {
+            shellexpand::full(&p)
+                .ok()
+                .and_then(|p| dunce::canonicalize(p.to_string()).ok())
+        })
+        .unwrap_or(PathBuf::from(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/vendor"
+        )));
+
+    // println!("cargo:rerun-if-changed={}", libraw_dir.display());
 
     println!(
         "cargo:include={}",
@@ -162,6 +170,10 @@ fn build(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> 
 
     if sources.is_empty() {
         panic!("Sources not found. Maybe try running \"git submodule update --init --recursive\"?");
+    } else {
+        sources
+            .iter()
+            .for_each(|s| println!("cargo:rerun-if-changed={}", s.display()));
     }
 
     libraw.files(sources);
@@ -181,6 +193,34 @@ fn build(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> 
             .for_each(|f| {
                 libraw.flag(f);
             });
+        if cfg!(target_os = "macos") {
+            if libraw.get_compiler().is_like_apple_clang() {
+                let homebrew_prefix =
+                    PathBuf::from(std::env::var("HOMEBREW_PREFIX").unwrap_or_else(|_| {
+                        if cfg!(target_arch = "aarch64") {
+                            "/opt/homebrew".into()
+                        } else {
+                            "/usr/local".into()
+                        }
+                    }));
+
+                if homebrew_prefix.join("opt/libomp/include").exists() {
+                    libraw.include(homebrew_prefix.join("opt/libomp/include"));
+                    println!(
+                        "cargo:rustc-link-search={}{}opt/libomp/lib",
+                        homebrew_prefix.display(),
+                        std::path::MAIN_SEPARATOR
+                    );
+                    let statik = cfg!(feature = "openmp_static");
+                    println!(
+                        "cargo:rustc-link-lib{}=omp",
+                        if statik { "=static" } else { "" }
+                    );
+                } else {
+                    println!("cargo:warning:Unable to find libomp (maybe try installing libomp via homebrew?)")
+                }
+            }
+        }
     }
     // thread safety
     libraw.flag_if_supported("-pthread");
@@ -358,4 +398,22 @@ fn bindings(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<(
         )
         .expect("Failed to write bindings");
     Ok(())
+}
+
+pub trait IsAppleClang {
+    fn try_is_like_apple_clang(&self) -> Result<bool>;
+    fn is_like_apple_clang(&self) -> bool {
+        self.try_is_like_apple_clang()
+            .expect("Failed to run compiler")
+    }
+}
+
+impl IsAppleClang for cc::Tool {
+    fn try_is_like_apple_clang(&self) -> Result<bool> {
+        let output = std::process::Command::new(self.to_command().get_program())
+            .arg("-v")
+            .output()?;
+        let stderr = String::from_utf8(output.stderr)?;
+        Ok(stderr.starts_with("Apple") && (stderr.contains("clang") || self.is_like_clang()))
+    }
 }

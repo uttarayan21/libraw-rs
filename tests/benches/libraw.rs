@@ -11,12 +11,23 @@ fn post_process(data: &[u8]) -> Vec<u8> {
     i.as_slice_u8().into()
 }
 
+fn unpack(data: &[u8]) {
+    use libraw_r::Processor;
+    let mut processor = Processor::default();
+    processor.open_buffer(black_box(data)).unwrap();
+    processor.unpack().unwrap();
+}
+
 fn libraw_benches(c: &mut Criterion) {
-    let mut group = c.benchmark_group("Post Process");
+    let mut group = c.benchmark_group("Normal Operations");
     group
         .sample_size(20)
         .measurement_time(std::time::Duration::from_secs(32))
-        .bench_function("Post Processing", |b| b.iter(|| post_process(black_box(IMAGE))));
+        .bench_function("Unpack", |b| b.iter(|| unpack(black_box(IMAGE))))
+        .bench_function("Post Processing", |b| {
+            b.iter(|| post_process(black_box(IMAGE)))
+        });
+
     group.finish();
 }
 

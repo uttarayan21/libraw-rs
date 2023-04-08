@@ -5,7 +5,7 @@ pub fn check_progress() {
     let r = p
         .set_progress_callback(
             |_| {
-                println!("Progress");
+                // println!("Progress");
                 0
             },
             (),
@@ -17,7 +17,7 @@ pub fn check_progress() {
     ))
     .expect("Failed to open file");
     p.unpack().expect("Failed to unpack");
-    r.cancel();
+    // r.cancel();
     let e = dbg!(p.dcraw_process().unwrap_err());
     assert_eq!(
         e.libraw_err_type().expect("Not InternalError"),

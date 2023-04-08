@@ -20,18 +20,16 @@ libraw-sys = { version = "0.8", path = "../libraw-sys",  registry = "ktra" }
 semver = "1.0"
 thiserror = "1.0"
 
-
 [target.'cfg(windows)'.dependencies]
 widestring = "1.0.2"
 
 [features]
 jpeg = ["dep:image", "dep:img-parts"]
 bindgen = ["libraw-sys/bindgen"]
-default = ["exif"]
 exif = ["dep:libc"]
 openmp = ["libraw-sys/openmp"]
 openmp_static = ["libraw-sys/openmp_static"]
-async = ["dep:futures"]
+default = ["exif"]
 
 [build-dependencies]
 anyhow = "1.0.58"
