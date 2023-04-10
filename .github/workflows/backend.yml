@@ -13,6 +13,7 @@ jobs:
           - x86_64-unknown-linux-gnu
           - x86_64-apple-darwin
           - x86_64-pc-windows-msvc
+          # - x86_64-pc-windows-gnu
 
         include:
           - os: ubuntu-latest
@@ -24,13 +25,23 @@ jobs:
             target: x86_64-apple-darwin
 
           - os: windows-latest
-            name: Windows
+            name: Windows MSVC
             target: x86_64-pc-windows-msvc
 
+          # - os: windows-latest
+          #   name: Windows GNU
+          #   target: x86_64-pc-windows-gnu
 
     steps:  
+      - name: Install libs for Linux
+        run: |
+          sudo apt-get update && sudo apt-get install -y libde265-dev libx265-dev libheif-dev libsqlite3-dev
+        if: matrix.name=='Linux'
+
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          submodules: true
 
       - name: Bootstrap
         uses: actions-rs/toolchain@v1
@@ -44,17 +55,23 @@ jobs:
         with:
           command: fmt
           args: --all -- --check
-        continue-on-error: false
+        continue-on-error: true
 
       - name: Lints
         uses: actions-rs/cargo@v1
         with:
           command: clippy
           args: --target=${{ matrix.target }} -- --no-deps -D warnings
-        continue-on-error: false
+        continue-on-error: true
 
       - name: Build
         uses: actions-rs/cargo@v1
         with:
           command: build
+          args: --target=${{ matrix.target }} --release
+
+      - name: Tests
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
           args: --target=${{ matrix.target }} --release

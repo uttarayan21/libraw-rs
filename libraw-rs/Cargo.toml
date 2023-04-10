@@ -2,7 +2,7 @@
 name = "libraw_r"
 version = "0.8.3"
 edition = "2021"
-license = "MIT"
+license = "LGPL-2.1-or-later or CDDL-1.0"
 rust-version = "1.65"
 description = "High level api over libraw-sys"
 repository = "https://github.com/aftershootco/libraw-sys"
@@ -12,6 +12,7 @@ publish = ["ktra"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+futures = { version = "0.3.28", optional = true }
 image = { version = "0.24" , optional = true }
 img-parts = { version = "0.3.0", optional = true }
 libc = { version = "0.2.135", optional = true }
@@ -20,17 +21,15 @@ semver = "1.0"
 thiserror = "1.0"
 
 [target.'cfg(windows)'.dependencies]
-log = "0.4.16"
-widestring = "0.5.1"
+widestring = "1.0.2"
 
 [features]
 jpeg = ["dep:image", "dep:img-parts"]
-build = ["libraw-sys/build"]
-no-build = ["libraw-sys/no-build"]
 bindgen = ["libraw-sys/bindgen"]
-file = []
-default = ["build","file","exif"]
 exif = ["dep:libc"]
+openmp = ["libraw-sys/openmp"]
+openmp_static = ["libraw-sys/openmp_static"]
+default = ["exif"]
 
 [build-dependencies]
 anyhow = "1.0.58"

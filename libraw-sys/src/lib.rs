@@ -5,6 +5,8 @@
 #![allow(clippy::useless_transmute)]
 #![allow(clippy::approx_constant)]
 #![allow(clippy::too_many_arguments)]
+#[cfg(feature = "openmp")]
+extern crate openmp_sys;
 
 pub use self::bindings::*;
 

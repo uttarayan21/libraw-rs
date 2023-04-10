@@ -1,74 +1,59 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 fn main() -> Result<()> {
-    __check();
-
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=LIBRAW_DIR");
-    println!("cargo:rerun-if-env-changed=LIBRAW_REPO");
 
     let _out_dir = &std::env::var_os("OUT_DIR").unwrap();
     let out_dir = Path::new(_out_dir);
 
-    #[cfg(all(feature = "clone", not(feature = "no-build")))]
-    clone(out_dir)?;
-    // #[cfg(feature = "clone")]
-    // let __head = commit(out_dir.join("libraw"))?;
+    let libraw_dir = std::env::var("LIBRAW_DIR")
+        .ok()
+        .and_then(|p| {
+            shellexpand::full(&p)
+                .ok()
+                .and_then(|p| dunce::canonicalize(p.to_string()).ok())
+        })
+        .unwrap_or(PathBuf::from(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/vendor"
+        )));
 
-    #[cfg(all(feature = "bindgen", not(feature = "no-build")))]
-    bindings(out_dir)?;
+    // println!("cargo:rerun-if-changed={}", libraw_dir.display());
 
-    #[cfg(all(feature = "build", not(feature = "no-build")))]
-    build(out_dir)?;
+    println!(
+        "cargo:include={}",
+        std::env::join_paths([
+            Path::new(&libraw_dir).join("libraw"),
+            Path::new(&libraw_dir).to_path_buf()
+        ])
+        .expect("Display")
+        .to_string_lossy()
+    );
+
+    build(out_dir, &libraw_dir)?;
+
+    #[cfg(all(feature = "bindgen"))]
+    bindings(out_dir, &libraw_dir)?;
 
     let _ = out_dir;
 
     Ok(())
 }
 
-#[cfg(all(feature = "build", not(feature = "no-build")))]
-fn build(out_dir: &Path) -> Result<()> {
-    std::env::set_current_dir(out_dir).expect("Unable to set current dir");
+fn build(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> {
+    std::env::set_current_dir(out_dir.as_ref()).expect("Unable to set current dir");
 
     let mut libraw = cc::Build::new();
     libraw.cpp(true);
-    libraw.include("libraw/");
-
-    println!(
-        "cargo:include={}",
-        out_dir.join("libraw").join("libraw").display()
-    );
-
-    // #[cfg(feature = "jasper")]
-    // if let Ok(jasper) = std::env::var("DEP_JASPER_INCLUDE") {
-    //     let paths = std::env::split_paths(&jasper).collect::<Vec<_>>();
-    //     for path in paths {
-    //         if !path.exists() {
-    //             panic!("{:?}", path);
-    //         }
-    //         libraw.include(&path);
-    //     }
-    //     // // panic!("{:?}", std::env::split_paths(&jasper).collect::<Vec<_>>());
-    //     // panic!();
-    //     libraw.includes(std::env::split_paths(&jasper));
-    // }
-    // if let Ok(jasper) = pkg_config::Config::new().probe("jasper") {
-    //     libraw.includes(jasper.include_paths);
-    // } else {
-    //     eprintln!("jasper not found");
-    //     return Err("jasper not found".into());
-    // }
+    libraw.include(libraw_dir.as_ref());
 
     #[cfg(feature = "zlib")]
-    if let Ok(path) = dbg!(std::env::var("DEP_Z_INCLUDE")) {
+    if let Ok(path) = std::env::var("DEP_Z_INCLUDE") {
         libraw.include(path);
     }
-    // for (key, value) in std::env::vars() {
-    //     dbg!(key, value);
-    // }
-    // panic!();
 
     // Fix builds on msys2
     #[cfg(windows)]
@@ -82,94 +67,116 @@ fn build(out_dir: &Path) -> Result<()> {
     if let Ok(path) = std::env::var("DEP_JPEG_INCLUDE") {
         libraw.includes(std::env::split_paths(&path));
     }
-    libraw.file("libraw/src/decoders/canon_600.cpp");
-    libraw.file("libraw/src/decoders/crx.cpp");
-    libraw.file("libraw/src/decoders/decoders_dcraw.cpp");
-    libraw.file("libraw/src/decoders/decoders_libraw.cpp");
-    libraw.file("libraw/src/decoders/decoders_libraw_dcrdefs.cpp");
-    libraw.file("libraw/src/decoders/dng.cpp");
-    libraw.file("libraw/src/decoders/fp_dng.cpp");
-    libraw.file("libraw/src/decoders/fuji_compressed.cpp");
-    libraw.file("libraw/src/decoders/generic.cpp");
-    libraw.file("libraw/src/decoders/kodak_decoders.cpp");
-    libraw.file("libraw/src/decoders/load_mfbacks.cpp");
-    if Path::new("libraw/src/decoders/pana8.cpp").exists() {
-        libraw.file("libraw/src/decoders/pana8.cpp");
+    // libraw.files(sources);
+    // if Path::new("libraw/src/decoders/pana8.cpp").exists() {
+    //     libraw.file("libraw/src/decoders/pana8.cpp");
+    // }
+    // if Path::new("libraw/src/decoders/sonycc.cpp").exists() {
+    //     libraw.file("libraw/src/decoders/sonycc.cpp");
+    // }
+    // if Path::new("libraw/src/decompressors/losslessjpeg.cpp").exists() {
+    //     libraw.file("libraw/src/decompressors/losslessjpeg.cpp");
+    // }
+
+    let sources = [
+        "src/decoders/canon_600.cpp",
+        "src/decoders/crx.cpp",
+        "src/decoders/decoders_dcraw.cpp",
+        "src/decoders/decoders_libraw.cpp",
+        "src/decoders/decoders_libraw_dcrdefs.cpp",
+        "src/decoders/dng.cpp",
+        "src/decoders/fp_dng.cpp",
+        "src/decoders/fuji_compressed.cpp",
+        "src/decoders/generic.cpp",
+        "src/decoders/kodak_decoders.cpp",
+        "src/decoders/load_mfbacks.cpp",
+        "src/decoders/pana8.cpp",
+        "src/decoders/sonycc.cpp",
+        "src/decompressors/losslessjpeg.cpp",
+        "src/decoders/smal.cpp",
+        "src/decoders/unpack.cpp",
+        "src/decoders/unpack_thumb.cpp",
+        "src/demosaic/aahd_demosaic.cpp",
+        "src/demosaic/ahd_demosaic.cpp",
+        "src/demosaic/dcb_demosaic.cpp",
+        "src/demosaic/dht_demosaic.cpp",
+        "src/demosaic/misc_demosaic.cpp",
+        "src/demosaic/xtrans_demosaic.cpp",
+        "src/integration/dngsdk_glue.cpp",
+        "src/integration/rawspeed_glue.cpp",
+        "src/metadata/adobepano.cpp",
+        "src/metadata/canon.cpp",
+        "src/metadata/ciff.cpp",
+        "src/metadata/cr3_parser.cpp",
+        "src/metadata/epson.cpp",
+        "src/metadata/exif_gps.cpp",
+        "src/metadata/fuji.cpp",
+        "src/metadata/hasselblad_model.cpp",
+        "src/metadata/identify.cpp",
+        "src/metadata/identify_tools.cpp",
+        "src/metadata/kodak.cpp",
+        "src/metadata/leica.cpp",
+        "src/metadata/makernotes.cpp",
+        "src/metadata/mediumformat.cpp",
+        "src/metadata/minolta.cpp",
+        "src/metadata/misc_parsers.cpp",
+        "src/metadata/nikon.cpp",
+        "src/metadata/normalize_model.cpp",
+        "src/metadata/olympus.cpp",
+        "src/metadata/p1.cpp",
+        "src/metadata/pentax.cpp",
+        "src/metadata/samsung.cpp",
+        "src/metadata/sony.cpp",
+        "src/metadata/tiff.cpp",
+        "src/postprocessing/aspect_ratio.cpp",
+        "src/postprocessing/dcraw_process.cpp",
+        "src/postprocessing/mem_image.cpp",
+        "src/postprocessing/postprocessing_aux.cpp",
+        //"src/postprocessing/postprocessing_ph.cpp",
+        "src/postprocessing/postprocessing_utils.cpp",
+        "src/postprocessing/postprocessing_utils_dcrdefs.cpp",
+        "src/preprocessing/ext_preprocess.cpp",
+        //"src/preprocessing/preprocessing_ph.cpp"
+        "src/preprocessing/raw2image.cpp",
+        "src/preprocessing/subtract_black.cpp",
+        "src/tables/cameralist.cpp",
+        "src/tables/colorconst.cpp",
+        "src/tables/colordata.cpp",
+        "src/tables/wblists.cpp",
+        "src/utils/curves.cpp",
+        "src/utils/decoder_info.cpp",
+        "src/utils/init_close_utils.cpp",
+        "src/utils/open.cpp",
+        "src/utils/phaseone_processing.cpp",
+        "src/utils/read_utils.cpp",
+        "src/utils/thumb_utils.cpp",
+        "src/utils/utils_dcraw.cpp",
+        "src/utils/utils_libraw.cpp",
+        "src/write/apply_profile.cpp",
+        "src/write/file_write.cpp",
+        "src/write/tiff_writer.cpp",
+        //"src/write/write_ph.cpp"
+        "src/x3f/x3f_parse_process.cpp",
+        "src/x3f/x3f_utils_patched.cpp",
+        "src/libraw_c_api.cpp",
+        //"src/libraw_cxx.cpp"
+        "src/libraw_datastream.cpp",
+    ];
+
+    let sources = sources
+        .iter()
+        .filter_map(|s| dunce::canonicalize(libraw_dir.as_ref().join(s)).ok())
+        .collect::<Vec<_>>();
+
+    if sources.is_empty() {
+        panic!("Sources not found. Maybe try running \"git submodule update --init --recursive\"?");
+    } else {
+        sources
+            .iter()
+            .for_each(|s| println!("cargo:rerun-if-changed={}", s.display()));
     }
-    if Path::new("libraw/src/decoders/sonycc.cpp").exists() {
-        libraw.file("libraw/src/decoders/sonycc.cpp");
-    }
-    if Path::new("libraw/src/decompressors/losslessjpeg.cpp").exists() {
-        libraw.file("libraw/src/decompressors/losslessjpeg.cpp");
-    }
-    libraw.file("libraw/src/decoders/smal.cpp");
-    libraw.file("libraw/src/decoders/unpack.cpp");
-    libraw.file("libraw/src/decoders/unpack_thumb.cpp");
-    libraw.file("libraw/src/demosaic/aahd_demosaic.cpp");
-    libraw.file("libraw/src/demosaic/ahd_demosaic.cpp");
-    libraw.file("libraw/src/demosaic/dcb_demosaic.cpp");
-    libraw.file("libraw/src/demosaic/dht_demosaic.cpp");
-    libraw.file("libraw/src/demosaic/misc_demosaic.cpp");
-    libraw.file("libraw/src/demosaic/xtrans_demosaic.cpp");
-    libraw.file("libraw/src/integration/dngsdk_glue.cpp");
-    libraw.file("libraw/src/integration/rawspeed_glue.cpp");
-    libraw.file("libraw/src/metadata/adobepano.cpp");
-    libraw.file("libraw/src/metadata/canon.cpp");
-    libraw.file("libraw/src/metadata/ciff.cpp");
-    libraw.file("libraw/src/metadata/cr3_parser.cpp");
-    libraw.file("libraw/src/metadata/epson.cpp");
-    libraw.file("libraw/src/metadata/exif_gps.cpp");
-    libraw.file("libraw/src/metadata/fuji.cpp");
-    libraw.file("libraw/src/metadata/hasselblad_model.cpp");
-    libraw.file("libraw/src/metadata/identify.cpp");
-    libraw.file("libraw/src/metadata/identify_tools.cpp");
-    libraw.file("libraw/src/metadata/kodak.cpp");
-    libraw.file("libraw/src/metadata/leica.cpp");
-    libraw.file("libraw/src/metadata/makernotes.cpp");
-    libraw.file("libraw/src/metadata/mediumformat.cpp");
-    libraw.file("libraw/src/metadata/minolta.cpp");
-    libraw.file("libraw/src/metadata/misc_parsers.cpp");
-    libraw.file("libraw/src/metadata/nikon.cpp");
-    libraw.file("libraw/src/metadata/normalize_model.cpp");
-    libraw.file("libraw/src/metadata/olympus.cpp");
-    libraw.file("libraw/src/metadata/p1.cpp");
-    libraw.file("libraw/src/metadata/pentax.cpp");
-    libraw.file("libraw/src/metadata/samsung.cpp");
-    libraw.file("libraw/src/metadata/sony.cpp");
-    libraw.file("libraw/src/metadata/tiff.cpp");
-    libraw.file("libraw/src/postprocessing/aspect_ratio.cpp");
-    libraw.file("libraw/src/postprocessing/dcraw_process.cpp");
-    libraw.file("libraw/src/postprocessing/mem_image.cpp");
-    libraw.file("libraw/src/postprocessing/postprocessing_aux.cpp");
-    //libraw.file("libraw/src/postprocessing/postprocessing_ph.cpp");
-    libraw.file("libraw/src/postprocessing/postprocessing_utils.cpp");
-    libraw.file("libraw/src/postprocessing/postprocessing_utils_dcrdefs.cpp");
-    libraw.file("libraw/src/preprocessing/ext_preprocess.cpp");
-    //libraw.file("libraw/src/preprocessing/preprocessing_ph.cpp");
-    libraw.file("libraw/src/preprocessing/raw2image.cpp");
-    libraw.file("libraw/src/preprocessing/subtract_black.cpp");
-    libraw.file("libraw/src/tables/cameralist.cpp");
-    libraw.file("libraw/src/tables/colorconst.cpp");
-    libraw.file("libraw/src/tables/colordata.cpp");
-    libraw.file("libraw/src/tables/wblists.cpp");
-    libraw.file("libraw/src/utils/curves.cpp");
-    libraw.file("libraw/src/utils/decoder_info.cpp");
-    libraw.file("libraw/src/utils/init_close_utils.cpp");
-    libraw.file("libraw/src/utils/open.cpp");
-    libraw.file("libraw/src/utils/phaseone_processing.cpp");
-    libraw.file("libraw/src/utils/read_utils.cpp");
-    libraw.file("libraw/src/utils/thumb_utils.cpp");
-    libraw.file("libraw/src/utils/utils_dcraw.cpp");
-    libraw.file("libraw/src/utils/utils_libraw.cpp");
-    libraw.file("libraw/src/write/apply_profile.cpp");
-    libraw.file("libraw/src/write/file_write.cpp");
-    libraw.file("libraw/src/write/tiff_writer.cpp");
-    //libraw.file("libraw/src/write/write_ph.cpp");
-    libraw.file("libraw/src/x3f/x3f_parse_process.cpp");
-    libraw.file("libraw/src/x3f/x3f_utils_patched.cpp");
-    libraw.file("libraw/src/libraw_c_api.cpp");
-    // libraw.file("libraw/src/libraw_cxx.cpp");
-    libraw.file("libraw/src/libraw_datastream.cpp");
+
+    libraw.files(sources);
 
     libraw.warnings(false);
     libraw.extra_warnings(false);
@@ -177,8 +184,44 @@ fn build(out_dir: &Path) -> Result<()> {
     libraw.flag_if_supported("-Wno-format-truncation");
     libraw.flag_if_supported("-Wno-unused-result");
     libraw.flag_if_supported("-Wno-format-overflow");
-    // libraw.flag_if_supported("-fopenmp");
+    #[cfg(feature = "openmp")]
+    {
+        libraw.define("LIBRAW_FORCE_OPENMP", None);
+        std::env::var("DEP_OPENMP_FLAG")
+            .unwrap()
+            .split(' ')
+            .for_each(|f| {
+                libraw.flag(f);
+            });
+        if cfg!(target_os = "macos") {
+            if libraw.get_compiler().is_like_apple_clang() {
+                let homebrew_prefix =
+                    PathBuf::from(std::env::var("HOMEBREW_PREFIX").unwrap_or_else(|_| {
+                        if cfg!(target_arch = "aarch64") {
+                            "/opt/homebrew".into()
+                        } else {
+                            "/usr/local".into()
+                        }
+                    }));
 
+                if homebrew_prefix.join("opt/libomp/include").exists() {
+                    libraw.include(homebrew_prefix.join("opt/libomp/include"));
+                    println!(
+                        "cargo:rustc-link-search={}{}opt/libomp/lib",
+                        homebrew_prefix.display(),
+                        std::path::MAIN_SEPARATOR
+                    );
+                    let statik = cfg!(feature = "openmp_static");
+                    println!(
+                        "cargo:rustc-link-lib{}=omp",
+                        if statik { "=static" } else { "" }
+                    );
+                } else {
+                    println!("cargo:warning:Unable to find libomp (maybe try installing libomp via homebrew?)")
+                }
+            }
+        }
+    }
     // thread safety
     libraw.flag_if_supported("-pthread");
 
@@ -194,23 +237,23 @@ fn build(out_dir: &Path) -> Result<()> {
 
     #[cfg(target_os = "linux")]
     libraw.cpp_link_stdlib("stdc++");
+
     #[cfg(target_os = "macos")]
     libraw.cpp_link_stdlib("c++");
 
-    #[cfg(windows)]
-    libraw.static_crt(true);
     #[cfg(unix)]
     libraw.static_flag(true);
+
+    #[cfg(windows)]
+    libraw.static_crt(true);
 
     libraw.compile("raw_r");
 
     println!(
         "cargo:rustc-link-search=native={}",
-        out_dir.join("lib").display()
+        out_dir.as_ref().join("lib").display()
     );
     println!("cargo:rustc-link-lib=static=raw_r");
-    // #[cfg(feature = "jpeg")]
-    // println!("cargo:rustc-link-lib=static=mozjpeg80");
     #[cfg(feature = "jpeg")]
     println!("cargo:rustc-link-lib=static=mozjpeg80");
     #[cfg(feature = "zlib")]
@@ -220,16 +263,15 @@ fn build(out_dir: &Path) -> Result<()> {
 }
 
 #[cfg(feature = "bindgen")]
-fn bindings(out_dir: &Path) -> Result<()> {
-    std::env::set_current_dir(out_dir).expect("Unable to set current dir");
-
-    println!(
-        "cargo:include={}",
-        out_dir.join("libraw").join("libraw").display()
-    );
-
+fn bindings(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> {
     let bindings = bindgen::Builder::default()
-        .header("libraw/libraw/libraw.h")
+        .header(
+            libraw_dir
+                .as_ref()
+                .join("libraw")
+                .join("libraw.h")
+                .to_string_lossy(),
+        )
         .use_core()
         .ctypes_prefix("libc")
         .generate_comments(true)
@@ -335,7 +377,7 @@ fn bindings(out_dir: &Path) -> Result<()> {
         .expect("Unable to generate bindings");
 
     bindings
-        .write_to_file(out_dir.join("bindings.rs"))
+        .write_to_file(out_dir.as_ref().join("bindings.rs"))
         .expect("Couldn't write bindings!");
 
     #[cfg(feature = "copy")]
@@ -358,48 +400,20 @@ fn bindings(out_dir: &Path) -> Result<()> {
     Ok(())
 }
 
-#[cfg(all(feature = "clone", not(feature = "no-build")))]
-fn clone(out_dir: &Path) -> Result<()> {
-    use std::path::PathBuf;
-    use std::process::{Command, Stdio};
-    eprintln!("\x1b[31mCloning libraw\x1b[0m");
-    let libraw_dir = std::env::var("LIBRAW_DIR");
-
-    // FIXME: Use std::fs::copy or something instead of spawning external commands.
-    // Should build fine on linux / macos and windows powershell but not cmd.exe
-    if let Ok(libraw_dir) = libraw_dir {
-        let files: Vec<PathBuf> = std::fs::read_dir(libraw_dir)?
-            .flatten()
-            .map(|e| e.path())
-            .collect();
-        std::fs::remove_dir_all(out_dir.join("libraw")).ok();
-        std::fs::create_dir_all(out_dir.join("libraw")).ok();
-        fs_extra::copy_items(
-            &files,
-            out_dir.join("libraw"),
-            &fs_extra::dir::CopyOptions {
-                overwrite: true,
-                ..Default::default()
-            },
-        )?;
-    } else {
-        let libraw_repo_url = std::env::var("LIBRAW_REPO")
-            .unwrap_or_else(|_| String::from("https://github.com/libraw/libraw"));
-
-        let _git_out = Command::new("git")
-            .arg("clone")
-            .arg("--depth")
-            .arg("1")
-            .arg(&libraw_repo_url)
-            .arg(out_dir.join("libraw"))
-            .stdout(Stdio::inherit())
-            .output()
-            .unwrap_or_else(|_| panic!("Failed to clone libraw from {libraw_repo_url}"));
+pub trait IsAppleClang {
+    fn try_is_like_apple_clang(&self) -> Result<bool>;
+    fn is_like_apple_clang(&self) -> bool {
+        self.try_is_like_apple_clang()
+            .expect("Failed to run compiler")
     }
-    Ok(())
 }
 
-fn __check() {
-    #[cfg(all(feature = "build", not(any(feature = "clone", feature = "tarball"))))]
-    compile_error!("You need to have clone enabled to use build");
+impl IsAppleClang for cc::Tool {
+    fn try_is_like_apple_clang(&self) -> Result<bool> {
+        let output = std::process::Command::new(self.to_command().get_program())
+            .arg("-v")
+            .output()?;
+        let stderr = String::from_utf8(output.stderr)?;
+        Ok(stderr.starts_with("Apple") && (stderr.contains("clang") || self.is_like_clang()))
+    }
 }
