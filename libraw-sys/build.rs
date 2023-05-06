@@ -279,6 +279,8 @@ fn bindings(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<(
         // API improvements
         .derive_eq(true)
         .size_t_is_usize(true)
+        .no_copy(".*")
+        // .newtype_enum(".*")
         // these are never part of the API
         .blocklist_function("_.*")
         // consts creating duplications

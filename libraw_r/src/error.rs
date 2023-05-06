@@ -14,6 +14,8 @@ pub enum LibrawError {
     #[cfg(feature = "jpeg")]
     #[error("{0}")]
     ImageError(#[from] image::error::ImageError),
+    #[error("Missing Thumbnails")]
+    MissingThumbnails,
     #[error("Unsupported Thumbnail")]
     UnsupportedThumbnail,
     #[error("Invalid Number of bits ({0}) for colortype")]
@@ -26,6 +28,8 @@ pub enum LibrawError {
     EncodingError,
     #[error("Missing XMP header in raw file")]
     XMPMissing,
+    #[error("Uninitalized thumbnail")]
+    UninitThumb,
     #[error("{0}")]
     CustomError(#[from] Box<dyn std::error::Error + Send + Sync>),
 }
@@ -56,6 +60,7 @@ impl From<InternalLibrawError> for LibrawError {
 /// Error Codes from LibRaw
 ///
 /// Check https://www.libraw.org/docs/API-datastruct.html#LibRaw_errors for reference
+#[non_exhaustive]
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, thiserror::Error)]
 pub enum InternalLibrawError {
@@ -67,6 +72,7 @@ pub enum InternalLibrawError {
     UnsupportedThumbnail = sys::LibRaw_errors_LIBRAW_UNSUPPORTED_THUMBNAIL,
     InputClosed = sys::LibRaw_errors_LIBRAW_INPUT_CLOSED,
     NotImplemented = sys::LibRaw_errors_LIBRAW_NOT_IMPLEMENTED,
+    RequestForNonexistentThumbnail = sys::LibRaw_errors_LIBRAW_REQUEST_FOR_NONEXISTENT_THUMBNAIL,
     UnsufficientMemory = sys::LibRaw_errors_LIBRAW_UNSUFFICIENT_MEMORY,
     DataError = sys::LibRaw_errors_LIBRAW_DATA_ERROR,
     IoError = sys::LibRaw_errors_LIBRAW_IO_ERROR,
@@ -110,6 +116,7 @@ impl std::fmt::Display for InternalLibrawError {
             UnsupportedThumbnail => "UnsupportedThumbnail",
             InputClosed => "InputClosed",
             NotImplemented => "NotImplemented",
+            RequestForNonexistentThumbnail => "RequestForNonexistentThumbnail",
             UnsufficientMemory => "UnsufficientMemory",
             DataError => "DataError",
             IoError => "IoError",
@@ -156,6 +163,10 @@ impl InternalLibrawError {
 impl From<i32> for InternalLibrawError {
     fn from(e: i32) -> Self {
         use InternalLibrawError::*;
+        // dbg!(e);
+        // let message =
+        //     unsafe { std::ffi::CStr::from_ptr(sys::libraw_strerror(e)) }.to_string_lossy();
+        // println!("{message}");
         match e {
             // e if e == Success as i32 => Success,
             e if e == UnspecifiedError as i32 => UnspecifiedError,

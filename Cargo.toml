@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "libraw-rs",
+    "libraw_r",
     "libraw-sys",
     "tests",
 ]
