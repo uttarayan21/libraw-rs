@@ -1,20 +1,28 @@
-use core::ops::DerefMut;
-use core::ptr::NonNull;
-use core::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Mutex;
+#[repr(u32)]
+pub enum ByteOrder {
+    BigEndian = 0x4d4d,
+    LittleEndian = 0x4949,
+    Unknown,
+}
 
-use alloc::sync::Arc;
-use libraw_sys::*;
+impl ByteOrder {
+    pub const MM: ByteOrder = ByteOrder::BigEndian;
+    pub const II: ByteOrder = ByteOrder::LittleEndian;
 
-use crate::{LibrawError, Processor};
-pub type Callback<T> =
-    Box<dyn Fn(ExifCallbackArgs<T>) -> Result<(), Box<dyn std::error::Error + Send + Sync>>>;
+    pub fn from_ord(ord: u32) -> Self {
+        match ord {
+            0x4949 => ByteOrder::LittleEndian,
+            0x4d4d => ByteOrder::BigEndian,
+            _ => ByteOrder::Unknown,
+        }
+    }
+}
 
 #[derive(Debug)]
 pub struct ExifCallbackArgs<'a, T> {
     pub callback_data: &'a mut T,
     pub tag: i32,
-    pub data_type: DataType,
+    pub data_type: ExifType,
     pub len: i32,
     pub ord: u32,
     pub data: &'a mut [u8],
@@ -22,7 +30,7 @@ pub struct ExifCallbackArgs<'a, T> {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub enum DataType {
+pub enum ExifType {
     Byte = 1,
     Ascii = 2,
     Short = 3,
@@ -37,99 +45,59 @@ pub enum DataType {
     Double = 12,
 }
 
-impl From<libc::c_int> for DataType {
+impl From<libc::c_int> for ExifType {
     fn from(value: libc::c_int) -> Self {
         match value {
-            1 => DataType::Byte,
-            2 => DataType::Ascii,
-            3 => DataType::Short,
-            4 => DataType::Long,
-            5 => DataType::Rational,
-            6 => DataType::SByte,
-            7 => DataType::Undefined,
-            8 => DataType::SShort,
-            9 => DataType::SLong,
-            10 => DataType::SRational,
-            11 => DataType::Float,
-            12 => DataType::Double,
-            _ => DataType::Undefined,
+            1 => ExifType::Byte,
+            2 => ExifType::Ascii,
+            3 => ExifType::Short,
+            4 => ExifType::Long,
+            5 => ExifType::Rational,
+            6 => ExifType::SByte,
+            7 => ExifType::Undefined,
+            8 => ExifType::SShort,
+            9 => ExifType::SLong,
+            10 => ExifType::SRational,
+            11 => ExifType::Float,
+            12 => ExifType::Double,
+            _ => ExifType::Undefined,
         }
     }
 }
 
-impl From<DataType> for libc::c_int {
-    fn from(value: DataType) -> Self {
+impl From<ExifType> for libc::c_int {
+    fn from(value: ExifType) -> Self {
         match value {
-            DataType::Byte => 1,
-            DataType::Ascii => 2,
-            DataType::Short => 3,
-            DataType::Long => 4,
-            DataType::Rational => 5,
-            DataType::SByte => 6,
-            DataType::Undefined => 7,
-            DataType::SShort => 8,
-            DataType::SLong => 9,
-            DataType::SRational => 10,
-            DataType::Float => 11,
-            DataType::Double => 12,
+            ExifType::Byte => 1,
+            ExifType::Ascii => 2,
+            ExifType::Short => 3,
+            ExifType::Long => 4,
+            ExifType::Rational => 5,
+            ExifType::SByte => 6,
+            ExifType::Undefined => 7,
+            ExifType::SShort => 8,
+            ExifType::SLong => 9,
+            ExifType::SRational => 10,
+            ExifType::Float => 11,
+            ExifType::Double => 12,
         }
     }
 }
 
-pub struct CallbackProcessor<'p, F: 'p, T: DerefMut<Target = Processor<'p, F>>> {
-    callback: Callback<T>,
-    callback_data: T,
-    inner: Processor<'p, T>,
-}
 
-impl<D> Processor<'_, D> {
-    /// Sets the data and the callback to parse the exif data.  
-    /// The callback is called with the exif data as a byte slice.  
-    /// It should return `Ok(())` if the exif data was parsed successfully.  
-    /// It should return `Err(LibrawError)` if the exif data could not be parsed.  
-    ///
-    /// Args:-
-    ///    - data: The data we pass to the function to act as a temp storage
-    ///    - data_steam_type: What type of data stream we are using (file, bigfile, buffer)  
-    ///    - callback: The callback function that will be called with the exif data as a byte slice.  
-    ///      Args:-  
-    ///
-    ///      | Field | Type   | Description |
-    ///      |---|---|---|
-    ///      | data | &mut T | The data we pass to the function to act as a temp storage |
-    ///      | tag  |  i32   | The tag of the exif data |
-    ///      | type | i32    | The type of the exif data |
-    ///      | len  |  i32   | The length of the exif data |
-    ///      | ord  |  u32   | The order of the exif data |
-    ///      | data | &[u8]  | The exif data as a byte slice |
-    ///      | base | i64    | Not sure  |
-    ///
-    /// NOTE:-
-    ///
-    /// Currently this uses `Rc<RefCell<T>>` for the data  
-    /// and Rc<Box<T: Fn>> for the callback function  
-    /// So if libraw internally uses multithreading for a single image then this might cause UB  
-    /// Check <https://www.libraw.org/docs/API-CXX.html#callbacks>  
-    ///
-    /// Saftey.
-    /// BUG:
-    /// There's a bug which doens't unset the callback from the libraw when you the data is
-    /// dropped.
-    /// Since the callback is stored in memory allocated by rust, it will be dropped when the
-    /// returned data is dropped. But libraw doesn't know that and will try to access the data.
-    /// Possibly causing a SEGFAULT.
-    pub fn set_exif_callback<T, F>(
-        &mut self,
-        data: T,
-        callback: F,
-    ) -> Result<(), crate::error::LibrawError>
-    where
-        F: Fn(ExifCallbackArgs<T>) -> Result<(), Box<dyn std::error::Error + Send + Sync>>
-            + 'static,
-    {
-        todo!()
-    }
-}
+//impl<D> Processor<'_, D> {
+//    pub fn set_exif_callback<T, F>(
+//        &mut self,
+//        data: T,
+//        callback: F,
+//    ) -> Result<(), crate::error::LibrawError>
+//    where
+//        F: Fn(ExifCallbackArgs<T>) -> Result<(), Box<dyn std::error::Error + Send + Sync>>
+//            + 'static,
+//    {
+//        todo!()
+//    }
+//}
 
 // /// Currently we assume that ExifReader<T> won't cross any threads. So there is no chance of any
 // /// function accessing this data at the same time in multiple threds.

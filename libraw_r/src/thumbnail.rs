@@ -1,9 +1,9 @@
 use crate::*;
 
-impl<'p, T> Processor<'p, T> {
-    pub fn thumbnail_processor(self) -> ThumbProcessor<'p, T> {
-        ThumbProcessor { inner: self }
-    }
+impl<'p, T, DD, PD, ED> Processor<'p, T, DD, PD, ED> {
+    // pub fn thumbnail_processor(self) -> ThumbProcessor<'p, T> {
+    //     ThumbProcessor { inner: self }
+    // }
 
     pub fn thumbs_list(&self) -> &sys::libraw_thumbnail_list_t {
         unsafe { &self.inner.inner.as_ref().thumbs_list }
@@ -173,22 +173,22 @@ impl From<&sys::libraw_thumbnail_list_t> for Thumblist {
     }
 }
 
-pub struct ThumbProcessor<'p, D> {
-    inner: Processor<'p, D>,
-}
+// pub struct ThumbProcessor<'p, D> {
+//     inner: Processor<'p, D>,
+// }
 
-impl<'p, D> std::ops::Deref for ThumbProcessor<'p, D> {
-    type Target = Processor<'p, D>;
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
-}
+// impl<'p, D> std::ops::Deref for ThumbProcessor<'p, D> {
+//     type Target = Processor<'p, D>;
+//     fn deref(&self) -> &Self::Target {
+//         &self.inner
+//     }
+// }
 
-impl<'p, D> std::ops::DerefMut for ThumbProcessor<'p, D> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.inner
-    }
-}
+// impl<'p, D> std::ops::DerefMut for ThumbProcessor<'p, D> {
+//     fn deref_mut(&mut self) -> &mut Self::Target {
+//         &mut self.inner
+//     }
+// }
 
 impl<'thumb> From<&'thumb sys::libraw_thumbnail_t> for Thumbnail<'thumb> {
     fn from(thumb: &'thumb sys::libraw_thumbnail_t) -> Self {
@@ -213,7 +213,7 @@ pub trait Thumb {
     fn get(&self) -> Result<Thumbnail, Self::Error>;
 }
 
-impl<D> Thumb for ThumbProcessor<'_, D> {
+impl<D, DD, PD, ED> Thumb for Processor<'_, D, DD, PD, ED> {
     type Error = LibrawError;
     fn count(&self) -> usize {
         (self.thumbs_list().thumbcount as usize).clamp(0, self.thumbs_list().thumblist.len())

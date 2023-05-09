@@ -1,5 +1,5 @@
 use crate::*;
-impl<T> Processor<'_, T> {
+impl<T, DD, PD, ED> Processor<'_, T, DD, PD, ED> {
     pub fn dcraw_process_make_mem_thumb(&mut self) -> Result<ProcessedImage, LibrawError> {
         let mut errc = 0;
         let data =

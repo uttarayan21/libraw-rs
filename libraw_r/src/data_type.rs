@@ -1,30 +1,31 @@
+use crate::callback::{DataCallback, ExifParserCallback, ProgressCallback};
 use crate::{EmptyProcessor, LibrawError, Processor};
 use std::path::Path;
 
 // HACK: Trick to bypass the not impl From<Infallible> for LibrawError
 struct Bypass<T>(pub T);
-impl TryInto<EmptyProcessor> for Bypass<EmptyProcessor> {
+impl<DD, PD, ED> TryInto<EmptyProcessor<DD, PD, ED>> for Bypass<EmptyProcessor<DD, PD, ED>> {
     type Error = LibrawError;
-    fn try_into(self) -> Result<EmptyProcessor, Self::Error> {
+    fn try_into(self) -> Result<EmptyProcessor<DD, PD, ED>, Self::Error> {
         Ok(self.0)
     }
 }
 
-impl EmptyProcessor {
+impl<DD, PD, ED> EmptyProcessor<DD, PD, ED> {
     pub fn open<'p, D: DataType>(
         self,
         data: impl Into<D>,
-    ) -> Result<Processor<'p, D>, LibrawError> {
+    ) -> Result<Processor<'p, D, DD, PD, ED>, LibrawError> {
         unsafe { data.into().open(Bypass(self)) }
     }
 }
 
-impl<T> Processor<'_, T> {
+impl<T, DD, PD, ED> Processor<'_, T, DD, PD, ED> {
     pub fn open<'p, D: DataType>(
         self,
         data: impl Into<D>,
-    ) -> Result<Processor<'p, D>, LibrawError> {
-        let ep: EmptyProcessor = self.recycle()?;
+    ) -> Result<Processor<'p, D, DD, PD, ED>, LibrawError> {
+        let ep: EmptyProcessor<DD, PD, ED> = self.recycle()?;
         ep.open(data)
     }
 }
@@ -57,12 +58,12 @@ pub trait DataType {
     /// # Safety
     ///
     /// Calls unsafe C++ ffi functions
-    unsafe fn open<'p, P: TryInto<EmptyProcessor>>(
+    unsafe fn open<'p, P: TryInto<EmptyProcessor<DD, PD, ED>>, DD, PD, ED>(
         self,
         p: P,
-    ) -> Result<Processor<'p, Self>, LibrawError>
+    ) -> Result<Processor<'p, Self, DD, PD, ED>, LibrawError>
     where
-        LibrawError: From<<P as TryInto<EmptyProcessor>>::Error>;
+        LibrawError: From<<P as TryInto<EmptyProcessor<DD, PD, ED>>>::Error>;
 
     #[cfg(feature = "exif")]
     /// # Safety
@@ -77,12 +78,13 @@ pub trait DataType {
 }
 
 impl DataType for File<'_> {
-    unsafe fn open<'p, P: TryInto<EmptyProcessor>>(
+    unsafe fn open<'p, P, DD, PD, ED>(
         self,
         p: P,
-    ) -> Result<Processor<'p, Self>, LibrawError>
+    ) -> Result<Processor<'p, Self, DD, PD, ED>, LibrawError>
     where
-        LibrawError: From<<P as TryInto<EmptyProcessor>>::Error>,
+        LibrawError: From<<P as TryInto<EmptyProcessor<DD, PD, ED>>>::Error>,
+        P: TryInto<EmptyProcessor<DD, PD, ED>>,
     {
         let mut ep = p.try_into()?;
         let path = dunce::canonicalize(self.path)?;
@@ -120,12 +122,18 @@ impl DataType for File<'_> {
 }
 
 impl<'b> DataType for Buffer<'b> {
-    unsafe fn open<'p, P: TryInto<EmptyProcessor>>(
+    unsafe fn open<
+        'p,
+        P: TryInto<EmptyProcessor<DD, PD, ED>>,
+        DD,
+        PD,
+        ED,
+    >(
         self,
         p: P,
-    ) -> Result<Processor<'p, Self>, LibrawError>
+    ) -> Result<Processor<'p, Self, DD, PD, ED>, LibrawError>
     where
-        LibrawError: From<<P as TryInto<EmptyProcessor>>::Error>,
+        LibrawError: From<<P as TryInto<EmptyProcessor<DD, PD, ED>>>::Error>,
     {
         let mut ep = p.try_into()?;
         LibrawError::check(sys::libraw_open_buffer(

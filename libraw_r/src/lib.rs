@@ -1,13 +1,13 @@
 #[macro_use]
 pub mod error;
+pub mod callback;
 pub mod data_type;
 pub mod dcraw;
-pub mod libread;
-pub mod callback;
 #[cfg(feature = "exif")]
 pub mod exif;
 #[cfg(feature = "jpeg")]
 pub mod extra;
+pub mod libread;
 // pub mod orientation;
 pub mod progress;
 pub mod thumbnail;
@@ -18,11 +18,14 @@ pub use error::LibrawError;
 extern crate alloc;
 extern crate libraw_sys as sys;
 use core::mem::ManuallyDrop;
+use core::ops::DerefMut;
 use core::ptr::NonNull;
 use semver::Version;
 use std::ffi::CString;
 use std::ops::Drop;
 use std::path::Path;
+
+use self::callback::*;
 
 /// Returns the version of libraw
 pub const fn version() -> Version {
@@ -36,12 +39,12 @@ pub const fn version() -> Version {
 }
 
 /// A struct wrapping the libraw_data_t type
-#[repr(transparent)]
-pub struct EmptyProcessor {
+pub struct EmptyProcessor<DD, PD, ED> {
     inner: NonNull<sys::libraw_data_t>,
+    callbacks: callback::Callbacks<DD, PD, ED>,
 }
 
-impl EmptyProcessor {
+impl<DD, PD, ED> EmptyProcessor<DD, PD, ED> {
     /// Calls libraw_init with the any of the constructor flags
     /// # May panic if the pointer returned by libraw_init is null
     pub fn new(option: LibrawConstructorFlags) -> Self {
@@ -51,7 +54,10 @@ impl EmptyProcessor {
     pub fn try_new(option: LibrawConstructorFlags) -> Result<Self, LibrawError> {
         let inner = unsafe { sys::libraw_init(option as u32) };
         if let Some(inner) = NonNull::new(inner) {
-            Ok(Self { inner })
+            Ok(Self {
+                inner,
+                callbacks: Default::default(),
+            })
         } else {
             Err(LibrawError::CustomError(
                 "Got back null pointer from libraw_init(0)".into(),
@@ -90,12 +96,12 @@ impl EmptyProcessor {
 }
 
 /// You can pass the Processor to another thread since it doesn't use any thread_local values
-unsafe impl Send for EmptyProcessor {}
+unsafe impl<DD: Send, PD: Send, ED: Send> Send for EmptyProcessor<DD, PD, ED> {}
 /// You can pass the reference to Processor to another thread since it cannot open / close / drop
 /// Without a mutable reference to Self
-unsafe impl Sync for EmptyProcessor {}
+unsafe impl<DD: Sync, PD: Sync, ED: Sync> Sync for EmptyProcessor<DD, PD, ED> {}
 
-impl Default for EmptyProcessor {
+impl<DD, PD, ED> Default for EmptyProcessor<DD, PD, ED> {
     /// Returns libraw_init(0)
     fn default() -> Self {
         Self::new(LibrawConstructorFlags::None)
@@ -103,7 +109,7 @@ impl Default for EmptyProcessor {
 }
 
 /// Since EmptyProcessor doesn't have a File / Buffer opened so we can skip the free_image call
-impl Drop for EmptyProcessor {
+impl<DD, PD, ED> Drop for EmptyProcessor<DD, PD, ED> {
     fn drop(&mut self) {
         unsafe {
             sys::libraw_close(self.inner.as_ptr());
@@ -111,13 +117,13 @@ impl Drop for EmptyProcessor {
     }
 }
 
-pub struct Processor<'p, D: ?Sized = data_type::File<'p>> {
-    inner: EmptyProcessor,
+pub struct Processor<'p, D: ?Sized, DD, PD, ED> {
+    inner: EmptyProcessor<DD, PD, ED>,
     _data: core::marker::PhantomData<&'p D>,
 }
 
 /// Since Processor has some file / buffer opened we also need to call libraw_free_image
-impl<'p, T: ?Sized> Drop for Processor<'p, T> {
+impl<'p, T: ?Sized, DD, PD, ED> Drop for Processor<'p, T, DD, PD, ED> {
     fn drop(&mut self) {
         unsafe {
             sys::libraw_free_image(self.inner.inner.as_ptr());
@@ -125,11 +131,18 @@ impl<'p, T: ?Sized> Drop for Processor<'p, T> {
     }
 }
 
-impl<T> Processor<'_, T> {
+// pub trait ProcessorHelper {}
+
+// impl<'d, D: 'd, T, DD, PD, ED> ProcessorHelper for T where
+//     T: DerefMut<Target = Processor<'d, D, DD, PD, ED>>
+// {
+// }
+
+impl<T, DD, PD, ED> Processor<'_, T, DD, PD, ED> {
     /// Return's the inner EmptyProcessor without calling any destructors
     /// # Safety
     /// This skips the drop calls so you can call libraw_close and libraw_free_image yourself
-    pub unsafe fn into_inner(self) -> EmptyProcessor {
+    pub unsafe fn into_inner(self) -> EmptyProcessor<DD, PD, ED> {
         let p = ManuallyDrop::new(self);
         core::ptr::read(&p.inner)
     }
@@ -235,7 +248,7 @@ impl<T> Processor<'_, T> {
         Ok(data)
     }
 
-    pub fn recycle(self) -> Result<EmptyProcessor, LibrawError> {
+    pub fn recycle(self) -> Result<EmptyProcessor<DD, PD, ED>, LibrawError> {
         // let mut data = ManuallyDrop::new(self);
         // let data = data.into_inner();
         // data.recycle()?;
@@ -252,15 +265,19 @@ impl<T> Processor<'_, T> {
 }
 
 /// The builder struct for Processor
-pub struct ProcessorBuilder {
+pub struct ProcessorBuilder<DD = (), PD = (), ED = ()> {
     inner: NonNull<sys::libraw_data_t>,
+    callbacks: Callbacks<DD, PD, ED>, // Using boxed fn traits
 }
 
-impl ProcessorBuilder {
+impl<DD, PD, ED> ProcessorBuilder<DD, PD, ED> {
     pub fn try_new() -> Result<Self, LibrawError> {
         let inner = unsafe { sys::libraw_init(LibrawConstructorFlags::None as u32) };
         Ok(if let Some(inner) = NonNull::new(inner) {
-            Self { inner }
+            Self {
+                inner,
+                callbacks: Callbacks::default(),
+            }
         } else {
             Err(LibrawError::CustomError(
                 "Unable to initialize libraw_data_t".into(),
@@ -271,14 +288,17 @@ impl ProcessorBuilder {
         Self::try_new().expect("Unable to initialize libraw_data_t")
     }
 
-    pub fn build(self) -> EmptyProcessor {
-        EmptyProcessor { inner: self.inner }
+    pub fn build(self) -> EmptyProcessor<DD, PD, ED> {
+        EmptyProcessor {
+            inner: self.inner,
+            callbacks: self.callbacks,
+        }
     }
 
-    pub fn open<'p, D: data_type::DataType>(
+    pub fn open<'p, T: data_type::DataType>(
         self,
-        data: impl Into<D>,
-    ) -> Result<Processor<'p, D>, LibrawError> {
+        data: impl Into<T>,
+    ) -> Result<Processor<'p, T, DD, PD, ED>, LibrawError> {
         let ep = self.build();
         ep.open(data)
     }
@@ -328,8 +348,18 @@ impl ProcessorBuilder {
         }
         self
     }
+
+    // pub fn with_exif_parser_callback(
+    //     mut self,
+    //     callback: impl Fn(&mut ExifParserData) -> i32,
+    // ) -> Self {
+    //     // unsafe {
+    //     //     self.inner.as_mut().exif_parser_data = std::mem::transmute(callback);
+    //     // }
+    //     self
+    // }
 }
-impl Default for ProcessorBuilder {
+impl<DD, PD, ED> Default for ProcessorBuilder<DD, PD, ED> {
     fn default() -> Self {
         Self::new()
     }

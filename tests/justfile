@@ -1,0 +1,3 @@
+test:
+    cargo with rust-lldb -- test -- -- --nocapture
+
