@@ -1,4 +1,5 @@
 #[macro_use]
+pub mod io;
 pub mod error;
 pub mod callback;
 pub mod data_type;

@@ -1,3 +1,9 @@
 test:
+    cargo test -- --nocapture
+debug-tests:
     cargo with rust-lldb -- test -- -- --nocapture
+
+miri:
+    # Don't do bindgen since miri doesn't pick it up
+    cargo +nightly miri test --no-default-features "build exif" -- --nocapture
 

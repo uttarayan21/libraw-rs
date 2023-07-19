@@ -1,4 +1,6 @@
 use alloc::sync::{Arc, Weak};
+// uno_deadlockslot::Mutex;
+use parking_lot::Mutex;
 use core::mem::ManuallyDrop;
 
 use crate::exif::{ByteOrder, ExifType};
@@ -37,7 +39,7 @@ impl<D, PD, ED, DC: DataCallback<D>, PC: ProgressCallback<PD>, EC: ExifParserCal
 
 pub struct CallbackData<CB, D> {
     callback: CB,
-    data: parking_lot::Mutex<D>,
+    data: Mutex<D>,
 }
 
 pub struct DataCallbackArgs<'d, D: 'd> {
@@ -73,78 +75,79 @@ pub trait ExifParserCallback<D>: Fn(ExifParserCallbackArgs<D>) {}
 impl<D, F: Fn(ExifParserCallbackArgs<D>)> ExifParserCallback<D> for F {}
 
 impl<DD, PD, ED> EmptyProcessor<DD, PD, ED> {
-    pub fn set_data_callback<NDD, NDC: DataCallback<NDD> + 'static>(
-        self,
-        callback: NDC,
-        data: NDD,
-    ) -> EmptyProcessor<NDD, PD, ED> {
-        let mut s = ManuallyDrop::new(self);
-        let dc = core::mem::take(&mut s.callbacks.data_callback);
-        drop(dc);
-        let pc = core::mem::take(&mut s.callbacks.progress_callback);
-        let ec = core::mem::take(&mut s.callbacks.exif_parser_callback);
-        let dc: CallbackData<Box<dyn Fn(DataCallbackArgs<NDD>)>, NDD> = CallbackData {
-            callback: Box::new(callback),
-            data: parking_lot::Mutex::new(data),
-        };
-        let dc = Arc::new(dc);
+    // pub fn set_data_callback<NDD, NDC: DataCallback<NDD> + 'static>(
+    //     self,
+    //     callback: NDC,
+    //     data: NDD,
+    // ) -> EmptyProcessor<NDD, PD, ED> {
+    //     let mut s = ManuallyDrop::new(self);
+    //     let dc = core::mem::take(&mut s.callbacks.data_callback);
+    //     drop(dc);
+    //     let pc = core::mem::take(&mut s.callbacks.progress_callback);
+    //     let ec = core::mem::take(&mut s.callbacks.exif_parser_callback);
+    //     let dc: CallbackData<Box<dyn Fn(DataCallbackArgs<NDD>)>, NDD> = CallbackData {
+    //         callback: Box::new(callback),
+    //         data: parking_lot::Mutex::new(data),
+    //     };
+    //     let dc = Arc::new(dc);
 
-        // using into_raw because we are not going to free the memory unless we call the finall
-        unsafe {
-            sys::libraw_set_dataerror_handler(
-                s.inner.as_ptr(),
-                Some(data_callback::<NDC, NDD>),
-                Arc::downgrade(&dc).as_ptr().cast::<libc::c_void>() as *mut _,
-                // Arc::into_raw(dc).cast::<libc::c_void>() as *mut _,
-            );
-        }
-        EmptyProcessor {
-            inner: s.inner,
-            callbacks: Callbacks::<NDD, PD, ED> {
-                data_callback: Some(dc),
-                progress_callback: pc,
-                exif_parser_callback: ec,
-            },
-        }
-    }
+    //     // using into_raw because we are not going to free the memory unless we call the finall
+    //     unsafe {
+    //         sys::libraw_set_dataerror_handler(
+    //             s.inner.as_ptr(),
+    //             Some(data_callback::<NDC, NDD>),
+    //             Arc::downgrade(&dc).as_ptr().cast::<libc::c_void>() as *mut _,
+    //             // Arc::into_raw(dc).cast::<libc::c_void>() as *mut _,
+    //         );
+    //     }
+    //     EmptyProcessor {
+    //         inner: s.inner,
+    //         callbacks: Callbacks::<NDD, PD, ED> {
+    //             data_callback: Some(dc),
+    //             progress_callback: pc,
+    //             exif_parser_callback: ec,
+    //         },
+    //     }
+    // }
 
-    // Since this takes a &mut reference to self it's not possible for other functions to run with
-    // this parallel with this one.
-    pub fn reset_data_callback(&mut self) -> Option<DD>
-    where
-        DD: Default,
-    {
-        if let Some(ref mut cb) = self.callbacks.data_callback {
-            // This is horribly unsafe don't do this.
-            // We take the weak pointer and cast it to an Arc and since we are sure that we create
-            // only one instance of the Arc
-            // However this drops the arc pointer so we must forget it
-            // let cb = cb.as_ptr();
-            // let cb = unsafe { Arc::from_raw(cb) };
-            // let mut cb = ManuallyDrop::new(cb); // Skip dropping since this is basically a weak
-            // pointer and we don't want to drop the data by
-            // decrementing the actual strong count
-            if let Some(cb) = Arc::get_mut(cb) {
-                let data: &mut DD = &mut cb.data.lock();
-                Some(core::mem::take(data))
-            } else {
-                None
-            }
-        } else {
-            None
-        }
-    }
+    // // Since this takes a &mut reference to self it's not possible for other functions to run with
+    // // this parallel with this one.
+    // pub fn reset_data_callback(&mut self) -> Option<DD>
+    // where
+    //     DD: Default,
+    // {
+    //     if let Some(ref mut cb) = self.callbacks.data_callback {
+    //         // This is horribly unsafe don't do this.
+    //         // We take the weak pointer and cast it to an Arc and since we are sure that we create
+    //         // only one instance of the Arc
+    //         // However this drops the arc pointer so we must forget it
+    //         // let cb = cb.as_ptr();
+    //         // let cb = unsafe { Arc::from_raw(cb) };
+    //         // let mut cb = ManuallyDrop::new(cb); // Skip dropping since this is basically a weak
+    //         // pointer and we don't want to drop the data by
+    //         // decrementing the actual strong count
+    //         if let Some(cb) = Arc::get_mut(cb) {
+    //             let data: &mut DD = &mut cb.data.lock();
+    //             Some(core::mem::take(data))
+    //         } else {
+    //             None
+    //         }
+    //     } else {
+    //         None
+    //     }
+    // }
 
-    pub fn remove_data_callback(mut self) -> Self {
-        let adc = core::mem::take(&mut self.callbacks.data_callback);
-        drop(adc); // Since we drop the arc pointer we can on the next call of the callback modify
-                   // the callback and set it to null
+    // pub fn remove_data_callback(mut self) -> Self {
+    //     let adc = core::mem::take(&mut self.callbacks.data_callback);
+    //     drop(adc); // Since we drop the arc pointer we can on the next call of the callback modify
+    //                // the callback and set it to null
 
-        unsafe {
-            sys::libraw_set_dataerror_handler(self.inner.as_ptr(), None, core::ptr::null_mut());
-        }
-        self
-    }
+    //     unsafe {
+    //         sys::libraw_set_dataerror_handler(self.inner.as_ptr(), None, core::ptr::null_mut());
+    //     }
+    //     self
+    // }
+
     /// Sets the data and the callback to parse the exif data.
     /// The callback is called with the exif data as a byte slice.
     /// It should return `Ok(())` if the exif data was parsed successfully.
@@ -180,7 +183,10 @@ impl<DD, PD, ED> EmptyProcessor<DD, PD, ED> {
     /// Since the callback is stored in memory allocated by rust, it will be dropped when the
     /// returned data is dropped. But libraw doesn't know that and will try to access the data.
     /// Possibly causing a SEGFAULT.
-    pub fn set_exif_parser_callback<NED, NEC: ExifParserCallback<NED> + 'static>(
+    pub fn set_exif_parser_callback<
+        NED: std::fmt::Debug,
+        NEC: ExifParserCallback<NED> + 'static,
+    >(
         self,
         callback: NEC,
         data: NED,
@@ -192,17 +198,23 @@ impl<DD, PD, ED> EmptyProcessor<DD, PD, ED> {
         drop(ec);
         let ec: CallbackData<Box<dyn Fn(ExifParserCallbackArgs<NED>)>, NED> = CallbackData {
             callback: Box::new(callback),
-            data: parking_lot::Mutex::new(data),
+            data: Mutex::new(data),
         };
         let ec = Arc::new(ec);
+        let weak_ec = Arc::downgrade(&ec);
+        dbg!(weak_ec.strong_count());
+        dbg!(weak_ec.weak_count());
+
+        dbg!(&ec.data);
 
         unsafe {
             sys::libraw_set_exifparser_handler(
                 s.inner.as_ptr(),
                 Some(exif_parser_callback::<NEC, NED>),
-                Arc::downgrade(&ec).as_ptr().cast::<libc::c_void>() as *mut _,
+                weak_ec.as_ptr().cast::<libc::c_void>() as *mut _,
             );
         }
+        core::mem::forget(weak_ec);
         EmptyProcessor {
             inner: s.inner,
             callbacks: Callbacks::<DD, PD, NED> {
@@ -219,6 +231,7 @@ impl<DD, PD, ED> EmptyProcessor<DD, PD, ED> {
     {
         if let Some(ref mut cb) = self.callbacks.exif_parser_callback {
             if let Some(cb) = Arc::get_mut(cb) {
+                dbg!("Locking");
                 let data: &mut ED = &mut cb.data.lock();
                 Some(core::mem::take(data))
             } else {
@@ -246,66 +259,66 @@ impl<DD, PD, ED> EmptyProcessor<DD, PD, ED> {
         self
     }
 
-    pub fn set_progress_callback<NPD, NPC: ProgressCallback<NPD> + 'static>(
-        self,
-        callback: NPC,
-        data: NPD,
-    ) -> EmptyProcessor<DD, NPD, ED> {
-        let mut s = ManuallyDrop::new(self);
-        let dc = core::mem::take(&mut s.callbacks.data_callback);
-        let pc = core::mem::take(&mut s.callbacks.progress_callback);
-        drop(pc);
-        let ec = core::mem::take(&mut s.callbacks.exif_parser_callback);
+    // pub fn set_progress_callback<NPD, NPC: ProgressCallback<NPD> + 'static>(
+    //     self,
+    //     callback: NPC,
+    //     data: NPD,
+    // ) -> EmptyProcessor<DD, NPD, ED> {
+    //     let mut s = ManuallyDrop::new(self);
+    //     let dc = core::mem::take(&mut s.callbacks.data_callback);
+    //     let pc = core::mem::take(&mut s.callbacks.progress_callback);
+    //     drop(pc);
+    //     let ec = core::mem::take(&mut s.callbacks.exif_parser_callback);
 
-        let pc: CallbackData<Box<dyn Fn(ProgressCallbackArgs<NPD>) -> i32>, NPD> = CallbackData {
-            callback: Box::new(callback),
-            data: parking_lot::Mutex::new(data),
-        };
-        let pc = Arc::new(pc);
+    //     let pc: CallbackData<Box<dyn Fn(ProgressCallbackArgs<NPD>) -> i32>, NPD> = CallbackData {
+    //         callback: Box::new(callback),
+    //         data: parking_lot::Mutex::new(data),
+    //     };
+    //     let pc = Arc::new(pc);
 
-        unsafe {
-            sys::libraw_set_progress_handler(
-                s.inner.as_ptr(),
-                Some(progress_callback::<NPC, NPD>),
-                Arc::downgrade(&pc).as_ptr().cast::<libc::c_void>() as *mut _,
-            );
-        }
-        EmptyProcessor {
-            inner: s.inner,
-            callbacks: Callbacks::<DD, NPD, ED> {
-                data_callback: dc,
-                progress_callback: Some(pc),
-                exif_parser_callback: ec,
-            },
-        }
-    }
+    //     unsafe {
+    //         sys::libraw_set_progress_handler(
+    //             s.inner.as_ptr(),
+    //             Some(progress_callback::<NPC, NPD>),
+    //             Arc::downgrade(&pc).as_ptr().cast::<libc::c_void>() as *mut _,
+    //         );
+    //     }
+    //     EmptyProcessor {
+    //         inner: s.inner,
+    //         callbacks: Callbacks::<DD, NPD, ED> {
+    //             data_callback: dc,
+    //             progress_callback: Some(pc),
+    //             exif_parser_callback: ec,
+    //         },
+    //     }
+    // }
 
-    pub fn reset_progress_callback(&mut self) -> Option<PD>
-    where
-        PD: Default,
-    {
-        if let Some(ref mut cb) = self.callbacks.progress_callback {
-            if let Some(cb) = Arc::get_mut(cb) {
-                let data: &mut PD = &mut cb.data.lock();
-                Some(core::mem::take(data))
-            } else {
-                None
-            }
-        } else {
-            None
-        }
-    }
+    // pub fn reset_progress_callback(&mut self) -> Option<PD>
+    // where
+    //     PD: Default,
+    // {
+    //     if let Some(ref mut cb) = self.callbacks.progress_callback {
+    //         if let Some(cb) = Arc::get_mut(cb) {
+    //             let data: &mut PD = &mut cb.data.lock();
+    //             Some(core::mem::take(data))
+    //         } else {
+    //             None
+    //         }
+    //     } else {
+    //         None
+    //     }
+    // }
 
-    pub fn remove_progress_callback(mut self) -> Self {
-        let wdc = core::mem::take(&mut self.callbacks.progress_callback);
-        drop(wdc);
+    // pub fn remove_progress_callback(mut self) -> Self {
+    //     let wdc = core::mem::take(&mut self.callbacks.progress_callback);
+    //     drop(wdc);
 
-        unsafe {
-            sys::libraw_set_progress_handler(self.inner.as_ptr(), None, core::ptr::null_mut());
-        }
-        self.callbacks.data_callback = None;
-        self
-    }
+    //     unsafe {
+    //         sys::libraw_set_progress_handler(self.inner.as_ptr(), None, core::ptr::null_mut());
+    //     }
+    //     self.callbacks.data_callback = None;
+    //     self
+    // }
 }
 
 unsafe extern "C" fn data_callback<DC: DataCallback<D>, D>(
@@ -345,7 +358,7 @@ unsafe extern "C" fn progress_callback<PC: ProgressCallback<PD>, PD>(
     ret
 }
 
-unsafe extern "C" fn exif_parser_callback<EC: ExifParserCallback<ED>, ED>(
+unsafe extern "C" fn exif_parser_callback<EC: ExifParserCallback<ED>, ED: std::fmt::Debug>(
     context: *mut libc::c_void,
     tag: libc::c_int,
     type_: libc::c_int,
@@ -356,22 +369,14 @@ unsafe extern "C" fn exif_parser_callback<EC: ExifParserCallback<ED>, ED>(
 ) {
     assert!(!context.is_null());
     let wik = Weak::from_raw(context.cast());
-    dbg!(wik.strong_count());
-    dbg!(wik.weak_count());
-    let mut ocontext: Arc<CallbackData<EC, ED>> = wik.upgrade().unwrap();
-    dbg!(Arc::strong_count(&ocontext));
-    dbg!(Arc::weak_count(&ocontext));
-    unsafe { Arc::decrement_strong_count(Arc::as_ptr(&ocontext)) };
-    dbg!("decrement");
-    let context = Arc::get_mut(&mut ocontext).expect("Unable to get mut ref from Arc");
-    dbg!("Arc::get_mut");
+    let context: Arc<CallbackData<EC, ED>> = wik.upgrade().unwrap();
+    drop(wik);
     let ifp = std::slice::from_raw_parts(ifp.cast::<u8>(), len.clamp(0, i32::MAX) as usize);
-    dbg!("std::slice");
     let c = context.data.try_lock();
     if context.data.is_locked() {
-        dbg!("sed");
+        dbg!("Data is locked");
     }
-    dbg!("whyyyy");
+
     drop(c);
     // assert_eq!(
     //     // core::mem::size_of::<std::collections::HashMap::<String, String>>(),
@@ -390,6 +395,6 @@ unsafe extern "C" fn exif_parser_callback<EC: ExifParserCallback<ED>, ED>(
         ifp,
         base,
     });
-    core::mem::forget(Arc::downgrade(&ocontext));
-    dbg!(Arc::strong_count(&ocontext));
+    // core::mem::forget(Arc::downgrade(&ocontext));
+    // dbg!(Arc::strong_count(&ocontext));
 }
