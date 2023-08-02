@@ -7,7 +7,6 @@ rust-version = "1.65"
 description = "High level api over libraw-sys"
 repository = "https://github.com/aftershootco/libraw-sys"
 homepage = "https://github.com/aftershootco/libraw-sys"
-publish = ["ktra"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -16,7 +15,7 @@ futures = { version = "0.3.28", optional = true }
 image = { version = "0.24" , optional = true }
 img-parts = { version = "0.3.0", optional = true }
 libc = { version = "0.2.135", optional = true }
-libraw-sys = { version = "0.8", path = "../libraw-sys",  registry = "ktra" }
+libraw-sys = { version = "0.8", path = "../libraw-sys" }
 semver = "1.0"
 thiserror = "1.0"
 
