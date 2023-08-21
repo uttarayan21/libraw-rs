@@ -15,7 +15,7 @@ links = "raw_r"
 libc = "0.2.123"
 libz-sys = { version = "1.1.8", optional = true, features = ["static"], default-features = false }
 # We want to switch out to libjpeg-turbo but currently the build system depends cmake and doesn't build on windows for some reason
-mozjpeg-sys = { git = "https://github.com/uttarayan21/mozjpeg-sys", optional = true,  features = ["jpeg80_abi"]}
+mozjpeg-sys = { version = "1.0", optional = true,  features = ["jpeg80_abi"], registry = "ktra"}
 openmp-sys = { version = "1.2.3", optional = true }
 
 [build-dependencies]
