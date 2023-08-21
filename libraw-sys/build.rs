@@ -1,13 +1,21 @@
+use anyhow::{anyhow, Context, Result};
 use std::path::{Path, PathBuf};
+use std::process::Command;
 
-pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+// pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 fn main() -> Result<()> {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=LIBRAW_DIR");
+    println!("cargo:rerun-if-env-changed=LIBRAW_URL");
 
     let _out_dir = &std::env::var_os("OUT_DIR").unwrap();
     let out_dir = Path::new(_out_dir);
+
+    #[cfg(not(feature = "private"))]
+    let libraw_url = std::env::var("LIBRAW_URL");
+    #[cfg(feature = "private")]
+    let libraw_url = Ok("git@github.com:aftershootco/libraw.git");
 
     let libraw_dir = std::env::var("LIBRAW_DIR")
         .ok()
@@ -16,12 +24,13 @@ fn main() -> Result<()> {
                 .ok()
                 .and_then(|p| dunce::canonicalize(p.to_string()).ok())
         })
-        .unwrap_or(PathBuf::from(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/vendor"
-        )));
-
-    // println!("cargo:rerun-if-changed={}", libraw_dir.display());
+        .unwrap_or_else(|| {
+            if let Ok(libraw_url) = libraw_url {
+                clone(libraw_url, out_dir.join("libraw")).unwrap()
+            } else {
+                PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("vendor")
+            }
+        });
 
     println!(
         "cargo:include={}",
@@ -35,7 +44,7 @@ fn main() -> Result<()> {
 
     build(out_dir, &libraw_dir)?;
 
-    #[cfg(all(feature = "bindgen"))]
+    #[cfg(feature = "bindgen")]
     bindings(out_dir, &libraw_dir)?;
 
     let _ = out_dir;
@@ -415,5 +424,169 @@ impl IsAppleClang for cc::Tool {
             .output()?;
         let stderr = String::from_utf8(output.stderr)?;
         Ok(stderr.starts_with("Apple") && (stderr.contains("clang") || self.is_like_clang()))
+    }
+}
+
+pub fn clone(url: impl AsRef<str>, to: impl AsRef<Path>) -> Result<PathBuf> {
+    if !std::process::Command::new("git")
+        .arg("--version")
+        .status()?
+        .success()
+    {
+        return Err(anyhow!("git not found"));
+    }
+
+    let url = url.as_ref();
+    let to = to.as_ref();
+
+    let (url, git_ref) = url
+        .rsplit_once('#')
+        .map(|(url, git_ref)| (url, Some(git_ref)))
+        .unwrap_or((url, None));
+
+    if let Ok(meta) = to.metadata() {
+        // to exists
+        if meta.is_file() {
+            std::fs::remove_dir_all(to)?;
+        }
+        if let Ok(repo) = git::Git::from_path(to) {
+            if url != repo.remote()? {
+                std::fs::remove_dir_all(to)?;
+            } else {
+                repo.fetch("origin")?;
+                if let Some(git_ref) = git_ref {
+                    repo.checkout(git_ref)?;
+                }
+                return Ok(repo.dir());
+            }
+        }
+    }
+
+    let repo = git::Git::clone(url, to)?;
+    if let Some(git_ref) = git_ref {
+        repo.checkout(git_ref)?;
+    }
+
+    Ok(repo.dir())
+}
+
+pub mod git {
+    use super::*;
+
+    pub struct Git {
+        repo: PathBuf,
+    }
+
+    impl Git {
+        pub fn dir(self) -> PathBuf {
+            self.repo
+        }
+        pub fn from_path(repo: impl AsRef<Path>) -> Result<Self> {
+            let repo = repo.as_ref();
+            if repo.join(".git").exists() {
+                Ok(Self {
+                    repo: repo.to_path_buf(),
+                })
+            } else {
+                Err(anyhow!("Not a git repository"))
+            }
+        }
+
+        pub fn remote(&self) -> Result<String> {
+            remote(&self.repo)
+        }
+
+        pub fn fetch(&self, remote: impl AsRef<str>) -> Result<()> {
+            fetch(&self.repo, remote)
+        }
+
+        pub fn checkout(&self, refspec: impl AsRef<str>) -> Result<()> {
+            checkout(&self.repo, refspec)
+        }
+
+        pub fn clone(url: impl AsRef<str>, to: impl AsRef<Path>) -> Result<Self> {
+            clone(url, to.as_ref())?;
+            Ok(Self {
+                repo: to.as_ref().to_path_buf(),
+            })
+        }
+    }
+
+    pub fn remote(repo: impl AsRef<Path>) -> Result<String> {
+        Command::new("git")
+            .arg("remote")
+            .arg("get-url")
+            .arg("origin")
+            .current_dir(repo)
+            .output()
+            .context("Failed to get remote url")
+            .and_then(|output| {
+                if output.status.success() {
+                    Ok(output)
+                } else {
+                    Err(anyhow!("Failed to get-url"))
+                }
+            })
+            .map(|output| String::from_utf8_lossy(&output.stdout).trim().to_string())
+    }
+
+    pub fn checkout(repo: impl AsRef<Path>, refspec: impl AsRef<str>) -> Result<()> {
+        Command::new("git")
+            .arg("checkout")
+            .arg(refspec.as_ref())
+            .current_dir(repo)
+            .output()
+            .context("Failed to checkout branch")
+            .and_then(|output| {
+                if output.status.success() {
+                    Ok(())
+                } else {
+                    Err(anyhow!(
+                        "Failed to checkout ref {}: {}",
+                        refspec.as_ref(),
+                        String::from_utf8_lossy(&output.stderr)
+                    ))
+                }
+            })
+    }
+
+    pub fn fetch(repo: impl AsRef<Path>, remote: impl AsRef<str>) -> Result<()> {
+        Command::new("git")
+            .arg("fetch")
+            .arg(remote.as_ref())
+            .current_dir(repo)
+            .output()
+            .context("Failed to fetch")
+            .and_then(|output| {
+                if output.status.success() {
+                    Ok(())
+                } else {
+                    Err(anyhow!(
+                        "Failed to fetch {}: {}",
+                        remote.as_ref(),
+                        String::from_utf8_lossy(&output.stderr)
+                    ))
+                }
+            })
+    }
+
+    pub fn clone(url: impl AsRef<str>, to: impl AsRef<Path>) -> Result<()> {
+        Command::new("git")
+            .arg("clone")
+            .arg(url.as_ref())
+            .arg(to.as_ref())
+            .output()
+            .context("Failed to clone")
+            .and_then(|output| {
+                if output.status.success() {
+                    Ok(())
+                } else {
+                    Err(anyhow!(
+                        "Failed to clone {}: {}",
+                        url.as_ref(),
+                        String::from_utf8_lossy(&output.stderr)
+                    ))
+                }
+            })
     }
 }
