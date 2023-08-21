@@ -15,7 +15,7 @@ fn main() -> Result<()> {
     #[cfg(not(feature = "private"))]
     let libraw_url = std::env::var("LIBRAW_URL");
     #[cfg(feature = "private")]
-    let libraw_url = Ok("git@github.com:aftershootco/libraw.git");
+    let libraw_url: Result<&'static str> = Ok("git@github.com:aftershootco/libraw.git");
 
     let libraw_dir = std::env::var("LIBRAW_DIR")
         .ok()
@@ -428,6 +428,7 @@ impl IsAppleClang for cc::Tool {
 }
 
 pub fn clone(url: impl AsRef<str>, to: impl AsRef<Path>) -> Result<PathBuf> {
+    println!("cargo:warning=Cloning libraw repo from {}", url.as_ref(),);
     if !std::process::Command::new("git")
         .arg("--version")
         .status()?
