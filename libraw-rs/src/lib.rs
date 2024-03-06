@@ -75,6 +75,14 @@ impl Default for Processor {
 }
 
 impl Processor {
+    pub fn thumbs_list(&self) -> &sys::libraw_thumbnail_list_t {
+        unsafe { &self.inner.as_ref().thumbs_list }
+    }
+    pub fn unpack_thumb_ex(&mut self, index: libc::c_int) -> Result<(), LibrawError> {
+        LibrawError::check(unsafe { sys::libraw_unpack_thumb_ex(self.inner.as_ptr(), index) })?;
+        Ok(())
+    }
+
     /// Drop the processor and get a handle to the inner type
     ///
     /// Processor also implements DerefMut so you can take that if you want
