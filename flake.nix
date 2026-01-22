@@ -9,6 +9,7 @@
       url = "github:nix-community/nix-github-actions";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    crates-nix.url = "github:uttarayan21/crates.nix";
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -27,6 +28,7 @@
     rust-overlay,
     advisory-db,
     nix-github-actions,
+    crates-nix,
     ...
   }:
     flake-utils.lib.eachDefaultSystem (
@@ -50,6 +52,7 @@
         };
         craneLib = (crane.mkLib pkgs).overrideToolchain stableToolchain;
         craneLibLLvmTools = (crane.mkLib pkgs).overrideToolchain stableToolchainWithLLvmTools;
+        crates = crates-nix.mkLib {inherit pkgs;};
 
         src = let
           filterBySuffix = path: exts: lib.any (ext: lib.hasSuffix ext path) exts;
@@ -132,6 +135,10 @@
                   stableToolchainWithRustAnalyzer
                   cargo-nextest
                   cargo-deny
+                  (crates.buildCrate "cargo-smart-release" {
+                    nativeBuildInputs = [pkgs.pkg-config];
+                    buildInputs = [pkgs.openssl];
+                  })
                 ]
                 ++ (lib.optionals pkgs.stdenv.isDarwin [
                   apple-sdk_26

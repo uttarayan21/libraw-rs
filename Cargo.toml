@@ -4,7 +4,7 @@ members = [".", "sys", "tests"]
 
 [workspace.package]
 edition = "2024"
-version = "1.0.0-rc.1"
+version = "1.0.0-rc.2"
 license = "LGPL-2.1-or-later or CDDL-1.0"
 repository = "https://github.com/uttarayan21/libraw-rs"
 homepage = "https://github.com/uttarayan21/libraw-rs"
@@ -12,10 +12,11 @@ homepage = "https://github.com/uttarayan21/libraw-rs"
 
 [package]
 name = "libraw_r"
-version = "1.0.0-rc.1"
-edition = "2024"
-license = "LGPL-2.1-or-later or CDDL-1.0"
-description = "High level api over libraw-sys"
+version = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+homepage = { workspace = true }
+repository = { workspace = true }
 
 [dependencies]
 futures = { version = "0.3.28", optional = true }

@@ -21,8 +21,6 @@ fn main() -> Result<()> {
             "/vendor"
         )));
 
-    // println!("cargo:rerun-if-changed={}", libraw_dir.display());
-
     println!(
         "cargo:include={}",
         std::env::join_paths([

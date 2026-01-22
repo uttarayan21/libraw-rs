@@ -31,6 +31,41 @@
         "type": "github"
       }
     },
+    "crates-io-index": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1763363725,
+        "narHash": "sha256-cxr5xIKZFP45yV1ZHFTB1sHo5YGiR3FA8D9vAfDizMo=",
+        "ref": "refs/heads/master",
+        "rev": "0382002e816a4cbd17d8d5b172f08b848aa22ff6",
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/rust-lang/crates.io-index"
+      },
+      "original": {
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/rust-lang/crates.io-index"
+      }
+    },
+    "crates-nix": {
+      "inputs": {
+        "crates-io-index": "crates-io-index"
+      },
+      "locked": {
+        "lastModified": 1763364255,
+        "narHash": "sha256-uHP6YjKDWVaWqcmb/LOxEdZlkVWBvspXqx4+LC1zJsE=",
+        "owner": "uttarayan21",
+        "repo": "crates.nix",
+        "rev": "13d09f3b04e31d2ab3cfbe47540cb425eaf9b750",
+        "type": "github"
+      },
+      "original": {
+        "owner": "uttarayan21",
+        "repo": "crates.nix",
+        "type": "github"
+      }
+    },
     "flake-utils": {
       "inputs": {
         "systems": "systems"
@@ -89,6 +124,7 @@
       "inputs": {
         "advisory-db": "advisory-db",
         "crane": "crane",
+        "crates-nix": "crates-nix",
         "flake-utils": "flake-utils",
         "nix-github-actions": "nix-github-actions",
         "nixpkgs": "nixpkgs",
