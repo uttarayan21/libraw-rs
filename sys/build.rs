@@ -21,8 +21,6 @@ fn main() -> Result<()> {
             "/vendor"
         )));
 
-    // println!("cargo:rerun-if-changed={}", libraw_dir.display());
-
     println!(
         "cargo:include={}",
         std::env::join_paths([
@@ -184,6 +182,7 @@ fn build(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> 
     libraw.flag_if_supported("-Wno-format-truncation");
     libraw.flag_if_supported("-Wno-unused-result");
     libraw.flag_if_supported("-Wno-format-overflow");
+    // libraw.block_list
     #[cfg(feature = "openmp")]
     {
         libraw.define("LIBRAW_FORCE_OPENMP", None);
@@ -217,7 +216,9 @@ fn build(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> 
                         if statik { "=static" } else { "" }
                     );
                 } else {
-                    println!("cargo:warning:Unable to find libomp (maybe try installing libomp via homebrew?)")
+                    println!(
+                        "cargo:warning:Unable to find libomp (maybe try installing libomp via homebrew?)"
+                    )
                 }
             }
         }
@@ -241,11 +242,11 @@ fn build(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> 
     #[cfg(target_os = "macos")]
     libraw.cpp_link_stdlib("c++");
 
-    #[cfg(unix)]
-    libraw.static_flag(true);
+    // #[cfg(unix)]
+    // libraw.static_flag(true);
 
-    #[cfg(windows)]
-    libraw.static_crt(true);
+    // #[cfg(windows)]
+    // libraw.static_crt(true);
 
     libraw.compile("raw_r");
 
@@ -275,12 +276,12 @@ fn bindings(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<(
                 .to_string_lossy(),
         )
         .use_core()
-        .ctypes_prefix("libc")
+        .ctypes_prefix("core::ffi")
         .generate_comments(true)
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         // API improvements
         .derive_eq(true)
-        .size_t_is_usize(true)
+        // .size_t_is_usize(true)
         // these are never part of the API
         .blocklist_function("_.*")
         // consts creating duplications
@@ -290,6 +291,12 @@ fn bindings(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<(
         .blocklist_item("FP_SUBNORMAL")
         .blocklist_item("FP_NORMAL")
         .blocklist_item("__mingw_ldbl_type_t")
+        .blocklist_file(".*stdlib.h")
+        .blocklist_file(".*stdio.h")
+        .blocklist_file(".*math.h")
+        .blocklist_file(".*string.h")
+        .blocklist_file(".*strings.h")
+        .blocklist_file(".*libio.h")
         // Rust doesn't support long double, and bindgen can't skip it
         // https://github.com/rust-lang/rust-bindgen/issues/1549
         .blocklist_function("acoshl")

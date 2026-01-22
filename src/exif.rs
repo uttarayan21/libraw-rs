@@ -20,7 +20,7 @@ pub struct ExifCallbackArgs<'a, T> {
     pub base: i64,
 }
 
-extern "C" {
+unsafe extern "C" {
     pub fn libraw_read_file_datastream(
         data: *mut libc::c_void,
         ptr: *mut libc::c_void,
@@ -273,8 +273,8 @@ impl<T> ExifReader<T> {
             };
         }
         core::mem::forget(context); // Don't decrement the refcount for arc we should only
-                                    // decrement that when the data function is called or
-                                    // ExifReader is dropped
+        // decrement that when the data function is called or
+        // ExifReader is dropped
     }
 
     pub fn errors(&mut self) -> Result<Vec<crate::error::LibrawError>, LibrawError> {

@@ -1,10 +1,49 @@
 [workspace]
 resolver = "2"
-members = [
-    "libraw-rs",
-    "libraw-sys",
-    "tests",
-]
+members = [".", "sys", "tests"]
+
+[workspace.package]
+edition = "2024"
+version = "1.0.0-rc.2"
+license = "LGPL-2.1-or-later or CDDL-1.0"
+repository = "https://github.com/uttarayan21/libraw-rs"
+homepage = "https://github.com/uttarayan21/libraw-rs"
+
+
+[package]
+name = "libraw_r"
+version = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+homepage = { workspace = true }
+repository = { workspace = true }
+
+[dependencies]
+image = { version = "0.25", optional = true }
+img-parts = { version = "0.4.0", optional = true }
+libc = { version = "0.2.135", optional = true }
+libraw-sys = { version = "1.0.0-rc.1", path = "sys" }
+semver = "1.0"
+thiserror = "2"
+
+[target.'cfg(windows)'.dependencies]
+widestring = "1"
+
+[features]
+jpeg = ["dep:image", "dep:img-parts"]
+bindgen = ["libraw-sys/bindgen"]
+exif = ["dep:libc"]
+openmp = ["libraw-sys/openmp"]
+openmp_static = ["libraw-sys/openmp_static"]
+default = ["exif"]
+
+[build-dependencies]
+anyhow = "1"
+cc = "1"
+
+[dev-dependencies]
+anyhow = "1"
+
 
 [profile.dev]
 opt-level = 0
