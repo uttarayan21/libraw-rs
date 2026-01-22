@@ -217,7 +217,9 @@ fn build(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> 
                         if statik { "=static" } else { "" }
                     );
                 } else {
-                    println!("cargo:warning:Unable to find libomp (maybe try installing libomp via homebrew?)")
+                    println!(
+                        "cargo:warning:Unable to find libomp (maybe try installing libomp via homebrew?)"
+                    )
                 }
             }
         }
