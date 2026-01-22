@@ -241,11 +241,11 @@ fn build(out_dir: impl AsRef<Path>, libraw_dir: impl AsRef<Path>) -> Result<()> 
     #[cfg(target_os = "macos")]
     libraw.cpp_link_stdlib("c++");
 
-    #[cfg(unix)]
-    libraw.static_flag(true);
+    // #[cfg(unix)]
+    // libraw.static_flag(true);
 
-    #[cfg(windows)]
-    libraw.static_crt(true);
+    // #[cfg(windows)]
+    // libraw.static_crt(true);
 
     libraw.compile("raw_r");
 
