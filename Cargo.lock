@@ -734,7 +734,6 @@ dependencies = [
  "cc",
  "dunce",
  "fs_extra",
- "libc",
  "libjpeg-sys",
  "libz-sys",
  "openmp-sys",

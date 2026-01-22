@@ -590,10 +590,10 @@ pub const LIBRAW_HISTOGRAM_SIZE: u32 = 8192;
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct __locale_struct {
     pub __locales: [*mut __locale_data; 13usize],
-    pub __ctype_b: *const libc::c_ushort,
-    pub __ctype_tolower: *const libc::c_int,
-    pub __ctype_toupper: *const libc::c_int,
-    pub __names: [*const libc::c_char; 13usize],
+    pub __ctype_b: *const core::ffi::c_ushort,
+    pub __ctype_tolower: *const core::ffi::c_int,
+    pub __ctype_toupper: *const core::ffi::c_int,
+    pub __names: [*const core::ffi::c_char; 13usize],
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -613,18 +613,18 @@ const _: () = {
 pub type __locale_t = *mut __locale_struct;
 pub type locale_t = __locale_t;
 pub type __gnuc_va_list = __builtin_va_list;
-pub type __u_char = libc::c_uchar;
-pub type __u_short = libc::c_ushort;
-pub type __u_int = libc::c_uint;
-pub type __u_long = libc::c_ulong;
-pub type __int8_t = libc::c_schar;
-pub type __uint8_t = libc::c_uchar;
-pub type __int16_t = libc::c_short;
-pub type __uint16_t = libc::c_ushort;
-pub type __int32_t = libc::c_int;
-pub type __uint32_t = libc::c_uint;
-pub type __int64_t = libc::c_long;
-pub type __uint64_t = libc::c_ulong;
+pub type __u_char = core::ffi::c_uchar;
+pub type __u_short = core::ffi::c_ushort;
+pub type __u_int = core::ffi::c_uint;
+pub type __u_long = core::ffi::c_ulong;
+pub type __int8_t = core::ffi::c_schar;
+pub type __uint8_t = core::ffi::c_uchar;
+pub type __int16_t = core::ffi::c_short;
+pub type __uint16_t = core::ffi::c_ushort;
+pub type __int32_t = core::ffi::c_int;
+pub type __uint32_t = core::ffi::c_uint;
+pub type __int64_t = core::ffi::c_long;
+pub type __uint64_t = core::ffi::c_ulong;
 pub type __int_least8_t = __int8_t;
 pub type __uint_least8_t = __uint8_t;
 pub type __int_least16_t = __int16_t;
@@ -633,24 +633,24 @@ pub type __int_least32_t = __int32_t;
 pub type __uint_least32_t = __uint32_t;
 pub type __int_least64_t = __int64_t;
 pub type __uint_least64_t = __uint64_t;
-pub type __quad_t = libc::c_long;
-pub type __u_quad_t = libc::c_ulong;
-pub type __intmax_t = libc::c_long;
-pub type __uintmax_t = libc::c_ulong;
-pub type __dev_t = libc::c_ulong;
-pub type __uid_t = libc::c_uint;
-pub type __gid_t = libc::c_uint;
-pub type __ino_t = libc::c_ulong;
-pub type __ino64_t = libc::c_ulong;
-pub type __mode_t = libc::c_uint;
-pub type __nlink_t = libc::c_ulong;
-pub type __off_t = libc::c_long;
-pub type __off64_t = libc::c_long;
-pub type __pid_t = libc::c_int;
+pub type __quad_t = core::ffi::c_long;
+pub type __u_quad_t = core::ffi::c_ulong;
+pub type __intmax_t = core::ffi::c_long;
+pub type __uintmax_t = core::ffi::c_ulong;
+pub type __dev_t = core::ffi::c_ulong;
+pub type __uid_t = core::ffi::c_uint;
+pub type __gid_t = core::ffi::c_uint;
+pub type __ino_t = core::ffi::c_ulong;
+pub type __ino64_t = core::ffi::c_ulong;
+pub type __mode_t = core::ffi::c_uint;
+pub type __nlink_t = core::ffi::c_ulong;
+pub type __off_t = core::ffi::c_long;
+pub type __off64_t = core::ffi::c_long;
+pub type __pid_t = core::ffi::c_int;
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct __fsid_t {
-    pub __val: [libc::c_int; 2usize],
+    pub __val: [core::ffi::c_int; 2usize],
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -658,45 +658,45 @@ const _: () = {
     ["Alignment of __fsid_t"][::core::mem::align_of::<__fsid_t>() - 4usize];
     ["Offset of field: __fsid_t::__val"][::core::mem::offset_of!(__fsid_t, __val) - 0usize];
 };
-pub type __clock_t = libc::c_long;
-pub type __rlim_t = libc::c_ulong;
-pub type __rlim64_t = libc::c_ulong;
-pub type __id_t = libc::c_uint;
-pub type __time_t = libc::c_long;
-pub type __useconds_t = libc::c_uint;
-pub type __suseconds_t = libc::c_long;
-pub type __suseconds64_t = libc::c_long;
-pub type __daddr_t = libc::c_int;
-pub type __key_t = libc::c_int;
-pub type __clockid_t = libc::c_int;
-pub type __timer_t = *mut libc::c_void;
-pub type __blksize_t = libc::c_long;
-pub type __blkcnt_t = libc::c_long;
-pub type __blkcnt64_t = libc::c_long;
-pub type __fsblkcnt_t = libc::c_ulong;
-pub type __fsblkcnt64_t = libc::c_ulong;
-pub type __fsfilcnt_t = libc::c_ulong;
-pub type __fsfilcnt64_t = libc::c_ulong;
-pub type __fsword_t = libc::c_long;
-pub type __ssize_t = libc::c_long;
-pub type __syscall_slong_t = libc::c_long;
-pub type __syscall_ulong_t = libc::c_ulong;
+pub type __clock_t = core::ffi::c_long;
+pub type __rlim_t = core::ffi::c_ulong;
+pub type __rlim64_t = core::ffi::c_ulong;
+pub type __id_t = core::ffi::c_uint;
+pub type __time_t = core::ffi::c_long;
+pub type __useconds_t = core::ffi::c_uint;
+pub type __suseconds_t = core::ffi::c_long;
+pub type __suseconds64_t = core::ffi::c_long;
+pub type __daddr_t = core::ffi::c_int;
+pub type __key_t = core::ffi::c_int;
+pub type __clockid_t = core::ffi::c_int;
+pub type __timer_t = *mut core::ffi::c_void;
+pub type __blksize_t = core::ffi::c_long;
+pub type __blkcnt_t = core::ffi::c_long;
+pub type __blkcnt64_t = core::ffi::c_long;
+pub type __fsblkcnt_t = core::ffi::c_ulong;
+pub type __fsblkcnt64_t = core::ffi::c_ulong;
+pub type __fsfilcnt_t = core::ffi::c_ulong;
+pub type __fsfilcnt64_t = core::ffi::c_ulong;
+pub type __fsword_t = core::ffi::c_long;
+pub type __ssize_t = core::ffi::c_long;
+pub type __syscall_slong_t = core::ffi::c_long;
+pub type __syscall_ulong_t = core::ffi::c_ulong;
 pub type __loff_t = __off64_t;
-pub type __caddr_t = *mut libc::c_char;
-pub type __intptr_t = libc::c_long;
-pub type __socklen_t = libc::c_uint;
-pub type __sig_atomic_t = libc::c_int;
+pub type __caddr_t = *mut core::ffi::c_char;
+pub type __intptr_t = core::ffi::c_long;
+pub type __socklen_t = core::ffi::c_uint;
+pub type __sig_atomic_t = core::ffi::c_int;
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct __mbstate_t {
-    pub __count: libc::c_int,
+    pub __count: core::ffi::c_int,
     pub __value: __mbstate_t__bindgen_ty_1,
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union __mbstate_t__bindgen_ty_1 {
-    pub __wch: libc::c_uint,
-    pub __wchb: [libc::c_char; 4usize],
+    pub __wch: core::ffi::c_uint,
+    pub __wchb: [core::ffi::c_char; 4usize],
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -764,39 +764,39 @@ pub struct _IO_codecvt {
 pub struct _IO_wide_data {
     _unused: [u8; 0],
 }
-pub type _IO_lock_t = libc::c_void;
+pub type _IO_lock_t = core::ffi::c_void;
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct _IO_FILE {
-    pub _flags: libc::c_int,
-    pub _IO_read_ptr: *mut libc::c_char,
-    pub _IO_read_end: *mut libc::c_char,
-    pub _IO_read_base: *mut libc::c_char,
-    pub _IO_write_base: *mut libc::c_char,
-    pub _IO_write_ptr: *mut libc::c_char,
-    pub _IO_write_end: *mut libc::c_char,
-    pub _IO_buf_base: *mut libc::c_char,
-    pub _IO_buf_end: *mut libc::c_char,
-    pub _IO_save_base: *mut libc::c_char,
-    pub _IO_backup_base: *mut libc::c_char,
-    pub _IO_save_end: *mut libc::c_char,
+    pub _flags: core::ffi::c_int,
+    pub _IO_read_ptr: *mut core::ffi::c_char,
+    pub _IO_read_end: *mut core::ffi::c_char,
+    pub _IO_read_base: *mut core::ffi::c_char,
+    pub _IO_write_base: *mut core::ffi::c_char,
+    pub _IO_write_ptr: *mut core::ffi::c_char,
+    pub _IO_write_end: *mut core::ffi::c_char,
+    pub _IO_buf_base: *mut core::ffi::c_char,
+    pub _IO_buf_end: *mut core::ffi::c_char,
+    pub _IO_save_base: *mut core::ffi::c_char,
+    pub _IO_backup_base: *mut core::ffi::c_char,
+    pub _IO_save_end: *mut core::ffi::c_char,
     pub _markers: *mut _IO_marker,
     pub _chain: *mut _IO_FILE,
-    pub _fileno: libc::c_int,
-    pub _flags2: libc::c_int,
+    pub _fileno: core::ffi::c_int,
+    pub _flags2: core::ffi::c_int,
     pub _old_offset: __off_t,
-    pub _cur_column: libc::c_ushort,
-    pub _vtable_offset: libc::c_schar,
-    pub _shortbuf: [libc::c_char; 1usize],
+    pub _cur_column: core::ffi::c_ushort,
+    pub _vtable_offset: core::ffi::c_schar,
+    pub _shortbuf: [core::ffi::c_char; 1usize],
     pub _lock: *mut _IO_lock_t,
     pub _offset: __off64_t,
     pub _codecvt: *mut _IO_codecvt,
     pub _wide_data: *mut _IO_wide_data,
     pub _freeres_list: *mut _IO_FILE,
-    pub _freeres_buf: *mut libc::c_void,
+    pub _freeres_buf: *mut core::ffi::c_void,
     pub _prevchain: *mut *mut _IO_FILE,
-    pub _mode: libc::c_int,
-    pub _unused2: [libc::c_char; 20usize],
+    pub _mode: core::ffi::c_int,
+    pub _unused2: [core::ffi::c_char; 20usize],
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -853,27 +853,28 @@ const _: () = {
 };
 pub type cookie_read_function_t = ::core::option::Option<
     unsafe extern "C" fn(
-        __cookie: *mut libc::c_void,
-        __buf: *mut libc::c_char,
+        __cookie: *mut core::ffi::c_void,
+        __buf: *mut core::ffi::c_char,
         __nbytes: usize,
     ) -> __ssize_t,
 >;
 pub type cookie_write_function_t = ::core::option::Option<
     unsafe extern "C" fn(
-        __cookie: *mut libc::c_void,
-        __buf: *const libc::c_char,
+        __cookie: *mut core::ffi::c_void,
+        __buf: *const core::ffi::c_char,
         __nbytes: usize,
     ) -> __ssize_t,
 >;
 pub type cookie_seek_function_t = ::core::option::Option<
     unsafe extern "C" fn(
-        __cookie: *mut libc::c_void,
+        __cookie: *mut core::ffi::c_void,
         __pos: *mut __off64_t,
-        __w: libc::c_int,
-    ) -> libc::c_int,
+        __w: core::ffi::c_int,
+    ) -> core::ffi::c_int,
 >;
-pub type cookie_close_function_t =
-    ::core::option::Option<unsafe extern "C" fn(__cookie: *mut libc::c_void) -> libc::c_int>;
+pub type cookie_close_function_t = ::core::option::Option<
+    unsafe extern "C" fn(__cookie: *mut core::ffi::c_void) -> core::ffi::c_int,
+>;
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct _IO_cookie_io_functions_t {
@@ -902,7 +903,7 @@ pub type _Float32 = f32;
 pub type _Float64 = f64;
 pub type _Float32x = f64;
 pub type _Float64x = u128;
-pub type wchar_t = libc::c_int;
+pub type wchar_t = core::ffi::c_int;
 pub type u_char = __u_char;
 pub type u_short = __u_short;
 pub type u_int = __u_int;
@@ -926,18 +927,18 @@ pub type clock_t = __clock_t;
 pub type clockid_t = __clockid_t;
 pub type time_t = __time_t;
 pub type timer_t = __timer_t;
-pub type ulong = libc::c_ulong;
-pub type ushort = libc::c_ushort;
-pub type uint = libc::c_uint;
+pub type ulong = core::ffi::c_ulong;
+pub type ushort = core::ffi::c_ushort;
+pub type uint = core::ffi::c_uint;
 pub type u_int8_t = __uint8_t;
 pub type u_int16_t = __uint16_t;
 pub type u_int32_t = __uint32_t;
 pub type u_int64_t = __uint64_t;
-pub type register_t = libc::c_long;
+pub type register_t = core::ffi::c_long;
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct __sigset_t {
-    pub __val: [libc::c_ulong; 16usize],
+    pub __val: [core::ffi::c_ulong; 16usize],
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -973,7 +974,7 @@ const _: () = {
     ["Offset of field: timespec::tv_nsec"][::core::mem::offset_of!(timespec, tv_nsec) - 8usize];
 };
 pub type suseconds_t = __suseconds_t;
-pub type __fd_mask = libc::c_long;
+pub type __fd_mask = core::ffi::c_long;
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct fd_set {
@@ -988,22 +989,22 @@ const _: () = {
 pub type fd_mask = __fd_mask;
 unsafe extern "C" {
     pub fn select(
-        __nfds: libc::c_int,
+        __nfds: core::ffi::c_int,
         __readfds: *mut fd_set,
         __writefds: *mut fd_set,
         __exceptfds: *mut fd_set,
         __timeout: *mut timeval,
-    ) -> libc::c_int;
+    ) -> core::ffi::c_int;
 }
 unsafe extern "C" {
     pub fn pselect(
-        __nfds: libc::c_int,
+        __nfds: core::ffi::c_int,
         __readfds: *mut fd_set,
         __writefds: *mut fd_set,
         __exceptfds: *mut fd_set,
         __timeout: *const timespec,
         __sigmask: *const __sigset_t,
-    ) -> libc::c_int;
+    ) -> core::ffi::c_int;
 }
 pub type blksize_t = __blksize_t;
 pub type blkcnt_t = __blkcnt64_t;
@@ -1012,14 +1013,14 @@ pub type fsfilcnt_t = __fsfilcnt64_t;
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union __atomic_wide_counter {
-    pub __value64: libc::c_ulonglong,
+    pub __value64: core::ffi::c_ulonglong,
     pub __value32: __atomic_wide_counter__bindgen_ty_1,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct __atomic_wide_counter__bindgen_ty_1 {
-    pub __low: libc::c_uint,
-    pub __high: libc::c_uint,
+    pub __low: core::ffi::c_uint,
+    pub __high: core::ffi::c_uint,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -1078,13 +1079,13 @@ pub type __pthread_slist_t = __pthread_internal_slist;
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct __pthread_mutex_s {
-    pub __lock: libc::c_int,
-    pub __count: libc::c_uint,
-    pub __owner: libc::c_int,
-    pub __nusers: libc::c_uint,
-    pub __kind: libc::c_int,
-    pub __spins: libc::c_short,
-    pub __elision: libc::c_short,
+    pub __lock: core::ffi::c_int,
+    pub __count: core::ffi::c_uint,
+    pub __owner: core::ffi::c_int,
+    pub __nusers: core::ffi::c_uint,
+    pub __kind: core::ffi::c_int,
+    pub __spins: core::ffi::c_short,
+    pub __elision: core::ffi::c_short,
     pub __list: __pthread_list_t,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
@@ -1111,18 +1112,18 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct __pthread_rwlock_arch_t {
-    pub __readers: libc::c_uint,
-    pub __writers: libc::c_uint,
-    pub __wrphase_futex: libc::c_uint,
-    pub __writers_futex: libc::c_uint,
-    pub __pad3: libc::c_uint,
-    pub __pad4: libc::c_uint,
-    pub __cur_writer: libc::c_int,
-    pub __shared: libc::c_int,
-    pub __rwelision: libc::c_schar,
-    pub __pad1: [libc::c_uchar; 7usize],
-    pub __pad2: libc::c_ulong,
-    pub __flags: libc::c_uint,
+    pub __readers: core::ffi::c_uint,
+    pub __writers: core::ffi::c_uint,
+    pub __wrphase_futex: core::ffi::c_uint,
+    pub __writers_futex: core::ffi::c_uint,
+    pub __pad3: core::ffi::c_uint,
+    pub __pad4: core::ffi::c_uint,
+    pub __cur_writer: core::ffi::c_int,
+    pub __shared: core::ffi::c_int,
+    pub __rwelision: core::ffi::c_schar,
+    pub __pad1: [core::ffi::c_uchar; 7usize],
+    pub __pad2: core::ffi::c_ulong,
+    pub __flags: core::ffi::c_uint,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -1160,12 +1161,12 @@ const _: () = {
 pub struct __pthread_cond_s {
     pub __wseq: __atomic_wide_counter,
     pub __g1_start: __atomic_wide_counter,
-    pub __g_size: [libc::c_uint; 2usize],
-    pub __g1_orig_size: libc::c_uint,
-    pub __wrefs: libc::c_uint,
-    pub __g_signals: [libc::c_uint; 2usize],
-    pub __unused_initialized_1: libc::c_uint,
-    pub __unused_initialized_2: libc::c_uint,
+    pub __g_size: [core::ffi::c_uint; 2usize],
+    pub __g1_orig_size: core::ffi::c_uint,
+    pub __wrefs: core::ffi::c_uint,
+    pub __g_signals: [core::ffi::c_uint; 2usize],
+    pub __unused_initialized_1: core::ffi::c_uint,
+    pub __unused_initialized_2: core::ffi::c_uint,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -1188,12 +1189,12 @@ const _: () = {
     ["Offset of field: __pthread_cond_s::__unused_initialized_2"]
         [::core::mem::offset_of!(__pthread_cond_s, __unused_initialized_2) - 44usize];
 };
-pub type __tss_t = libc::c_uint;
-pub type __thrd_t = libc::c_ulong;
+pub type __tss_t = core::ffi::c_uint;
+pub type __thrd_t = core::ffi::c_ulong;
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct __once_flag {
-    pub __data: libc::c_int,
+    pub __data: core::ffi::c_int,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -1201,12 +1202,12 @@ const _: () = {
     ["Alignment of __once_flag"][::core::mem::align_of::<__once_flag>() - 4usize];
     ["Offset of field: __once_flag::__data"][::core::mem::offset_of!(__once_flag, __data) - 0usize];
 };
-pub type pthread_t = libc::c_ulong;
+pub type pthread_t = core::ffi::c_ulong;
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union pthread_mutexattr_t {
-    pub __size: [libc::c_char; 4usize],
-    pub __align: libc::c_int,
+    pub __size: [core::ffi::c_char; 4usize],
+    pub __align: core::ffi::c_int,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -1220,8 +1221,8 @@ const _: () = {
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union pthread_condattr_t {
-    pub __size: [libc::c_char; 4usize],
-    pub __align: libc::c_int,
+    pub __size: [core::ffi::c_char; 4usize],
+    pub __align: core::ffi::c_int,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -1232,13 +1233,13 @@ const _: () = {
     ["Offset of field: pthread_condattr_t::__align"]
         [::core::mem::offset_of!(pthread_condattr_t, __align) - 0usize];
 };
-pub type pthread_key_t = libc::c_uint;
-pub type pthread_once_t = libc::c_int;
+pub type pthread_key_t = core::ffi::c_uint;
+pub type pthread_once_t = core::ffi::c_int;
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union pthread_attr_t {
-    pub __size: [libc::c_char; 56usize],
-    pub __align: libc::c_long,
+    pub __size: [core::ffi::c_char; 56usize],
+    pub __align: core::ffi::c_long,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -1253,8 +1254,8 @@ const _: () = {
 #[derive(Copy, Clone)]
 pub union pthread_mutex_t {
     pub __data: __pthread_mutex_s,
-    pub __size: [libc::c_char; 40usize],
-    pub __align: libc::c_long,
+    pub __size: [core::ffi::c_char; 40usize],
+    pub __align: core::ffi::c_long,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -1271,8 +1272,8 @@ const _: () = {
 #[derive(Copy, Clone)]
 pub union pthread_cond_t {
     pub __data: __pthread_cond_s,
-    pub __size: [libc::c_char; 48usize],
-    pub __align: libc::c_longlong,
+    pub __size: [core::ffi::c_char; 48usize],
+    pub __align: core::ffi::c_longlong,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -1289,8 +1290,8 @@ const _: () = {
 #[derive(Copy, Clone)]
 pub union pthread_rwlock_t {
     pub __data: __pthread_rwlock_arch_t,
-    pub __size: [libc::c_char; 56usize],
-    pub __align: libc::c_long,
+    pub __size: [core::ffi::c_char; 56usize],
+    pub __align: core::ffi::c_long,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -1306,8 +1307,8 @@ const _: () = {
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union pthread_rwlockattr_t {
-    pub __size: [libc::c_char; 8usize],
-    pub __align: libc::c_long,
+    pub __size: [core::ffi::c_char; 8usize],
+    pub __align: core::ffi::c_long,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -1318,12 +1319,12 @@ const _: () = {
     ["Offset of field: pthread_rwlockattr_t::__align"]
         [::core::mem::offset_of!(pthread_rwlockattr_t, __align) - 0usize];
 };
-pub type pthread_spinlock_t = libc::c_int;
+pub type pthread_spinlock_t = core::ffi::c_int;
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union pthread_barrier_t {
-    pub __size: [libc::c_char; 32usize],
-    pub __align: libc::c_long,
+    pub __size: [core::ffi::c_char; 32usize],
+    pub __align: core::ffi::c_long,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -1337,8 +1338,8 @@ const _: () = {
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union pthread_barrierattr_t {
-    pub __size: [libc::c_char; 4usize],
-    pub __align: libc::c_int,
+    pub __size: [core::ffi::c_char; 4usize],
+    pub __align: core::ffi::c_int,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -1351,7 +1352,7 @@ const _: () = {
         [::core::mem::offset_of!(pthread_barrierattr_t, __align) - 0usize];
 };
 unsafe extern "C" {
-    pub fn alloca(__size: libc::c_ulong) -> *mut libc::c_void;
+    pub fn alloca(__size: core::ffi::c_ulong) -> *mut core::ffi::c_void;
 }
 unsafe extern "C" {
     pub fn acos(__x: f64) -> f64;
@@ -1396,10 +1397,10 @@ unsafe extern "C" {
     pub fn exp(__x: f64) -> f64;
 }
 unsafe extern "C" {
-    pub fn frexp(__x: f64, __exponent: *mut libc::c_int) -> f64;
+    pub fn frexp(__x: f64, __exponent: *mut core::ffi::c_int) -> f64;
 }
 unsafe extern "C" {
-    pub fn ldexp(__x: f64, __exponent: libc::c_int) -> f64;
+    pub fn ldexp(__x: f64, __exponent: core::ffi::c_int) -> f64;
 }
 unsafe extern "C" {
     pub fn log(__x: f64) -> f64;
@@ -1450,10 +1451,10 @@ unsafe extern "C" {
     pub fn fmod(__x: f64, __y: f64) -> f64;
 }
 unsafe extern "C" {
-    pub fn isinf(__value: f64) -> libc::c_int;
+    pub fn isinf(__value: f64) -> core::ffi::c_int;
 }
 unsafe extern "C" {
-    pub fn finite(__value: f64) -> libc::c_int;
+    pub fn finite(__value: f64) -> core::ffi::c_int;
 }
 unsafe extern "C" {
     pub fn drem(__x: f64, __y: f64) -> f64;
@@ -1465,10 +1466,10 @@ unsafe extern "C" {
     pub fn copysign(__x: f64, __y: f64) -> f64;
 }
 unsafe extern "C" {
-    pub fn nan(__tagb: *const libc::c_char) -> f64;
+    pub fn nan(__tagb: *const core::ffi::c_char) -> f64;
 }
 unsafe extern "C" {
-    pub fn isnan(__value: f64) -> libc::c_int;
+    pub fn isnan(__value: f64) -> core::ffi::c_int;
 }
 unsafe extern "C" {
     pub fn j0(arg1: f64) -> f64;
@@ -1477,7 +1478,7 @@ unsafe extern "C" {
     pub fn j1(arg1: f64) -> f64;
 }
 unsafe extern "C" {
-    pub fn jn(arg1: libc::c_int, arg2: f64) -> f64;
+    pub fn jn(arg1: core::ffi::c_int, arg2: f64) -> f64;
 }
 unsafe extern "C" {
     pub fn y0(arg1: f64) -> f64;
@@ -1486,7 +1487,7 @@ unsafe extern "C" {
     pub fn y1(arg1: f64) -> f64;
 }
 unsafe extern "C" {
-    pub fn yn(arg1: libc::c_int, arg2: f64) -> f64;
+    pub fn yn(arg1: core::ffi::c_int, arg2: f64) -> f64;
 }
 unsafe extern "C" {
     pub fn erf(arg1: f64) -> f64;
@@ -1504,7 +1505,7 @@ unsafe extern "C" {
     pub fn gamma(arg1: f64) -> f64;
 }
 unsafe extern "C" {
-    pub fn lgamma_r(arg1: f64, __signgamp: *mut libc::c_int) -> f64;
+    pub fn lgamma_r(arg1: f64, __signgamp: *mut core::ffi::c_int) -> f64;
 }
 unsafe extern "C" {
     pub fn rint(__x: f64) -> f64;
@@ -1516,13 +1517,13 @@ unsafe extern "C" {
     pub fn remainder(__x: f64, __y: f64) -> f64;
 }
 unsafe extern "C" {
-    pub fn scalbn(__x: f64, __n: libc::c_int) -> f64;
+    pub fn scalbn(__x: f64, __n: core::ffi::c_int) -> f64;
 }
 unsafe extern "C" {
-    pub fn ilogb(__x: f64) -> libc::c_int;
+    pub fn ilogb(__x: f64) -> core::ffi::c_int;
 }
 unsafe extern "C" {
-    pub fn scalbln(__x: f64, __n: libc::c_long) -> f64;
+    pub fn scalbln(__x: f64, __n: core::ffi::c_long) -> f64;
 }
 unsafe extern "C" {
     pub fn nearbyint(__x: f64) -> f64;
@@ -1534,19 +1535,19 @@ unsafe extern "C" {
     pub fn trunc(__x: f64) -> f64;
 }
 unsafe extern "C" {
-    pub fn remquo(__x: f64, __y: f64, __quo: *mut libc::c_int) -> f64;
+    pub fn remquo(__x: f64, __y: f64, __quo: *mut core::ffi::c_int) -> f64;
 }
 unsafe extern "C" {
-    pub fn lrint(__x: f64) -> libc::c_long;
+    pub fn lrint(__x: f64) -> core::ffi::c_long;
 }
 unsafe extern "C" {
-    pub fn llrint(__x: f64) -> libc::c_longlong;
+    pub fn llrint(__x: f64) -> core::ffi::c_longlong;
 }
 unsafe extern "C" {
-    pub fn lround(__x: f64) -> libc::c_long;
+    pub fn lround(__x: f64) -> core::ffi::c_long;
 }
 unsafe extern "C" {
-    pub fn llround(__x: f64) -> libc::c_longlong;
+    pub fn llround(__x: f64) -> core::ffi::c_longlong;
 }
 unsafe extern "C" {
     pub fn fdim(__x: f64, __y: f64) -> f64;
@@ -1606,10 +1607,10 @@ unsafe extern "C" {
     pub fn expf(__x: f32) -> f32;
 }
 unsafe extern "C" {
-    pub fn frexpf(__x: f32, __exponent: *mut libc::c_int) -> f32;
+    pub fn frexpf(__x: f32, __exponent: *mut core::ffi::c_int) -> f32;
 }
 unsafe extern "C" {
-    pub fn ldexpf(__x: f32, __exponent: libc::c_int) -> f32;
+    pub fn ldexpf(__x: f32, __exponent: core::ffi::c_int) -> f32;
 }
 unsafe extern "C" {
     pub fn logf(__x: f32) -> f32;
@@ -1660,10 +1661,10 @@ unsafe extern "C" {
     pub fn fmodf(__x: f32, __y: f32) -> f32;
 }
 unsafe extern "C" {
-    pub fn isinff(__value: f32) -> libc::c_int;
+    pub fn isinff(__value: f32) -> core::ffi::c_int;
 }
 unsafe extern "C" {
-    pub fn finitef(__value: f32) -> libc::c_int;
+    pub fn finitef(__value: f32) -> core::ffi::c_int;
 }
 unsafe extern "C" {
     pub fn dremf(__x: f32, __y: f32) -> f32;
@@ -1675,10 +1676,10 @@ unsafe extern "C" {
     pub fn copysignf(__x: f32, __y: f32) -> f32;
 }
 unsafe extern "C" {
-    pub fn nanf(__tagb: *const libc::c_char) -> f32;
+    pub fn nanf(__tagb: *const core::ffi::c_char) -> f32;
 }
 unsafe extern "C" {
-    pub fn isnanf(__value: f32) -> libc::c_int;
+    pub fn isnanf(__value: f32) -> core::ffi::c_int;
 }
 unsafe extern "C" {
     pub fn j0f(arg1: f32) -> f32;
@@ -1687,7 +1688,7 @@ unsafe extern "C" {
     pub fn j1f(arg1: f32) -> f32;
 }
 unsafe extern "C" {
-    pub fn jnf(arg1: libc::c_int, arg2: f32) -> f32;
+    pub fn jnf(arg1: core::ffi::c_int, arg2: f32) -> f32;
 }
 unsafe extern "C" {
     pub fn y0f(arg1: f32) -> f32;
@@ -1696,7 +1697,7 @@ unsafe extern "C" {
     pub fn y1f(arg1: f32) -> f32;
 }
 unsafe extern "C" {
-    pub fn ynf(arg1: libc::c_int, arg2: f32) -> f32;
+    pub fn ynf(arg1: core::ffi::c_int, arg2: f32) -> f32;
 }
 unsafe extern "C" {
     pub fn erff(arg1: f32) -> f32;
@@ -1714,7 +1715,7 @@ unsafe extern "C" {
     pub fn gammaf(arg1: f32) -> f32;
 }
 unsafe extern "C" {
-    pub fn lgammaf_r(arg1: f32, __signgamp: *mut libc::c_int) -> f32;
+    pub fn lgammaf_r(arg1: f32, __signgamp: *mut core::ffi::c_int) -> f32;
 }
 unsafe extern "C" {
     pub fn rintf(__x: f32) -> f32;
@@ -1726,13 +1727,13 @@ unsafe extern "C" {
     pub fn remainderf(__x: f32, __y: f32) -> f32;
 }
 unsafe extern "C" {
-    pub fn scalbnf(__x: f32, __n: libc::c_int) -> f32;
+    pub fn scalbnf(__x: f32, __n: core::ffi::c_int) -> f32;
 }
 unsafe extern "C" {
-    pub fn ilogbf(__x: f32) -> libc::c_int;
+    pub fn ilogbf(__x: f32) -> core::ffi::c_int;
 }
 unsafe extern "C" {
-    pub fn scalblnf(__x: f32, __n: libc::c_long) -> f32;
+    pub fn scalblnf(__x: f32, __n: core::ffi::c_long) -> f32;
 }
 unsafe extern "C" {
     pub fn nearbyintf(__x: f32) -> f32;
@@ -1744,19 +1745,19 @@ unsafe extern "C" {
     pub fn truncf(__x: f32) -> f32;
 }
 unsafe extern "C" {
-    pub fn remquof(__x: f32, __y: f32, __quo: *mut libc::c_int) -> f32;
+    pub fn remquof(__x: f32, __y: f32, __quo: *mut core::ffi::c_int) -> f32;
 }
 unsafe extern "C" {
-    pub fn lrintf(__x: f32) -> libc::c_long;
+    pub fn lrintf(__x: f32) -> core::ffi::c_long;
 }
 unsafe extern "C" {
-    pub fn llrintf(__x: f32) -> libc::c_longlong;
+    pub fn llrintf(__x: f32) -> core::ffi::c_longlong;
 }
 unsafe extern "C" {
-    pub fn lroundf(__x: f32) -> libc::c_long;
+    pub fn lroundf(__x: f32) -> core::ffi::c_long;
 }
 unsafe extern "C" {
-    pub fn llroundf(__x: f32) -> libc::c_longlong;
+    pub fn llroundf(__x: f32) -> core::ffi::c_longlong;
 }
 unsafe extern "C" {
     pub fn fdimf(__x: f32, __y: f32) -> f32;
@@ -1776,8 +1777,8 @@ unsafe extern "C" {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct timezone {
-    pub tz_minuteswest: libc::c_int,
-    pub tz_dsttime: libc::c_int,
+    pub tz_minuteswest: core::ffi::c_int,
+    pub tz_dsttime: core::ffi::c_int,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -1789,18 +1790,18 @@ const _: () = {
         [::core::mem::offset_of!(timezone, tz_dsttime) - 4usize];
 };
 unsafe extern "C" {
-    pub fn gettimeofday(__tv: *mut timeval, __tz: *mut libc::c_void) -> libc::c_int;
+    pub fn gettimeofday(__tv: *mut timeval, __tz: *mut core::ffi::c_void) -> core::ffi::c_int;
 }
 unsafe extern "C" {
-    pub fn settimeofday(__tv: *const timeval, __tz: *const timezone) -> libc::c_int;
+    pub fn settimeofday(__tv: *const timeval, __tz: *const timezone) -> core::ffi::c_int;
 }
 unsafe extern "C" {
-    pub fn adjtime(__delta: *const timeval, __olddelta: *mut timeval) -> libc::c_int;
+    pub fn adjtime(__delta: *const timeval, __olddelta: *mut timeval) -> core::ffi::c_int;
 }
 pub const __itimer_which_ITIMER_REAL: __itimer_which = 0;
 pub const __itimer_which_ITIMER_VIRTUAL: __itimer_which = 1;
 pub const __itimer_which_ITIMER_PROF: __itimer_which = 2;
-pub type __itimer_which = libc::c_uint;
+pub type __itimer_which = core::ffi::c_uint;
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct itimerval {
@@ -1816,25 +1817,25 @@ const _: () = {
     ["Offset of field: itimerval::it_value"]
         [::core::mem::offset_of!(itimerval, it_value) - 16usize];
 };
-pub type __itimer_which_t = libc::c_int;
+pub type __itimer_which_t = core::ffi::c_int;
 unsafe extern "C" {
-    pub fn getitimer(__which: __itimer_which_t, __value: *mut itimerval) -> libc::c_int;
+    pub fn getitimer(__which: __itimer_which_t, __value: *mut itimerval) -> core::ffi::c_int;
 }
 unsafe extern "C" {
     pub fn setitimer(
         __which: __itimer_which_t,
         __new: *const itimerval,
         __old: *mut itimerval,
-    ) -> libc::c_int;
+    ) -> core::ffi::c_int;
 }
 unsafe extern "C" {
-    pub fn utimes(__file: *const libc::c_char, __tvp: *const timeval) -> libc::c_int;
+    pub fn utimes(__file: *const core::ffi::c_char, __tvp: *const timeval) -> core::ffi::c_int;
 }
 unsafe extern "C" {
-    pub fn lutimes(__file: *const libc::c_char, __tvp: *const timeval) -> libc::c_int;
+    pub fn lutimes(__file: *const core::ffi::c_char, __tvp: *const timeval) -> core::ffi::c_int;
 }
 unsafe extern "C" {
-    pub fn futimes(__fd: libc::c_int, __tvp: *const timeval) -> libc::c_int;
+    pub fn futimes(__fd: core::ffi::c_int, __tvp: *const timeval) -> core::ffi::c_int;
 }
 pub type int_least8_t = __int_least8_t;
 pub type int_least16_t = __int_least16_t;
@@ -1844,22 +1845,22 @@ pub type uint_least8_t = __uint_least8_t;
 pub type uint_least16_t = __uint_least16_t;
 pub type uint_least32_t = __uint_least32_t;
 pub type uint_least64_t = __uint_least64_t;
-pub type int_fast8_t = libc::c_schar;
-pub type int_fast16_t = libc::c_long;
-pub type int_fast32_t = libc::c_long;
-pub type int_fast64_t = libc::c_long;
-pub type uint_fast8_t = libc::c_uchar;
-pub type uint_fast16_t = libc::c_ulong;
-pub type uint_fast32_t = libc::c_ulong;
-pub type uint_fast64_t = libc::c_ulong;
+pub type int_fast8_t = core::ffi::c_schar;
+pub type int_fast16_t = core::ffi::c_long;
+pub type int_fast32_t = core::ffi::c_long;
+pub type int_fast64_t = core::ffi::c_long;
+pub type uint_fast8_t = core::ffi::c_uchar;
+pub type uint_fast16_t = core::ffi::c_ulong;
+pub type uint_fast32_t = core::ffi::c_ulong;
+pub type uint_fast64_t = core::ffi::c_ulong;
 pub type intmax_t = __intmax_t;
 pub type uintmax_t = __uintmax_t;
-pub type __gwchar_t = libc::c_int;
+pub type __gwchar_t = core::ffi::c_int;
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct imaxdiv_t {
-    pub quot: libc::c_long,
-    pub rem: libc::c_long,
+    pub quot: core::ffi::c_long,
+    pub rem: core::ffi::c_long,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -1876,37 +1877,37 @@ unsafe extern "C" {
 }
 unsafe extern "C" {
     pub fn strtoimax(
-        __nptr: *const libc::c_char,
-        __endptr: *mut *mut libc::c_char,
-        __base: libc::c_int,
+        __nptr: *const core::ffi::c_char,
+        __endptr: *mut *mut core::ffi::c_char,
+        __base: core::ffi::c_int,
     ) -> intmax_t;
 }
 unsafe extern "C" {
     pub fn strtoumax(
-        __nptr: *const libc::c_char,
-        __endptr: *mut *mut libc::c_char,
-        __base: libc::c_int,
+        __nptr: *const core::ffi::c_char,
+        __endptr: *mut *mut core::ffi::c_char,
+        __base: core::ffi::c_int,
     ) -> uintmax_t;
 }
 unsafe extern "C" {
     pub fn wcstoimax(
         __nptr: *const __gwchar_t,
         __endptr: *mut *mut __gwchar_t,
-        __base: libc::c_int,
+        __base: core::ffi::c_int,
     ) -> intmax_t;
 }
 unsafe extern "C" {
     pub fn wcstoumax(
         __nptr: *const __gwchar_t,
         __endptr: *mut *mut __gwchar_t,
-        __base: libc::c_int,
+        __base: core::ffi::c_int,
     ) -> uintmax_t;
 }
 pub const LibRaw_openbayer_patterns_LIBRAW_OPENBAYER_RGGB: LibRaw_openbayer_patterns = 148;
 pub const LibRaw_openbayer_patterns_LIBRAW_OPENBAYER_BGGR: LibRaw_openbayer_patterns = 22;
 pub const LibRaw_openbayer_patterns_LIBRAW_OPENBAYER_GRBG: LibRaw_openbayer_patterns = 97;
 pub const LibRaw_openbayer_patterns_LIBRAW_OPENBAYER_GBRG: LibRaw_openbayer_patterns = 73;
-pub type LibRaw_openbayer_patterns = libc::c_uint;
+pub type LibRaw_openbayer_patterns = core::ffi::c_uint;
 pub const LibRaw_dngfields_marks_LIBRAW_DNGFM_FORWARDMATRIX: LibRaw_dngfields_marks = 1;
 pub const LibRaw_dngfields_marks_LIBRAW_DNGFM_ILLUMINANT: LibRaw_dngfields_marks = 2;
 pub const LibRaw_dngfields_marks_LIBRAW_DNGFM_COLORMATRIX: LibRaw_dngfields_marks = 4;
@@ -1925,7 +1926,7 @@ pub const LibRaw_dngfields_marks_LIBRAW_DNGFM_LINEARRESPONSELIMIT: LibRaw_dngfie
 pub const LibRaw_dngfields_marks_LIBRAW_DNGFM_USERCROP: LibRaw_dngfields_marks = 32768;
 pub const LibRaw_dngfields_marks_LIBRAW_DNGFM_OPCODE1: LibRaw_dngfields_marks = 65536;
 pub const LibRaw_dngfields_marks_LIBRAW_DNGFM_OPCODE3: LibRaw_dngfields_marks = 131072;
-pub type LibRaw_dngfields_marks = libc::c_uint;
+pub type LibRaw_dngfields_marks = core::ffi::c_uint;
 pub const LibRaw_As_Shot_WB_Applied_codes_LIBRAW_ASWB_APPLIED: LibRaw_As_Shot_WB_Applied_codes = 1;
 pub const LibRaw_As_Shot_WB_Applied_codes_LIBRAW_ASWB_CANON: LibRaw_As_Shot_WB_Applied_codes = 2;
 pub const LibRaw_As_Shot_WB_Applied_codes_LIBRAW_ASWB_NIKON: LibRaw_As_Shot_WB_Applied_codes = 4;
@@ -1935,7 +1936,7 @@ pub const LibRaw_As_Shot_WB_Applied_codes_LIBRAW_ASWB_PENTAX: LibRaw_As_Shot_WB_
 pub const LibRaw_As_Shot_WB_Applied_codes_LIBRAW_ASWB_SONY: LibRaw_As_Shot_WB_Applied_codes = 32;
 pub const LibRaw_As_Shot_WB_Applied_codes_LIBRAW_ASWB_USE_CORRECTION:
     LibRaw_As_Shot_WB_Applied_codes = 64;
-pub type LibRaw_As_Shot_WB_Applied_codes = libc::c_uint;
+pub type LibRaw_As_Shot_WB_Applied_codes = core::ffi::c_uint;
 pub const LibRaw_ExifTagTypes_LIBRAW_EXIFTAG_TYPE_UNKNOWN: LibRaw_ExifTagTypes = 0;
 pub const LibRaw_ExifTagTypes_LIBRAW_EXIFTAG_TYPE_BYTE: LibRaw_ExifTagTypes = 1;
 pub const LibRaw_ExifTagTypes_LIBRAW_EXIFTAG_TYPE_ASCII: LibRaw_ExifTagTypes = 2;
@@ -1955,7 +1956,7 @@ pub const LibRaw_ExifTagTypes_LIBRAW_EXIFTAG_TYPE_COMPLEX: LibRaw_ExifTagTypes =
 pub const LibRaw_ExifTagTypes_LIBRAW_EXIFTAG_TYPE_LONG8: LibRaw_ExifTagTypes = 16;
 pub const LibRaw_ExifTagTypes_LIBRAW_EXIFTAG_TYPE_SLONG8: LibRaw_ExifTagTypes = 17;
 pub const LibRaw_ExifTagTypes_LIBRAW_EXIFTAG_TYPE_IFD8: LibRaw_ExifTagTypes = 18;
-pub type LibRaw_ExifTagTypes = libc::c_uint;
+pub type LibRaw_ExifTagTypes = core::ffi::c_uint;
 pub const LibRaw_whitebalance_code_LIBRAW_WBI_Unknown: LibRaw_whitebalance_code = 0;
 pub const LibRaw_whitebalance_code_LIBRAW_WBI_Daylight: LibRaw_whitebalance_code = 1;
 pub const LibRaw_whitebalance_code_LIBRAW_WBI_Fluorescent: LibRaw_whitebalance_code = 2;
@@ -2004,12 +2005,12 @@ pub const LibRaw_whitebalance_code_LIBRAW_WBI_BW: LibRaw_whitebalance_code = 120
 pub const LibRaw_whitebalance_code_LIBRAW_WBI_Kelvin: LibRaw_whitebalance_code = 254;
 pub const LibRaw_whitebalance_code_LIBRAW_WBI_Other: LibRaw_whitebalance_code = 255;
 pub const LibRaw_whitebalance_code_LIBRAW_WBI_None: LibRaw_whitebalance_code = 65535;
-pub type LibRaw_whitebalance_code = libc::c_uint;
+pub type LibRaw_whitebalance_code = core::ffi::c_uint;
 pub const LibRaw_MultiExposure_related_LIBRAW_ME_NONE: LibRaw_MultiExposure_related = 0;
 pub const LibRaw_MultiExposure_related_LIBRAW_ME_SIMPLE: LibRaw_MultiExposure_related = 1;
 pub const LibRaw_MultiExposure_related_LIBRAW_ME_OVERLAY: LibRaw_MultiExposure_related = 2;
 pub const LibRaw_MultiExposure_related_LIBRAW_ME_HDR: LibRaw_MultiExposure_related = 3;
-pub type LibRaw_MultiExposure_related = libc::c_uint;
+pub type LibRaw_MultiExposure_related = core::ffi::c_uint;
 pub const LibRaw_dng_processing_LIBRAW_DNG_NONE: LibRaw_dng_processing = 0;
 pub const LibRaw_dng_processing_LIBRAW_DNG_FLOAT: LibRaw_dng_processing = 1;
 pub const LibRaw_dng_processing_LIBRAW_DNG_LINEAR: LibRaw_dng_processing = 2;
@@ -2019,10 +2020,10 @@ pub const LibRaw_dng_processing_LIBRAW_DNG_OTHER: LibRaw_dng_processing = 16;
 pub const LibRaw_dng_processing_LIBRAW_DNG_8BIT: LibRaw_dng_processing = 32;
 pub const LibRaw_dng_processing_LIBRAW_DNG_ALL: LibRaw_dng_processing = 63;
 pub const LibRaw_dng_processing_LIBRAW_DNG_DEFAULT: LibRaw_dng_processing = 39;
-pub type LibRaw_dng_processing = libc::c_uint;
+pub type LibRaw_dng_processing = core::ffi::c_uint;
 pub const LibRaw_output_flags_LIBRAW_OUTPUT_FLAGS_NONE: LibRaw_output_flags = 0;
 pub const LibRaw_output_flags_LIBRAW_OUTPUT_FLAGS_PPMMETA: LibRaw_output_flags = 1;
-pub type LibRaw_output_flags = libc::c_uint;
+pub type LibRaw_output_flags = core::ffi::c_uint;
 pub const LibRaw_runtime_capabilities_LIBRAW_CAPS_RAWSPEED: LibRaw_runtime_capabilities = 1;
 pub const LibRaw_runtime_capabilities_LIBRAW_CAPS_DNGSDK: LibRaw_runtime_capabilities = 2;
 pub const LibRaw_runtime_capabilities_LIBRAW_CAPS_GPRSDK: LibRaw_runtime_capabilities = 4;
@@ -2033,7 +2034,7 @@ pub const LibRaw_runtime_capabilities_LIBRAW_CAPS_ZLIB: LibRaw_runtime_capabilit
 pub const LibRaw_runtime_capabilities_LIBRAW_CAPS_JPEG: LibRaw_runtime_capabilities = 128;
 pub const LibRaw_runtime_capabilities_LIBRAW_CAPS_RAWSPEED3: LibRaw_runtime_capabilities = 256;
 pub const LibRaw_runtime_capabilities_LIBRAW_CAPS_RAWSPEED_BITS: LibRaw_runtime_capabilities = 512;
-pub type LibRaw_runtime_capabilities = libc::c_uint;
+pub type LibRaw_runtime_capabilities = core::ffi::c_uint;
 pub const LibRaw_colorspace_LIBRAW_COLORSPACE_NotFound: LibRaw_colorspace = 0;
 pub const LibRaw_colorspace_LIBRAW_COLORSPACE_sRGB: LibRaw_colorspace = 1;
 pub const LibRaw_colorspace_LIBRAW_COLORSPACE_AdobeRGB: LibRaw_colorspace = 2;
@@ -2049,7 +2050,7 @@ pub const LibRaw_colorspace_LIBRAW_COLORSPACE_MonochromeLinear: LibRaw_colorspac
 pub const LibRaw_colorspace_LIBRAW_COLORSPACE_MonochromeGamma: LibRaw_colorspace = 12;
 pub const LibRaw_colorspace_LIBRAW_COLORSPACE_Rec2020: LibRaw_colorspace = 13;
 pub const LibRaw_colorspace_LIBRAW_COLORSPACE_Unknown: LibRaw_colorspace = 255;
-pub type LibRaw_colorspace = libc::c_uint;
+pub type LibRaw_colorspace = core::ffi::c_uint;
 pub const LibRaw_cameramaker_index_LIBRAW_CAMERAMAKER_Unknown: LibRaw_cameramaker_index = 0;
 pub const LibRaw_cameramaker_index_LIBRAW_CAMERAMAKER_Agfa: LibRaw_cameramaker_index = 1;
 pub const LibRaw_cameramaker_index_LIBRAW_CAMERAMAKER_Alcatel: LibRaw_cameramaker_index = 2;
@@ -2130,7 +2131,7 @@ pub const LibRaw_cameramaker_index_LIBRAW_CAMERAMAKER_HUAWEI: LibRaw_cameramaker
 pub const LibRaw_cameramaker_index_LIBRAW_CAMERAMAKER_RaspberryPi: LibRaw_cameramaker_index = 77;
 pub const LibRaw_cameramaker_index_LIBRAW_CAMERAMAKER_OmDigital: LibRaw_cameramaker_index = 78;
 pub const LibRaw_cameramaker_index_LIBRAW_CAMERAMAKER_TheLastOne: LibRaw_cameramaker_index = 79;
-pub type LibRaw_cameramaker_index = libc::c_uint;
+pub type LibRaw_cameramaker_index = core::ffi::c_uint;
 pub const LibRaw_camera_mounts_LIBRAW_MOUNT_Unknown: LibRaw_camera_mounts = 0;
 pub const LibRaw_camera_mounts_LIBRAW_MOUNT_Alpa: LibRaw_camera_mounts = 1;
 pub const LibRaw_camera_mounts_LIBRAW_MOUNT_C: LibRaw_camera_mounts = 2;
@@ -2177,7 +2178,7 @@ pub const LibRaw_camera_mounts_LIBRAW_MOUNT_DigitalBack: LibRaw_camera_mounts = 
 pub const LibRaw_camera_mounts_LIBRAW_MOUNT_FixedLens: LibRaw_camera_mounts = 43;
 pub const LibRaw_camera_mounts_LIBRAW_MOUNT_IL_UM: LibRaw_camera_mounts = 44;
 pub const LibRaw_camera_mounts_LIBRAW_MOUNT_TheLastOne: LibRaw_camera_mounts = 45;
-pub type LibRaw_camera_mounts = libc::c_uint;
+pub type LibRaw_camera_mounts = core::ffi::c_uint;
 pub const LibRaw_camera_formats_LIBRAW_FORMAT_Unknown: LibRaw_camera_formats = 0;
 pub const LibRaw_camera_formats_LIBRAW_FORMAT_APSC: LibRaw_camera_formats = 1;
 pub const LibRaw_camera_formats_LIBRAW_FORMAT_FF: LibRaw_camera_formats = 2;
@@ -2202,7 +2203,7 @@ pub const LibRaw_camera_formats_LIBRAW_FORMAT_3648: LibRaw_camera_formats = 20;
 pub const LibRaw_camera_formats_LIBRAW_FORMAT_68: LibRaw_camera_formats = 21;
 pub const LibRaw_camera_formats_LIBRAW_FORMAT_Type_14: LibRaw_camera_formats = 22;
 pub const LibRaw_camera_formats_LIBRAW_FORMAT_TheLastOne: LibRaw_camera_formats = 23;
-pub type LibRaw_camera_formats = libc::c_uint;
+pub type LibRaw_camera_formats = core::ffi::c_uint;
 pub const LibRawImageAspects_LIBRAW_IMAGE_ASPECT_UNKNOWN: LibRawImageAspects = 0;
 pub const LibRawImageAspects_LIBRAW_IMAGE_ASPECT_OTHER: LibRawImageAspects = 1;
 pub const LibRawImageAspects_LIBRAW_IMAGE_ASPECT_MINIMAL_REAL_ASPECT_VALUE: LibRawImageAspects = 99;
@@ -2216,7 +2217,7 @@ pub const LibRawImageAspects_LIBRAW_IMAGE_ASPECT_5to4: LibRawImageAspects = 1250
 pub const LibRawImageAspects_LIBRAW_IMAGE_ASPECT_7to6: LibRawImageAspects = 1166;
 pub const LibRawImageAspects_LIBRAW_IMAGE_ASPECT_6to5: LibRawImageAspects = 1200;
 pub const LibRawImageAspects_LIBRAW_IMAGE_ASPECT_7to5: LibRawImageAspects = 1400;
-pub type LibRawImageAspects = libc::c_uint;
+pub type LibRawImageAspects = core::ffi::c_uint;
 pub const LibRaw_lens_focal_types_LIBRAW_FT_UNDEFINED: LibRaw_lens_focal_types = 0;
 pub const LibRaw_lens_focal_types_LIBRAW_FT_PRIME_LENS: LibRaw_lens_focal_types = 1;
 pub const LibRaw_lens_focal_types_LIBRAW_FT_ZOOM_LENS: LibRaw_lens_focal_types = 2;
@@ -2224,7 +2225,7 @@ pub const LibRaw_lens_focal_types_LIBRAW_FT_ZOOM_LENS_CONSTANT_APERTURE: LibRaw_
     3;
 pub const LibRaw_lens_focal_types_LIBRAW_FT_ZOOM_LENS_VARIABLE_APERTURE: LibRaw_lens_focal_types =
     4;
-pub type LibRaw_lens_focal_types = libc::c_uint;
+pub type LibRaw_lens_focal_types = core::ffi::c_uint;
 pub const LibRaw_Canon_RecordModes_LIBRAW_Canon_RecordMode_UNDEFINED: LibRaw_Canon_RecordModes = 0;
 pub const LibRaw_Canon_RecordModes_LIBRAW_Canon_RecordMode_JPEG: LibRaw_Canon_RecordModes = 1;
 pub const LibRaw_Canon_RecordModes_LIBRAW_Canon_RecordMode_CRW_THM: LibRaw_Canon_RecordModes = 2;
@@ -2243,13 +2244,13 @@ pub const LibRaw_Canon_RecordModes_LIBRAW_Canon_RecordMode_HEIF: LibRaw_Canon_Re
 pub const LibRaw_Canon_RecordModes_LIBRAW_Canon_RecordMode_CR3_HEIF: LibRaw_Canon_RecordModes = 15;
 pub const LibRaw_Canon_RecordModes_LIBRAW_Canon_RecordMode_TheLastOne: LibRaw_Canon_RecordModes =
     16;
-pub type LibRaw_Canon_RecordModes = libc::c_uint;
+pub type LibRaw_Canon_RecordModes = core::ffi::c_uint;
 pub const LibRaw_minolta_storagemethods_LIBRAW_MINOLTA_UNPACKED: LibRaw_minolta_storagemethods = 82;
 pub const LibRaw_minolta_storagemethods_LIBRAW_MINOLTA_PACKED: LibRaw_minolta_storagemethods = 89;
-pub type LibRaw_minolta_storagemethods = libc::c_uint;
+pub type LibRaw_minolta_storagemethods = core::ffi::c_uint;
 pub const LibRaw_minolta_bayerpatterns_LIBRAW_MINOLTA_RGGB: LibRaw_minolta_bayerpatterns = 1;
 pub const LibRaw_minolta_bayerpatterns_LIBRAW_MINOLTA_G2BRG1: LibRaw_minolta_bayerpatterns = 4;
-pub type LibRaw_minolta_bayerpatterns = libc::c_uint;
+pub type LibRaw_minolta_bayerpatterns = core::ffi::c_uint;
 pub const LibRaw_sony_cameratypes_LIBRAW_SONY_DSC: LibRaw_sony_cameratypes = 1;
 pub const LibRaw_sony_cameratypes_LIBRAW_SONY_DSLR: LibRaw_sony_cameratypes = 2;
 pub const LibRaw_sony_cameratypes_LIBRAW_SONY_NEX: LibRaw_sony_cameratypes = 3;
@@ -2257,7 +2258,7 @@ pub const LibRaw_sony_cameratypes_LIBRAW_SONY_SLT: LibRaw_sony_cameratypes = 4;
 pub const LibRaw_sony_cameratypes_LIBRAW_SONY_ILCE: LibRaw_sony_cameratypes = 5;
 pub const LibRaw_sony_cameratypes_LIBRAW_SONY_ILCA: LibRaw_sony_cameratypes = 6;
 pub const LibRaw_sony_cameratypes_LIBRAW_SONY_CameraType_UNKNOWN: LibRaw_sony_cameratypes = 65535;
-pub type LibRaw_sony_cameratypes = libc::c_uint;
+pub type LibRaw_sony_cameratypes = core::ffi::c_uint;
 pub const LibRaw_Sony_0x2010_Type_LIBRAW_SONY_Tag2010None: LibRaw_Sony_0x2010_Type = 0;
 pub const LibRaw_Sony_0x2010_Type_LIBRAW_SONY_Tag2010a: LibRaw_Sony_0x2010_Type = 1;
 pub const LibRaw_Sony_0x2010_Type_LIBRAW_SONY_Tag2010b: LibRaw_Sony_0x2010_Type = 2;
@@ -2268,13 +2269,13 @@ pub const LibRaw_Sony_0x2010_Type_LIBRAW_SONY_Tag2010f: LibRaw_Sony_0x2010_Type 
 pub const LibRaw_Sony_0x2010_Type_LIBRAW_SONY_Tag2010g: LibRaw_Sony_0x2010_Type = 7;
 pub const LibRaw_Sony_0x2010_Type_LIBRAW_SONY_Tag2010h: LibRaw_Sony_0x2010_Type = 8;
 pub const LibRaw_Sony_0x2010_Type_LIBRAW_SONY_Tag2010i: LibRaw_Sony_0x2010_Type = 9;
-pub type LibRaw_Sony_0x2010_Type = libc::c_uint;
+pub type LibRaw_Sony_0x2010_Type = core::ffi::c_uint;
 pub const LibRaw_Sony_0x9050_Type_LIBRAW_SONY_Tag9050None: LibRaw_Sony_0x9050_Type = 0;
 pub const LibRaw_Sony_0x9050_Type_LIBRAW_SONY_Tag9050a: LibRaw_Sony_0x9050_Type = 1;
 pub const LibRaw_Sony_0x9050_Type_LIBRAW_SONY_Tag9050b: LibRaw_Sony_0x9050_Type = 2;
 pub const LibRaw_Sony_0x9050_Type_LIBRAW_SONY_Tag9050c: LibRaw_Sony_0x9050_Type = 3;
 pub const LibRaw_Sony_0x9050_Type_LIBRAW_SONY_Tag9050d: LibRaw_Sony_0x9050_Type = 4;
-pub type LibRaw_Sony_0x9050_Type = libc::c_uint;
+pub type LibRaw_Sony_0x9050_Type = core::ffi::c_uint;
 pub const LIBRAW_SONY_FOCUSMODEmodes_LIBRAW_SONY_FOCUSMODE_MF: LIBRAW_SONY_FOCUSMODEmodes = 0;
 pub const LIBRAW_SONY_FOCUSMODEmodes_LIBRAW_SONY_FOCUSMODE_AF_S: LIBRAW_SONY_FOCUSMODEmodes = 2;
 pub const LIBRAW_SONY_FOCUSMODEmodes_LIBRAW_SONY_FOCUSMODE_AF_C: LIBRAW_SONY_FOCUSMODEmodes = 3;
@@ -2287,7 +2288,7 @@ pub const LIBRAW_SONY_FOCUSMODEmodes_LIBRAW_SONY_FOCUSMODE_PERMANENT_AF:
 pub const LIBRAW_SONY_FOCUSMODEmodes_LIBRAW_SONY_FOCUSMODE_SEMI_MF: LIBRAW_SONY_FOCUSMODEmodes =
     105;
 pub const LIBRAW_SONY_FOCUSMODEmodes_LIBRAW_SONY_FOCUSMODE_UNKNOWN: LIBRAW_SONY_FOCUSMODEmodes = -1;
-pub type LIBRAW_SONY_FOCUSMODEmodes = libc::c_int;
+pub type LIBRAW_SONY_FOCUSMODEmodes = core::ffi::c_int;
 pub const LibRaw_KodakSensors_LIBRAW_Kodak_UnknownSensor: LibRaw_KodakSensors = 0;
 pub const LibRaw_KodakSensors_LIBRAW_Kodak_M1: LibRaw_KodakSensors = 1;
 pub const LibRaw_KodakSensors_LIBRAW_Kodak_M15: LibRaw_KodakSensors = 2;
@@ -2302,7 +2303,7 @@ pub const LibRaw_KodakSensors_LIBRAW_Kodak_M6: LibRaw_KodakSensors = 10;
 pub const LibRaw_KodakSensors_LIBRAW_Kodak_C14: LibRaw_KodakSensors = 11;
 pub const LibRaw_KodakSensors_LIBRAW_Kodak_X14: LibRaw_KodakSensors = 12;
 pub const LibRaw_KodakSensors_LIBRAW_Kodak_M11: LibRaw_KodakSensors = 13;
-pub type LibRaw_KodakSensors = libc::c_uint;
+pub type LibRaw_KodakSensors = core::ffi::c_uint;
 pub const LibRaw_HasselbladFormatCodes_LIBRAW_HF_Unknown: LibRaw_HasselbladFormatCodes = 0;
 pub const LibRaw_HasselbladFormatCodes_LIBRAW_HF_3FR: LibRaw_HasselbladFormatCodes = 1;
 pub const LibRaw_HasselbladFormatCodes_LIBRAW_HF_FFF: LibRaw_HasselbladFormatCodes = 2;
@@ -2311,7 +2312,7 @@ pub const LibRaw_HasselbladFormatCodes_LIBRAW_HF_HasselbladDNG: LibRaw_Hasselbla
 pub const LibRaw_HasselbladFormatCodes_LIBRAW_HF_AdobeDNG: LibRaw_HasselbladFormatCodes = 5;
 pub const LibRaw_HasselbladFormatCodes_LIBRAW_HF_AdobeDNG_fromPhocusDNG:
     LibRaw_HasselbladFormatCodes = 6;
-pub type LibRaw_HasselbladFormatCodes = libc::c_uint;
+pub type LibRaw_HasselbladFormatCodes = core::ffi::c_uint;
 pub const LibRaw_rawspecial_t_LIBRAW_RAWSPECIAL_SONYARW2_NONE: LibRaw_rawspecial_t = 0;
 pub const LibRaw_rawspecial_t_LIBRAW_RAWSPECIAL_SONYARW2_BASEONLY: LibRaw_rawspecial_t = 1;
 pub const LibRaw_rawspecial_t_LIBRAW_RAWSPECIAL_SONYARW2_DELTAONLY: LibRaw_rawspecial_t = 2;
@@ -2322,14 +2323,14 @@ pub const LibRaw_rawspecial_t_LIBRAW_RAWSPECIAL_NODP2Q_INTERPOLATERG: LibRaw_raw
 pub const LibRaw_rawspecial_t_LIBRAW_RAWSPECIAL_NODP2Q_INTERPOLATEAF: LibRaw_rawspecial_t = 32;
 pub const LibRaw_rawspecial_t_LIBRAW_RAWSPECIAL_SRAW_NO_RGB: LibRaw_rawspecial_t = 64;
 pub const LibRaw_rawspecial_t_LIBRAW_RAWSPECIAL_SRAW_NO_INTERPOLATE: LibRaw_rawspecial_t = 128;
-pub type LibRaw_rawspecial_t = libc::c_uint;
+pub type LibRaw_rawspecial_t = core::ffi::c_uint;
 pub const LibRaw_rawspeed_bits_t_LIBRAW_RAWSPEEDV1_USE: LibRaw_rawspeed_bits_t = 1;
 pub const LibRaw_rawspeed_bits_t_LIBRAW_RAWSPEEDV1_FAILONUNKNOWN: LibRaw_rawspeed_bits_t = 2;
 pub const LibRaw_rawspeed_bits_t_LIBRAW_RAWSPEEDV1_IGNOREERRORS: LibRaw_rawspeed_bits_t = 4;
 pub const LibRaw_rawspeed_bits_t_LIBRAW_RAWSPEEDV3_USE: LibRaw_rawspeed_bits_t = 256;
 pub const LibRaw_rawspeed_bits_t_LIBRAW_RAWSPEEDV3_FAILONUNKNOWN: LibRaw_rawspeed_bits_t = 512;
 pub const LibRaw_rawspeed_bits_t_LIBRAW_RAWSPEEDV3_IGNOREERRORS: LibRaw_rawspeed_bits_t = 1024;
-pub type LibRaw_rawspeed_bits_t = libc::c_uint;
+pub type LibRaw_rawspeed_bits_t = core::ffi::c_uint;
 pub const LibRaw_processing_options_LIBRAW_RAWOPTIONS_PENTAX_PS_ALLFRAMES:
     LibRaw_processing_options = 1;
 pub const LibRaw_processing_options_LIBRAW_RAWOPTIONS_CONVERTFLOAT_TO_INT:
@@ -2388,7 +2389,7 @@ pub const LibRaw_processing_options_LIBRAW_RAWOPTIONS_CR3_DYNAMIC_FRAME_LIMIT:
     LibRaw_processing_options = 536870912;
 pub const LibRaw_processing_options_LIBRAW_RAWOPTIONS_PANASONIC_CROP_TO_USER_CROP:
     LibRaw_processing_options = 1073741824;
-pub type LibRaw_processing_options = libc::c_uint;
+pub type LibRaw_processing_options = core::ffi::c_uint;
 pub const LibRaw_decoder_flags_LIBRAW_DECODER_HASCURVE: LibRaw_decoder_flags = 16;
 pub const LibRaw_decoder_flags_LIBRAW_DECODER_SONYARW2: LibRaw_decoder_flags = 32;
 pub const LibRaw_decoder_flags_LIBRAW_DECODER_TRYRAWSPEED: LibRaw_decoder_flags = 64;
@@ -2403,11 +2404,11 @@ pub const LibRaw_decoder_flags_LIBRAW_DECODER_FLAT_BG2_SWAPPED: LibRaw_decoder_f
 pub const LibRaw_decoder_flags_LIBRAW_DECODER_UNSUPPORTED_FORMAT: LibRaw_decoder_flags = 16384;
 pub const LibRaw_decoder_flags_LIBRAW_DECODER_NOTSET: LibRaw_decoder_flags = 32768;
 pub const LibRaw_decoder_flags_LIBRAW_DECODER_TRYRAWSPEED3: LibRaw_decoder_flags = 65536;
-pub type LibRaw_decoder_flags = libc::c_uint;
+pub type LibRaw_decoder_flags = core::ffi::c_uint;
 pub const LibRaw_constructor_flags_LIBRAW_OPTIONS_NONE: LibRaw_constructor_flags = 0;
 pub const LibRaw_constructor_flags_LIBRAW_OPTIONS_NO_DATAERR_CALLBACK: LibRaw_constructor_flags = 2;
 pub const LibRaw_constructor_flags_LIBRAW_OPIONS_NO_DATAERR_CALLBACK: LibRaw_constructor_flags = 2;
-pub type LibRaw_constructor_flags = libc::c_uint;
+pub type LibRaw_constructor_flags = core::ffi::c_uint;
 pub const LibRaw_warnings_LIBRAW_WARN_NONE: LibRaw_warnings = 0;
 pub const LibRaw_warnings_LIBRAW_WARN_BAD_CAMERA_WB: LibRaw_warnings = 4;
 pub const LibRaw_warnings_LIBRAW_WARN_NO_METADATA: LibRaw_warnings = 8;
@@ -2434,7 +2435,7 @@ pub const LibRaw_warnings_LIBRAW_WARN_RAWSPEED3_NOTLISTED: LibRaw_warnings = 167
 pub const LibRaw_warnings_LIBRAW_WARN_VENDOR_CROP_SUGGESTED: LibRaw_warnings = 33554432;
 pub const LibRaw_warnings_LIBRAW_WARN_DNG_NOT_PROCESSED: LibRaw_warnings = 67108864;
 pub const LibRaw_warnings_LIBRAW_WARN_DNG_NOT_PARSED: LibRaw_warnings = 134217728;
-pub type LibRaw_warnings = libc::c_uint;
+pub type LibRaw_warnings = core::ffi::c_uint;
 pub const LibRaw_exceptions_LIBRAW_EXCEPTION_NONE: LibRaw_exceptions = 0;
 pub const LibRaw_exceptions_LIBRAW_EXCEPTION_ALLOC: LibRaw_exceptions = 1;
 pub const LibRaw_exceptions_LIBRAW_EXCEPTION_DECODE_RAW: LibRaw_exceptions = 2;
@@ -2448,7 +2449,7 @@ pub const LibRaw_exceptions_LIBRAW_EXCEPTION_DECODE_JPEG2000: LibRaw_exceptions 
 pub const LibRaw_exceptions_LIBRAW_EXCEPTION_TOOBIG: LibRaw_exceptions = 10;
 pub const LibRaw_exceptions_LIBRAW_EXCEPTION_MEMPOOL: LibRaw_exceptions = 11;
 pub const LibRaw_exceptions_LIBRAW_EXCEPTION_UNSUPPORTED_FORMAT: LibRaw_exceptions = 12;
-pub type LibRaw_exceptions = libc::c_uint;
+pub type LibRaw_exceptions = core::ffi::c_uint;
 pub const LibRaw_progress_LIBRAW_PROGRESS_START: LibRaw_progress = 0;
 pub const LibRaw_progress_LIBRAW_PROGRESS_OPEN: LibRaw_progress = 1;
 pub const LibRaw_progress_LIBRAW_PROGRESS_IDENTIFY: LibRaw_progress = 2;
@@ -2481,7 +2482,7 @@ pub const LibRaw_progress_LIBRAW_PROGRESS_STAGE27: LibRaw_progress = 134217728;
 pub const LibRaw_progress_LIBRAW_PROGRESS_THUMB_LOAD: LibRaw_progress = 268435456;
 pub const LibRaw_progress_LIBRAW_PROGRESS_TRESERVED1: LibRaw_progress = 536870912;
 pub const LibRaw_progress_LIBRAW_PROGRESS_TRESERVED2: LibRaw_progress = 1073741824;
-pub type LibRaw_progress = libc::c_uint;
+pub type LibRaw_progress = core::ffi::c_uint;
 pub const LibRaw_errors_LIBRAW_SUCCESS: LibRaw_errors = 0;
 pub const LibRaw_errors_LIBRAW_UNSPECIFIED_ERROR: LibRaw_errors = -1;
 pub const LibRaw_errors_LIBRAW_FILE_UNSUPPORTED: LibRaw_errors = -2;
@@ -2500,7 +2501,7 @@ pub const LibRaw_errors_LIBRAW_BAD_CROP: LibRaw_errors = -100011;
 pub const LibRaw_errors_LIBRAW_TOO_BIG: LibRaw_errors = -100012;
 pub const LibRaw_errors_LIBRAW_MEMPOOL_OVERFLOW: LibRaw_errors = -100013;
 pub const LibRaw_errors_LIBRAW_VERSION_MISMATCH: LibRaw_errors = -100014;
-pub type LibRaw_errors = libc::c_int;
+pub type LibRaw_errors = core::ffi::c_int;
 pub const LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_UNKNOWN:
     LibRaw_internal_thumbnail_formats = 0;
 pub const LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_KODAK_THUMB:
@@ -2525,7 +2526,7 @@ pub const LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_DNG_YCBCR:
     LibRaw_internal_thumbnail_formats = 10;
 pub const LibRaw_internal_thumbnail_formats_LIBRAW_INTERNAL_THUMBNAIL_JPEGXL:
     LibRaw_internal_thumbnail_formats = 11;
-pub type LibRaw_internal_thumbnail_formats = libc::c_uint;
+pub type LibRaw_internal_thumbnail_formats = core::ffi::c_uint;
 pub const LibRaw_thumbnail_formats_LIBRAW_THUMBNAIL_UNKNOWN: LibRaw_thumbnail_formats = 0;
 pub const LibRaw_thumbnail_formats_LIBRAW_THUMBNAIL_JPEG: LibRaw_thumbnail_formats = 1;
 pub const LibRaw_thumbnail_formats_LIBRAW_THUMBNAIL_BITMAP: LibRaw_thumbnail_formats = 2;
@@ -2534,20 +2535,20 @@ pub const LibRaw_thumbnail_formats_LIBRAW_THUMBNAIL_LAYER: LibRaw_thumbnail_form
 pub const LibRaw_thumbnail_formats_LIBRAW_THUMBNAIL_ROLLEI: LibRaw_thumbnail_formats = 5;
 pub const LibRaw_thumbnail_formats_LIBRAW_THUMBNAIL_H265: LibRaw_thumbnail_formats = 6;
 pub const LibRaw_thumbnail_formats_LIBRAW_THUMBNAIL_JPEGXL: LibRaw_thumbnail_formats = 7;
-pub type LibRaw_thumbnail_formats = libc::c_uint;
+pub type LibRaw_thumbnail_formats = core::ffi::c_uint;
 pub const LibRaw_image_formats_LIBRAW_IMAGE_JPEG: LibRaw_image_formats = 1;
 pub const LibRaw_image_formats_LIBRAW_IMAGE_BITMAP: LibRaw_image_formats = 2;
 pub const LibRaw_image_formats_LIBRAW_IMAGE_JPEGXL: LibRaw_image_formats = 3;
 pub const LibRaw_image_formats_LIBRAW_IMAGE_H265: LibRaw_image_formats = 4;
-pub type LibRaw_image_formats = libc::c_uint;
-pub type INT64 = libc::c_longlong;
-pub type UINT64 = libc::c_ulonglong;
-pub type uchar = libc::c_uchar;
+pub type LibRaw_image_formats = core::ffi::c_uint;
+pub type INT64 = core::ffi::c_longlong;
+pub type UINT64 = core::ffi::c_ulonglong;
+pub type uchar = core::ffi::c_uchar;
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct libraw_decoder_info_t {
-    pub decoder_name: *const libc::c_char,
-    pub decoder_flags: libc::c_uint,
+    pub decoder_name: *const core::ffi::c_char,
+    pub decoder_flags: core::ffi::c_uint,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -2562,9 +2563,9 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct libraw_internal_output_params_t {
-    pub mix_green: libc::c_uint,
-    pub raw_color: libc::c_uint,
-    pub zero_is_bad: libc::c_uint,
+    pub mix_green: core::ffi::c_uint,
+    pub raw_color: core::ffi::c_uint,
+    pub zero_is_bad: core::ffi::c_uint,
     pub shrink: ushort,
     pub fuji_width: ushort,
 }
@@ -2587,53 +2588,61 @@ const _: () = {
 };
 pub type memory_callback = ::core::option::Option<
     unsafe extern "C" fn(
-        data: *mut libc::c_void,
-        file: *const libc::c_char,
-        where_: *const libc::c_char,
+        data: *mut core::ffi::c_void,
+        file: *const core::ffi::c_char,
+        where_: *const core::ffi::c_char,
     ),
 >;
 pub type exif_parser_callback = ::core::option::Option<
     unsafe extern "C" fn(
-        context: *mut libc::c_void,
-        tag: libc::c_int,
-        type_: libc::c_int,
-        len: libc::c_int,
-        ord: libc::c_uint,
-        ifp: *mut libc::c_void,
+        context: *mut core::ffi::c_void,
+        tag: core::ffi::c_int,
+        type_: core::ffi::c_int,
+        len: core::ffi::c_int,
+        ord: core::ffi::c_uint,
+        ifp: *mut core::ffi::c_void,
         base: INT64,
     ),
 >;
 pub type data_callback = ::core::option::Option<
-    unsafe extern "C" fn(data: *mut libc::c_void, file: *const libc::c_char, offset: INT64),
+    unsafe extern "C" fn(
+        data: *mut core::ffi::c_void,
+        file: *const core::ffi::c_char,
+        offset: INT64,
+    ),
 >;
 unsafe extern "C" {
-    pub fn default_data_callback(data: *mut libc::c_void, file: *const libc::c_char, offset: INT64);
+    pub fn default_data_callback(
+        data: *mut core::ffi::c_void,
+        file: *const core::ffi::c_char,
+        offset: INT64,
+    );
 }
 pub type progress_callback = ::core::option::Option<
     unsafe extern "C" fn(
-        data: *mut libc::c_void,
+        data: *mut core::ffi::c_void,
         stage: LibRaw_progress,
-        iteration: libc::c_int,
-        expected: libc::c_int,
-    ) -> libc::c_int,
+        iteration: core::ffi::c_int,
+        expected: core::ffi::c_int,
+    ) -> core::ffi::c_int,
 >;
 pub type pre_identify_callback =
-    ::core::option::Option<unsafe extern "C" fn(ctx: *mut libc::c_void) -> libc::c_int>;
+    ::core::option::Option<unsafe extern "C" fn(ctx: *mut core::ffi::c_void) -> core::ffi::c_int>;
 pub type post_identify_callback =
-    ::core::option::Option<unsafe extern "C" fn(ctx: *mut libc::c_void)>;
+    ::core::option::Option<unsafe extern "C" fn(ctx: *mut core::ffi::c_void)>;
 pub type process_step_callback =
-    ::core::option::Option<unsafe extern "C" fn(ctx: *mut libc::c_void)>;
+    ::core::option::Option<unsafe extern "C" fn(ctx: *mut core::ffi::c_void)>;
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct libraw_callbacks_t {
     pub data_cb: data_callback,
-    pub datacb_data: *mut libc::c_void,
+    pub datacb_data: *mut core::ffi::c_void,
     pub progress_cb: progress_callback,
-    pub progresscb_data: *mut libc::c_void,
+    pub progresscb_data: *mut core::ffi::c_void,
     pub exif_cb: exif_parser_callback,
     pub makernotes_cb: exif_parser_callback,
-    pub exifparser_data: *mut libc::c_void,
-    pub makernotesparser_data: *mut libc::c_void,
+    pub exifparser_data: *mut core::ffi::c_void,
+    pub makernotesparser_data: *mut core::ffi::c_void,
     pub pre_identify_cb: pre_identify_callback,
     pub post_identify_cb: post_identify_callback,
     pub pre_subtractblack_cb: process_step_callback,
@@ -2697,8 +2706,8 @@ pub struct libraw_processed_image_t {
     pub width: ushort,
     pub colors: ushort,
     pub bits: ushort,
-    pub data_size: libc::c_uint,
-    pub data: [libc::c_uchar; 1usize],
+    pub data_size: core::ffi::c_uint,
+    pub data: [core::ffi::c_uchar; 1usize],
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -2724,23 +2733,23 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct libraw_iparams_t {
-    pub guard: [libc::c_char; 4usize],
-    pub make: [libc::c_char; 64usize],
-    pub model: [libc::c_char; 64usize],
-    pub software: [libc::c_char; 64usize],
-    pub normalized_make: [libc::c_char; 64usize],
-    pub normalized_model: [libc::c_char; 64usize],
-    pub maker_index: libc::c_uint,
-    pub raw_count: libc::c_uint,
-    pub dng_version: libc::c_uint,
-    pub is_foveon: libc::c_uint,
-    pub colors: libc::c_int,
-    pub filters: libc::c_uint,
-    pub xtrans: [[libc::c_char; 6usize]; 6usize],
-    pub xtrans_abs: [[libc::c_char; 6usize]; 6usize],
-    pub cdesc: [libc::c_char; 5usize],
-    pub xmplen: libc::c_uint,
-    pub xmpdata: *mut libc::c_char,
+    pub guard: [core::ffi::c_char; 4usize],
+    pub make: [core::ffi::c_char; 64usize],
+    pub model: [core::ffi::c_char; 64usize],
+    pub software: [core::ffi::c_char; 64usize],
+    pub normalized_make: [core::ffi::c_char; 64usize],
+    pub normalized_model: [core::ffi::c_char; 64usize],
+    pub maker_index: core::ffi::c_uint,
+    pub raw_count: core::ffi::c_uint,
+    pub dng_version: core::ffi::c_uint,
+    pub is_foveon: core::ffi::c_uint,
+    pub colors: core::ffi::c_int,
+    pub filters: core::ffi::c_uint,
+    pub xtrans: [[core::ffi::c_char; 6usize]; 6usize],
+    pub xtrans_abs: [[core::ffi::c_char; 6usize]; 6usize],
+    pub cdesc: [core::ffi::c_char; 5usize],
+    pub xmplen: core::ffi::c_uint,
+    pub xmpdata: *mut core::ffi::c_char,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -2814,10 +2823,10 @@ pub struct libraw_image_sizes_t {
     pub left_margin: ushort,
     pub iheight: ushort,
     pub iwidth: ushort,
-    pub raw_pitch: libc::c_uint,
+    pub raw_pitch: core::ffi::c_uint,
     pub pixel_aspect: f64,
-    pub flip: libc::c_int,
-    pub mask: [[libc::c_int; 4usize]; 8usize],
+    pub flip: core::ffi::c_int,
+    pub mask: [[core::ffi::c_int; 4usize]; 8usize],
     pub raw_aspect: ushort,
     pub raw_inset_crops: [libraw_raw_inset_crop_t; 2usize],
 }
@@ -2857,10 +2866,10 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct libraw_area_t {
-    pub t: libc::c_short,
-    pub l: libc::c_short,
-    pub b: libc::c_short,
-    pub r: libc::c_short,
+    pub t: core::ffi::c_short,
+    pub l: core::ffi::c_short,
+    pub b: core::ffi::c_short,
+    pub r: core::ffi::c_short,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -2874,14 +2883,14 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ph1_t {
-    pub format: libc::c_int,
-    pub key_off: libc::c_int,
-    pub tag_21a: libc::c_int,
-    pub t_black: libc::c_int,
-    pub split_col: libc::c_int,
-    pub black_col: libc::c_int,
-    pub split_row: libc::c_int,
-    pub black_row: libc::c_int,
+    pub format: core::ffi::c_int,
+    pub key_off: core::ffi::c_int,
+    pub tag_21a: core::ffi::c_int,
+    pub t_black: core::ffi::c_int,
+    pub split_col: core::ffi::c_int,
+    pub black_col: core::ffi::c_int,
+    pub split_row: core::ffi::c_int,
+    pub black_row: core::ffi::c_int,
     pub tag_210: f32,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
@@ -2901,7 +2910,7 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct libraw_dng_color_t {
-    pub parsedfields: libc::c_uint,
+    pub parsedfields: core::ffi::c_uint,
     pub illuminant: ushort,
     pub calibration: [[f32; 4usize]; 4usize],
     pub colormatrix: [[f32; 3usize]; 4usize],
@@ -2925,8 +2934,8 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct libraw_dng_rawopcode_t {
-    pub len: libc::c_uint,
-    pub data: *mut libc::c_void,
+    pub len: core::ffi::c_uint,
+    pub data: *mut core::ffi::c_void,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -2941,15 +2950,15 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct libraw_dng_levels_t {
-    pub parsedfields: libc::c_uint,
-    pub dng_cblack: [libc::c_uint; 4104usize],
-    pub dng_black: libc::c_uint,
+    pub parsedfields: core::ffi::c_uint,
+    pub dng_cblack: [core::ffi::c_uint; 4104usize],
+    pub dng_black: core::ffi::c_uint,
     pub dng_fcblack: [f32; 4104usize],
     pub dng_fblack: f32,
-    pub dng_whitelevel: [libc::c_uint; 4usize],
+    pub dng_whitelevel: [core::ffi::c_uint; 4usize],
     pub default_crop: [ushort; 4usize],
     pub user_crop: [f32; 4usize],
-    pub preview_colorspace: libc::c_uint,
+    pub preview_colorspace: core::ffi::c_uint,
     pub analogbalance: [f32; 4usize],
     pub asshotneutral: [f32; 4usize],
     pub baseline_exposure: f32,
@@ -3004,48 +3013,48 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct libraw_canon_makernotes_t {
-    pub ColorDataVer: libc::c_int,
-    pub ColorDataSubVer: libc::c_int,
-    pub SpecularWhiteLevel: libc::c_int,
-    pub NormalWhiteLevel: libc::c_int,
-    pub ChannelBlackLevel: [libc::c_int; 4usize],
-    pub AverageBlackLevel: libc::c_int,
-    pub multishot: [libc::c_uint; 4usize],
-    pub MeteringMode: libc::c_short,
-    pub SpotMeteringMode: libc::c_short,
+    pub ColorDataVer: core::ffi::c_int,
+    pub ColorDataSubVer: core::ffi::c_int,
+    pub SpecularWhiteLevel: core::ffi::c_int,
+    pub NormalWhiteLevel: core::ffi::c_int,
+    pub ChannelBlackLevel: [core::ffi::c_int; 4usize],
+    pub AverageBlackLevel: core::ffi::c_int,
+    pub multishot: [core::ffi::c_uint; 4usize],
+    pub MeteringMode: core::ffi::c_short,
+    pub SpotMeteringMode: core::ffi::c_short,
     pub FlashMeteringMode: uchar,
-    pub FlashExposureLock: libc::c_short,
-    pub ExposureMode: libc::c_short,
-    pub AESetting: libc::c_short,
-    pub ImageStabilization: libc::c_short,
-    pub FlashMode: libc::c_short,
-    pub FlashActivity: libc::c_short,
-    pub FlashBits: libc::c_short,
-    pub ManualFlashOutput: libc::c_short,
-    pub FlashOutput: libc::c_short,
-    pub FlashGuideNumber: libc::c_short,
-    pub ContinuousDrive: libc::c_short,
-    pub SensorWidth: libc::c_short,
-    pub SensorHeight: libc::c_short,
-    pub AFMicroAdjMode: libc::c_int,
+    pub FlashExposureLock: core::ffi::c_short,
+    pub ExposureMode: core::ffi::c_short,
+    pub AESetting: core::ffi::c_short,
+    pub ImageStabilization: core::ffi::c_short,
+    pub FlashMode: core::ffi::c_short,
+    pub FlashActivity: core::ffi::c_short,
+    pub FlashBits: core::ffi::c_short,
+    pub ManualFlashOutput: core::ffi::c_short,
+    pub FlashOutput: core::ffi::c_short,
+    pub FlashGuideNumber: core::ffi::c_short,
+    pub ContinuousDrive: core::ffi::c_short,
+    pub SensorWidth: core::ffi::c_short,
+    pub SensorHeight: core::ffi::c_short,
+    pub AFMicroAdjMode: core::ffi::c_int,
     pub AFMicroAdjValue: f32,
-    pub MakernotesFlip: libc::c_short,
-    pub AutoRotateMode: libc::c_short,
-    pub RecordMode: libc::c_short,
-    pub SRAWQuality: libc::c_short,
-    pub wbi: libc::c_uint,
-    pub RF_lensID: libc::c_short,
-    pub AutoLightingOptimizer: libc::c_int,
-    pub HighlightTonePriority: libc::c_int,
-    pub Quality: libc::c_short,
-    pub CanonLog: libc::c_int,
-    pub AsShotCT: libc::c_int,
+    pub MakernotesFlip: core::ffi::c_short,
+    pub AutoRotateMode: core::ffi::c_short,
+    pub RecordMode: core::ffi::c_short,
+    pub SRAWQuality: core::ffi::c_short,
+    pub wbi: core::ffi::c_uint,
+    pub RF_lensID: core::ffi::c_short,
+    pub AutoLightingOptimizer: core::ffi::c_int,
+    pub HighlightTonePriority: core::ffi::c_int,
+    pub Quality: core::ffi::c_short,
+    pub CanonLog: core::ffi::c_int,
+    pub AsShotCT: core::ffi::c_int,
     pub DefaultCropAbsolute: libraw_area_t,
     pub RecommendedImageArea: libraw_area_t,
     pub LeftOpticalBlack: libraw_area_t,
     pub UpperOpticalBlack: libraw_area_t,
     pub ActiveArea: libraw_area_t,
-    pub ISOgain: [libc::c_short; 2usize],
+    pub ISOgain: [core::ffi::c_short; 2usize],
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -3141,20 +3150,20 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct libraw_hasselblad_makernotes_t {
-    pub BaseISO: libc::c_int,
+    pub BaseISO: core::ffi::c_int,
     pub Gain: f64,
-    pub Sensor: [libc::c_char; 8usize],
-    pub SensorUnit: [libc::c_char; 64usize],
-    pub HostBody: [libc::c_char; 64usize],
-    pub SensorCode: libc::c_int,
-    pub SensorSubCode: libc::c_int,
-    pub CoatingCode: libc::c_int,
-    pub uncropped: libc::c_int,
-    pub CaptureSequenceInitiator: [libc::c_char; 32usize],
-    pub SensorUnitConnector: [libc::c_char; 64usize],
-    pub format: libc::c_int,
-    pub nIFD_CM: [libc::c_int; 2usize],
-    pub RecommendedCrop: [libc::c_int; 2usize],
+    pub Sensor: [core::ffi::c_char; 8usize],
+    pub SensorUnit: [core::ffi::c_char; 64usize],
+    pub HostBody: [core::ffi::c_char; 64usize],
+    pub SensorCode: core::ffi::c_int,
+    pub SensorSubCode: core::ffi::c_int,
+    pub CoatingCode: core::ffi::c_int,
+    pub uncropped: core::ffi::c_int,
+    pub CaptureSequenceInitiator: [core::ffi::c_char; 32usize],
+    pub SensorUnitConnector: [core::ffi::c_char; 64usize],
+    pub format: core::ffi::c_int,
+    pub nIFD_CM: [core::ffi::c_int; 2usize],
+    pub RecommendedCrop: [core::ffi::c_int; 2usize],
     pub mnColorMatrix: [[f64; 3usize]; 4usize],
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
@@ -3208,15 +3217,15 @@ pub struct libraw_fuji_info_t {
     pub DRangePriority: ushort,
     pub DRangePriorityAuto: ushort,
     pub DRangePriorityFixed: ushort,
-    pub FujiModel: [libc::c_char; 33usize],
-    pub FujiModel2: [libc::c_char; 33usize],
+    pub FujiModel: [core::ffi::c_char; 33usize],
+    pub FujiModel2: [core::ffi::c_char; 33usize],
     pub BrightnessCompensation: f32,
     pub FocusMode: ushort,
     pub AFMode: ushort,
     pub FocusPixel: [ushort; 2usize],
     pub PrioritySettings: ushort,
-    pub FocusSettings: libc::c_uint,
-    pub AF_C_Settings: libc::c_uint,
+    pub FocusSettings: core::ffi::c_uint,
+    pub AF_C_Settings: core::ffi::c_uint,
     pub FocusWarning: ushort,
     pub ImageStabilization: [ushort; 3usize],
     pub FlashMode: ushort,
@@ -3224,22 +3233,22 @@ pub struct libraw_fuji_info_t {
     pub ShutterType: ushort,
     pub ExrMode: ushort,
     pub Macro: ushort,
-    pub Rating: libc::c_uint,
+    pub Rating: core::ffi::c_uint,
     pub CropMode: ushort,
-    pub SerialSignature: [libc::c_char; 13usize],
-    pub SensorID: [libc::c_char; 5usize],
-    pub RAFVersion: [libc::c_char; 5usize],
-    pub RAFDataGeneration: libc::c_int,
+    pub SerialSignature: [core::ffi::c_char; 13usize],
+    pub SensorID: [core::ffi::c_char; 5usize],
+    pub RAFVersion: [core::ffi::c_char; 5usize],
+    pub RAFDataGeneration: core::ffi::c_int,
     pub RAFDataVersion: ushort,
-    pub isTSNERDTS: libc::c_int,
-    pub DriveMode: libc::c_short,
+    pub isTSNERDTS: core::ffi::c_int,
+    pub DriveMode: core::ffi::c_short,
     pub BlackLevel: [ushort; 9usize],
-    pub RAFData_ImageSizeTable: [libc::c_uint; 32usize],
-    pub AutoBracketing: libc::c_int,
-    pub SequenceNumber: libc::c_int,
-    pub SeriesLength: libc::c_int,
+    pub RAFData_ImageSizeTable: [core::ffi::c_uint; 32usize],
+    pub AutoBracketing: core::ffi::c_int,
+    pub SequenceNumber: core::ffi::c_int,
+    pub SeriesLength: core::ffi::c_int,
     pub PixelShiftOffset: [f32; 2usize],
-    pub ImageCount: libc::c_int,
+    pub ImageCount: core::ffi::c_int,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -3360,15 +3369,15 @@ pub struct libraw_nikon_makernotes_t {
     pub ImageStabilization: [uchar; 7usize],
     pub VibrationReduction: uchar,
     pub VRMode: uchar,
-    pub FlashSetting: [libc::c_char; 13usize],
-    pub FlashType: [libc::c_char; 20usize],
+    pub FlashSetting: [core::ffi::c_char; 13usize],
+    pub FlashType: [core::ffi::c_char; 20usize],
     pub FlashExposureCompensation: [uchar; 4usize],
     pub ExternalFlashExposureComp: [uchar; 4usize],
     pub FlashExposureBracketValue: [uchar; 4usize],
     pub FlashMode: uchar,
-    pub FlashExposureCompensation2: libc::c_schar,
-    pub FlashExposureCompensation3: libc::c_schar,
-    pub FlashExposureCompensation4: libc::c_schar,
+    pub FlashExposureCompensation2: core::ffi::c_schar,
+    pub FlashExposureCompensation3: core::ffi::c_schar,
+    pub FlashExposureCompensation4: core::ffi::c_schar,
     pub FlashSource: uchar,
     pub FlashFirmware: [uchar; 2usize],
     pub ExternalFlashFlags: uchar,
@@ -3380,17 +3389,17 @@ pub struct libraw_nikon_makernotes_t {
     pub FlashGroupOutputAndCompensation: [uchar; 4usize],
     pub FlashColorFilter: uchar,
     pub NEFCompression: ushort,
-    pub ExposureMode: libc::c_int,
-    pub ExposureProgram: libc::c_int,
-    pub nMEshots: libc::c_int,
-    pub MEgainOn: libc::c_int,
+    pub ExposureMode: core::ffi::c_int,
+    pub ExposureProgram: core::ffi::c_int,
+    pub nMEshots: core::ffi::c_int,
+    pub MEgainOn: core::ffi::c_int,
     pub ME_WB: [f64; 4usize],
     pub AFFineTune: uchar,
     pub AFFineTuneIndex: uchar,
     pub AFFineTuneAdj: i8,
-    pub LensDataVersion: libc::c_uint,
-    pub FlashInfoVersion: libc::c_uint,
-    pub ColorBalanceVersion: libc::c_uint,
+    pub LensDataVersion: core::ffi::c_uint,
+    pub FlashInfoVersion: core::ffi::c_uint,
+    pub ColorBalanceVersion: core::ffi::c_uint,
     pub key: uchar,
     pub NEFBitDepth: [ushort; 4usize],
     pub HighSpeedCropFormat: ushort,
@@ -3398,17 +3407,17 @@ pub struct libraw_nikon_makernotes_t {
     pub SensorWidth: ushort,
     pub SensorHeight: ushort,
     pub Active_D_Lighting: ushort,
-    pub PictureControlVersion: libc::c_uint,
-    pub PictureControlName: [libc::c_char; 20usize],
-    pub PictureControlBase: [libc::c_char; 20usize],
-    pub ShotInfoVersion: libc::c_uint,
-    pub ShotInfoFirmware: [libc::c_char; 9usize],
-    pub BurstTable_0x0056_len: libc::c_uint,
+    pub PictureControlVersion: core::ffi::c_uint,
+    pub PictureControlName: [core::ffi::c_char; 20usize],
+    pub PictureControlBase: [core::ffi::c_char; 20usize],
+    pub ShotInfoVersion: core::ffi::c_uint,
+    pub ShotInfoFirmware: [core::ffi::c_char; 9usize],
+    pub BurstTable_0x0056_len: core::ffi::c_uint,
     pub BurstTable_0x0056: *mut uchar,
     pub BurstTable_0x0056_ver: ushort,
     pub BurstTable_0x0056_gid: ushort,
     pub BurstTable_0x0056_fnum: uchar,
-    pub MakernotesFlip: libc::c_short,
+    pub MakernotesFlip: core::ffi::c_short,
     pub RollAngle: f64,
     pub PitchAngle: f64,
     pub YawAngle: f64,
@@ -3541,43 +3550,43 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct libraw_olympus_makernotes_t {
-    pub CameraType2: [libc::c_char; 6usize],
+    pub CameraType2: [core::ffi::c_char; 6usize],
     pub ValidBits: ushort,
-    pub tagX640: libc::c_uint,
-    pub tagX641: libc::c_uint,
-    pub tagX642: libc::c_uint,
-    pub tagX643: libc::c_uint,
-    pub tagX644: libc::c_uint,
-    pub tagX645: libc::c_uint,
-    pub tagX646: libc::c_uint,
-    pub tagX647: libc::c_uint,
-    pub tagX648: libc::c_uint,
-    pub tagX649: libc::c_uint,
-    pub tagX650: libc::c_uint,
-    pub tagX651: libc::c_uint,
-    pub tagX652: libc::c_uint,
-    pub tagX653: libc::c_uint,
-    pub SensorCalibration: [libc::c_int; 2usize],
+    pub tagX640: core::ffi::c_uint,
+    pub tagX641: core::ffi::c_uint,
+    pub tagX642: core::ffi::c_uint,
+    pub tagX643: core::ffi::c_uint,
+    pub tagX644: core::ffi::c_uint,
+    pub tagX645: core::ffi::c_uint,
+    pub tagX646: core::ffi::c_uint,
+    pub tagX647: core::ffi::c_uint,
+    pub tagX648: core::ffi::c_uint,
+    pub tagX649: core::ffi::c_uint,
+    pub tagX650: core::ffi::c_uint,
+    pub tagX651: core::ffi::c_uint,
+    pub tagX652: core::ffi::c_uint,
+    pub tagX653: core::ffi::c_uint,
+    pub SensorCalibration: [core::ffi::c_int; 2usize],
     pub DriveMode: [ushort; 5usize],
     pub ColorSpace: ushort,
     pub FocusMode: [ushort; 2usize],
     pub AutoFocus: ushort,
     pub AFPoint: ushort,
-    pub AFAreas: [libc::c_uint; 64usize],
+    pub AFAreas: [core::ffi::c_uint; 64usize],
     pub AFPointSelected: [f64; 5usize],
     pub AFResult: ushort,
     pub AFFineTune: uchar,
-    pub AFFineTuneAdj: [libc::c_short; 3usize],
-    pub SpecialMode: [libc::c_uint; 3usize],
+    pub AFFineTuneAdj: [core::ffi::c_short; 3usize],
+    pub SpecialMode: [core::ffi::c_uint; 3usize],
     pub ZoomStepCount: ushort,
     pub FocusStepCount: ushort,
     pub FocusStepInfinity: ushort,
     pub FocusStepNear: ushort,
     pub FocusDistance: f64,
     pub AspectFrame: [ushort; 4usize],
-    pub StackedImage: [libc::c_uint; 2usize],
+    pub StackedImage: [core::ffi::c_uint; 2usize],
     pub isLiveND: uchar,
-    pub LiveNDfactor: libc::c_uint,
+    pub LiveNDfactor: core::ffi::c_uint,
     pub Panorama_mode: ushort,
     pub Panorama_frameNum: ushort,
 }
@@ -3672,13 +3681,13 @@ pub struct libraw_panasonic_makernotes_t {
     pub Compression: ushort,
     pub BlackLevelDim: ushort,
     pub BlackLevel: [f32; 8usize],
-    pub Multishot: libc::c_uint,
+    pub Multishot: core::ffi::c_uint,
     pub gamma: f32,
-    pub HighISOMultiplier: [libc::c_int; 3usize],
-    pub FocusStepNear: libc::c_short,
-    pub FocusStepCount: libc::c_short,
-    pub ZoomPosition: libc::c_uint,
-    pub LensManufacturer: libc::c_uint,
+    pub HighISOMultiplier: [core::ffi::c_int; 3usize],
+    pub FocusStepNear: core::ffi::c_short,
+    pub FocusStepCount: core::ffi::c_short,
+    pub ZoomPosition: core::ffi::c_uint,
+    pub LensManufacturer: core::ffi::c_uint,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -3714,11 +3723,11 @@ pub struct libraw_pentax_makernotes_t {
     pub FocusMode: [ushort; 2usize],
     pub AFPointSelected: [ushort; 2usize],
     pub AFPointSelected_Area: ushort,
-    pub AFPointsInFocus_version: libc::c_int,
-    pub AFPointsInFocus: libc::c_uint,
+    pub AFPointsInFocus_version: core::ffi::c_int,
+    pub AFPointsInFocus: core::ffi::c_uint,
     pub FocusPosition: ushort,
     pub DynamicRangeExpansion: [uchar; 4usize],
-    pub AFAdjustment: libc::c_short,
+    pub AFAdjustment: core::ffi::c_short,
     pub AFPointMode: uchar,
     pub MultiExposure: uchar,
     pub Quality: ushort,
@@ -3758,13 +3767,13 @@ const _: () = {
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct libraw_ricoh_makernotes_t {
     pub AFStatus: ushort,
-    pub AFAreaXPosition: [libc::c_uint; 2usize],
-    pub AFAreaYPosition: [libc::c_uint; 2usize],
+    pub AFAreaXPosition: [core::ffi::c_uint; 2usize],
+    pub AFAreaYPosition: [core::ffi::c_uint; 2usize],
     pub AFAreaMode: ushort,
-    pub SensorWidth: libc::c_uint,
-    pub SensorHeight: libc::c_uint,
-    pub CroppedImageWidth: libc::c_uint,
-    pub CroppedImageHeight: libc::c_uint,
+    pub SensorWidth: core::ffi::c_uint,
+    pub SensorHeight: core::ffi::c_uint,
+    pub CroppedImageWidth: core::ffi::c_uint,
+    pub CroppedImageHeight: core::ffi::c_uint,
     pub WideAdapter: ushort,
     pub CropMode: ushort,
     pub NDFilter: ushort,
@@ -3816,13 +3825,13 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct libraw_samsung_makernotes_t {
-    pub ImageSizeFull: [libc::c_uint; 4usize],
-    pub ImageSizeCrop: [libc::c_uint; 4usize],
-    pub ColorSpace: [libc::c_int; 2usize],
-    pub key: [libc::c_uint; 11usize],
+    pub ImageSizeFull: [core::ffi::c_uint; 4usize],
+    pub ImageSizeCrop: [core::ffi::c_uint; 4usize],
+    pub ColorSpace: [core::ffi::c_int; 2usize],
+    pub key: [core::ffi::c_uint; 11usize],
     pub DigitalGain: f64,
-    pub DeviceType: libc::c_int,
-    pub LensFirmware: [libc::c_char; 32usize],
+    pub DeviceType: core::ffi::c_int,
+    pub LensFirmware: [core::ffi::c_char; 32usize],
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -3850,8 +3859,8 @@ const _: () = {
 pub struct libraw_kodak_makernotes_t {
     pub BlackLevelTop: ushort,
     pub BlackLevelBottom: ushort,
-    pub offset_left: libc::c_short,
-    pub offset_top: libc::c_short,
+    pub offset_left: core::ffi::c_short,
+    pub offset_top: core::ffi::c_short,
     pub clipBlack: ushort,
     pub clipWhite: ushort,
     pub romm_camDaylight: [[f32; 3usize]; 3usize],
@@ -3863,7 +3872,7 @@ pub struct libraw_kodak_makernotes_t {
     pub val018percent: ushort,
     pub val100percent: ushort,
     pub val170percent: ushort,
-    pub MakerNoteKodak8a: libc::c_short,
+    pub MakerNoteKodak8a: core::ffi::c_short,
     pub ISOCalibrationGain: f32,
     pub AnalogISO: f32,
 }
@@ -3913,10 +3922,10 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct libraw_p1_makernotes_t {
-    pub Software: [libc::c_char; 64usize],
-    pub SystemType: [libc::c_char; 64usize],
-    pub FirmwareString: [libc::c_char; 256usize],
-    pub SystemModel: [libc::c_char; 64usize],
+    pub Software: [core::ffi::c_char; 64usize],
+    pub SystemType: [core::ffi::c_char; 64usize],
+    pub FirmwareString: [core::ffi::c_char; 256usize],
+    pub SystemModel: [core::ffi::c_char; 64usize],
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -3938,16 +3947,16 @@ pub struct libraw_sony_info_t {
     pub CameraType: ushort,
     pub Sony0x9400_version: uchar,
     pub Sony0x9400_ReleaseMode2: uchar,
-    pub Sony0x9400_SequenceImageNumber: libc::c_uint,
+    pub Sony0x9400_SequenceImageNumber: core::ffi::c_uint,
     pub Sony0x9400_SequenceLength1: uchar,
-    pub Sony0x9400_SequenceFileNumber: libc::c_uint,
+    pub Sony0x9400_SequenceFileNumber: core::ffi::c_uint,
     pub Sony0x9400_SequenceLength2: uchar,
     pub AFAreaModeSetting: u8,
     pub AFAreaMode: u16,
     pub FlexibleSpotPosition: [ushort; 2usize],
     pub AFPointSelected: u8,
     pub AFPointSelected_0x201e: u8,
-    pub nAFPointsUsed: libc::c_short,
+    pub nAFPointsUsed: core::ffi::c_short,
     pub AFPointsUsed: [u8; 10usize],
     pub AFTracking: u8,
     pub AFType: u8,
@@ -3957,7 +3966,7 @@ pub struct libraw_sony_info_t {
     pub AFMicroAdjOn: i8,
     pub AFMicroAdjRegisteredLenses: uchar,
     pub VariableLowPassFilter: ushort,
-    pub LongExposureNoiseReduction: libc::c_uint,
+    pub LongExposureNoiseReduction: core::ffi::c_uint,
     pub HighISONoiseReduction: ushort,
     pub HDR: [ushort; 2usize],
     pub group2010: ushort,
@@ -3967,18 +3976,18 @@ pub struct libraw_sony_info_t {
     pub MeteringMode_offset: ushort,
     pub ExposureProgram_offset: ushort,
     pub ReleaseMode2_offset: ushort,
-    pub MinoltaCamID: libc::c_uint,
+    pub MinoltaCamID: core::ffi::c_uint,
     pub firmware: f32,
     pub ImageCount3_offset: ushort,
-    pub ImageCount3: libc::c_uint,
-    pub ElectronicFrontCurtainShutter: libc::c_uint,
+    pub ImageCount3: core::ffi::c_uint,
+    pub ElectronicFrontCurtainShutter: core::ffi::c_uint,
     pub MeteringMode2: ushort,
-    pub SonyDateTime: [libc::c_char; 20usize],
-    pub ShotNumberSincePowerUp: libc::c_uint,
+    pub SonyDateTime: [core::ffi::c_char; 20usize],
+    pub ShotNumberSincePowerUp: core::ffi::c_uint,
     pub PixelShiftGroupPrefix: ushort,
-    pub PixelShiftGroupID: libc::c_uint,
-    pub nShotsInPixelShiftGroup: libc::c_char,
-    pub numInPixelShiftGroup: libc::c_char,
+    pub PixelShiftGroupID: core::ffi::c_uint,
+    pub nShotsInPixelShiftGroup: core::ffi::c_char,
+    pub numInPixelShiftGroup: core::ffi::c_char,
     pub prd_ImageHeight: ushort,
     pub prd_ImageWidth: ushort,
     pub prd_Total_bps: ushort,
@@ -3988,9 +3997,9 @@ pub struct libraw_sony_info_t {
     pub SonyRawFileType: ushort,
     pub RAWFileType: ushort,
     pub RawSizeType: ushort,
-    pub Quality: libc::c_uint,
+    pub Quality: core::ffi::c_uint,
     pub FileFormat: ushort,
-    pub MetaVersion: [libc::c_char; 16usize],
+    pub MetaVersion: [core::ffi::c_char; 16usize],
     pub AspectRatio: f32,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
@@ -4116,11 +4125,11 @@ const _: () = {
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct libraw_colordata_t {
     pub curve: [ushort; 65536usize],
-    pub cblack: [libc::c_uint; 4104usize],
-    pub black: libc::c_uint,
-    pub data_maximum: libc::c_uint,
-    pub maximum: libc::c_uint,
-    pub linear_max: [libc::c_uint; 4usize],
+    pub cblack: [core::ffi::c_uint; 4104usize],
+    pub black: core::ffi::c_uint,
+    pub data_maximum: core::ffi::c_uint,
+    pub maximum: core::ffi::c_uint,
+    pub linear_max: [core::ffi::c_uint; 4usize],
     pub fmaximum: f32,
     pub fnorm: f32,
     pub white: [[ushort; 8usize]; 8usize],
@@ -4133,23 +4142,23 @@ pub struct libraw_colordata_t {
     pub phase_one_data: ph1_t,
     pub flash_used: f32,
     pub canon_ev: f32,
-    pub model2: [libc::c_char; 64usize],
-    pub UniqueCameraModel: [libc::c_char; 64usize],
-    pub LocalizedCameraModel: [libc::c_char; 64usize],
-    pub ImageUniqueID: [libc::c_char; 64usize],
-    pub RawDataUniqueID: [libc::c_char; 17usize],
-    pub OriginalRawFileName: [libc::c_char; 64usize],
-    pub profile: *mut libc::c_void,
-    pub profile_length: libc::c_uint,
-    pub black_stat: [libc::c_uint; 8usize],
+    pub model2: [core::ffi::c_char; 64usize],
+    pub UniqueCameraModel: [core::ffi::c_char; 64usize],
+    pub LocalizedCameraModel: [core::ffi::c_char; 64usize],
+    pub ImageUniqueID: [core::ffi::c_char; 64usize],
+    pub RawDataUniqueID: [core::ffi::c_char; 17usize],
+    pub OriginalRawFileName: [core::ffi::c_char; 64usize],
+    pub profile: *mut core::ffi::c_void,
+    pub profile_length: core::ffi::c_uint,
+    pub black_stat: [core::ffi::c_uint; 8usize],
     pub dng_color: [libraw_dng_color_t; 2usize],
     pub dng_levels: libraw_dng_levels_t,
-    pub WB_Coeffs: [[libc::c_int; 4usize]; 256usize],
+    pub WB_Coeffs: [[core::ffi::c_int; 4usize]; 256usize],
     pub WBCT_Coeffs: [[f32; 5usize]; 64usize],
-    pub as_shot_wb_applied: libc::c_int,
+    pub as_shot_wb_applied: core::ffi::c_int,
     pub P1_color: [libraw_P1_color_t; 2usize],
-    pub raw_bps: libc::c_uint,
-    pub ExifColorSpace: libc::c_int,
+    pub raw_bps: core::ffi::c_uint,
+    pub ExifColorSpace: core::ffi::c_int,
     pub as_shot_wb_corr: [f32; 4usize],
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
@@ -4235,9 +4244,9 @@ pub struct libraw_thumbnail_t {
     pub tformat: LibRaw_thumbnail_formats,
     pub twidth: ushort,
     pub theight: ushort,
-    pub tlength: libc::c_uint,
-    pub tcolors: libc::c_int,
-    pub thumb: *mut libc::c_char,
+    pub tlength: core::ffi::c_uint,
+    pub tcolors: core::ffi::c_int,
+    pub thumb: *mut core::ffi::c_char,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -4263,8 +4272,8 @@ pub struct libraw_thumbnail_item_t {
     pub twidth: ushort,
     pub theight: ushort,
     pub tflip: ushort,
-    pub tlength: libc::c_uint,
-    pub tmisc: libc::c_uint,
+    pub tlength: core::ffi::c_uint,
+    pub tmisc: core::ffi::c_uint,
     pub toffset: INT64,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
@@ -4291,7 +4300,7 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct libraw_thumbnail_list_t {
-    pub thumbcount: libc::c_int,
+    pub thumbcount: core::ffi::c_int,
     pub thumblist: [libraw_thumbnail_item_t; 8usize],
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
@@ -4312,11 +4321,11 @@ pub struct libraw_gps_info_t {
     pub longitude: [f32; 3usize],
     pub gpstimestamp: [f32; 3usize],
     pub altitude: f32,
-    pub altref: libc::c_char,
-    pub latref: libc::c_char,
-    pub longref: libc::c_char,
-    pub gpsstatus: libc::c_char,
-    pub gpsparsed: libc::c_char,
+    pub altref: core::ffi::c_char,
+    pub latref: core::ffi::c_char,
+    pub longref: core::ffi::c_char,
+    pub gpsstatus: core::ffi::c_char,
+    pub gpsparsed: core::ffi::c_char,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -4349,11 +4358,11 @@ pub struct libraw_imgother_t {
     pub aperture: f32,
     pub focal_len: f32,
     pub timestamp: time_t,
-    pub shot_order: libc::c_uint,
-    pub gpsdata: [libc::c_uint; 32usize],
+    pub shot_order: core::ffi::c_uint,
+    pub gpsdata: [core::ffi::c_uint; 32usize],
     pub parsed_gps: libraw_gps_info_t,
-    pub desc: [libc::c_char; 512usize],
-    pub artist: [libc::c_char; 64usize],
+    pub desc: [core::ffi::c_char; 512usize],
+    pub artist: [core::ffi::c_char; 64usize],
     pub analogbalance: [f32; 4usize],
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
@@ -4386,10 +4395,10 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct libraw_afinfo_item_t {
-    pub AFInfoData_tag: libc::c_uint,
-    pub AFInfoData_order: libc::c_short,
-    pub AFInfoData_version: libc::c_uint,
-    pub AFInfoData_length: libc::c_uint,
+    pub AFInfoData_tag: core::ffi::c_uint,
+    pub AFInfoData_order: core::ffi::c_short,
+    pub AFInfoData_version: core::ffi::c_uint,
+    pub AFInfoData_length: core::ffi::c_uint,
     pub AFInfoData: *mut uchar,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
@@ -4427,10 +4436,10 @@ pub struct libraw_metadata_common_t {
     pub real_ISO: f32,
     pub exifExposureIndex: f32,
     pub ColorSpace: ushort,
-    pub firmware: [libc::c_char; 128usize],
+    pub firmware: [core::ffi::c_char; 128usize],
     pub ExposureCalibrationShift: f32,
     pub afdata: [libraw_afinfo_item_t; 4usize],
-    pub afcount: libc::c_int,
+    pub afcount: core::ffi::c_int,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -4484,47 +4493,47 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct libraw_output_params_t {
-    pub greybox: [libc::c_uint; 4usize],
-    pub cropbox: [libc::c_uint; 4usize],
+    pub greybox: [core::ffi::c_uint; 4usize],
+    pub cropbox: [core::ffi::c_uint; 4usize],
     pub aber: [f64; 4usize],
     pub gamm: [f64; 6usize],
     pub user_mul: [f32; 4usize],
     pub bright: f32,
     pub threshold: f32,
-    pub half_size: libc::c_int,
-    pub four_color_rgb: libc::c_int,
-    pub highlight: libc::c_int,
-    pub use_auto_wb: libc::c_int,
-    pub use_camera_wb: libc::c_int,
-    pub use_camera_matrix: libc::c_int,
-    pub output_color: libc::c_int,
-    pub output_profile: *mut libc::c_char,
-    pub camera_profile: *mut libc::c_char,
-    pub bad_pixels: *mut libc::c_char,
-    pub dark_frame: *mut libc::c_char,
-    pub output_bps: libc::c_int,
-    pub output_tiff: libc::c_int,
-    pub output_flags: libc::c_int,
-    pub user_flip: libc::c_int,
-    pub user_qual: libc::c_int,
-    pub user_black: libc::c_int,
-    pub user_cblack: [libc::c_int; 4usize],
-    pub user_sat: libc::c_int,
-    pub med_passes: libc::c_int,
+    pub half_size: core::ffi::c_int,
+    pub four_color_rgb: core::ffi::c_int,
+    pub highlight: core::ffi::c_int,
+    pub use_auto_wb: core::ffi::c_int,
+    pub use_camera_wb: core::ffi::c_int,
+    pub use_camera_matrix: core::ffi::c_int,
+    pub output_color: core::ffi::c_int,
+    pub output_profile: *mut core::ffi::c_char,
+    pub camera_profile: *mut core::ffi::c_char,
+    pub bad_pixels: *mut core::ffi::c_char,
+    pub dark_frame: *mut core::ffi::c_char,
+    pub output_bps: core::ffi::c_int,
+    pub output_tiff: core::ffi::c_int,
+    pub output_flags: core::ffi::c_int,
+    pub user_flip: core::ffi::c_int,
+    pub user_qual: core::ffi::c_int,
+    pub user_black: core::ffi::c_int,
+    pub user_cblack: [core::ffi::c_int; 4usize],
+    pub user_sat: core::ffi::c_int,
+    pub med_passes: core::ffi::c_int,
     pub auto_bright_thr: f32,
     pub adjust_maximum_thr: f32,
-    pub no_auto_bright: libc::c_int,
-    pub use_fuji_rotate: libc::c_int,
-    pub use_p1_correction: libc::c_int,
-    pub green_matching: libc::c_int,
-    pub dcb_iterations: libc::c_int,
-    pub dcb_enhance_fl: libc::c_int,
-    pub fbdd_noiserd: libc::c_int,
-    pub exp_correc: libc::c_int,
+    pub no_auto_bright: core::ffi::c_int,
+    pub use_fuji_rotate: core::ffi::c_int,
+    pub use_p1_correction: core::ffi::c_int,
+    pub green_matching: core::ffi::c_int,
+    pub dcb_iterations: core::ffi::c_int,
+    pub dcb_enhance_fl: core::ffi::c_int,
+    pub fbdd_noiserd: core::ffi::c_int,
+    pub exp_correc: core::ffi::c_int,
     pub exp_shift: f32,
     pub exp_preser: f32,
-    pub no_auto_scale: libc::c_int,
-    pub no_interpolation: libc::c_int,
+    pub no_auto_scale: core::ffi::c_int,
+    pub no_interpolation: core::ffi::c_int,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -4617,17 +4626,17 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct libraw_raw_unpack_params_t {
-    pub use_rawspeed: libc::c_int,
-    pub use_dngsdk: libc::c_int,
-    pub options: libc::c_uint,
-    pub shot_select: libc::c_uint,
-    pub specials: libc::c_uint,
-    pub max_raw_memory_mb: libc::c_uint,
-    pub sony_arw2_posterization_thr: libc::c_int,
+    pub use_rawspeed: core::ffi::c_int,
+    pub use_dngsdk: core::ffi::c_int,
+    pub options: core::ffi::c_uint,
+    pub shot_select: core::ffi::c_uint,
+    pub specials: core::ffi::c_uint,
+    pub max_raw_memory_mb: core::ffi::c_uint,
+    pub sony_arw2_posterization_thr: core::ffi::c_int,
     pub coolscan_nef_gamma: f32,
-    pub p4shot_order: [libc::c_char; 5usize],
-    pub custom_camera_strings: *mut *mut libc::c_char,
-    pub cr3_maxframes: libc::c_int,
+    pub p4shot_order: [core::ffi::c_char; 5usize],
+    pub custom_camera_strings: *mut *mut core::ffi::c_char,
+    pub cr3_maxframes: core::ffi::c_int,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -4663,15 +4672,15 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct libraw_rawdata_t {
-    pub raw_alloc: *mut libc::c_void,
+    pub raw_alloc: *mut core::ffi::c_void,
     pub raw_image: *mut ushort,
     pub color4_image: *mut [ushort; 4usize],
     pub color3_image: *mut [ushort; 3usize],
     pub float_image: *mut f32,
     pub float3_image: *mut [f32; 3usize],
     pub float4_image: *mut [f32; 4usize],
-    pub ph1_cblack: *mut [libc::c_short; 2usize],
-    pub ph1_rblack: *mut [libc::c_short; 2usize],
+    pub ph1_cblack: *mut [core::ffi::c_short; 2usize],
+    pub ph1_rblack: *mut [core::ffi::c_short; 2usize],
     pub iparams: libraw_iparams_t,
     pub sizes: libraw_image_sizes_t,
     pub ioparams: libraw_internal_output_params_t,
@@ -4712,16 +4721,16 @@ const _: () = {
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct libraw_makernotes_lens_t {
     pub LensID: UINT64,
-    pub Lens: [libc::c_char; 128usize],
+    pub Lens: [core::ffi::c_char; 128usize],
     pub LensFormat: ushort,
     pub LensMount: ushort,
     pub CamID: UINT64,
     pub CameraFormat: ushort,
     pub CameraMount: ushort,
-    pub body: [libc::c_char; 64usize],
-    pub FocalType: libc::c_short,
-    pub LensFeatures_pre: [libc::c_char; 16usize],
-    pub LensFeatures_suf: [libc::c_char; 16usize],
+    pub body: [core::ffi::c_char; 64usize],
+    pub FocalType: core::ffi::c_short,
+    pub LensFeatures_pre: [core::ffi::c_char; 16usize],
+    pub LensFeatures_suf: [core::ffi::c_char; 16usize],
     pub MinFocal: f32,
     pub MaxFocal: f32,
     pub MaxAp4MinFocal: f32,
@@ -4738,11 +4747,11 @@ pub struct libraw_makernotes_lens_t {
     pub FocusRangeIndex: f32,
     pub LensFStops: f32,
     pub TeleconverterID: UINT64,
-    pub Teleconverter: [libc::c_char; 128usize],
+    pub Teleconverter: [core::ffi::c_char; 128usize],
     pub AdapterID: UINT64,
-    pub Adapter: [libc::c_char; 128usize],
+    pub Adapter: [core::ffi::c_char; 128usize],
     pub AttachmentID: UINT64,
-    pub Attachment: [libc::c_char; 128usize],
+    pub Attachment: [core::ffi::c_char; 128usize],
     pub FocalUnits: ushort,
     pub FocalLengthIn35mmFormat: f32,
 }
@@ -4874,10 +4883,10 @@ pub struct libraw_lensinfo_t {
     pub MaxAp4MinFocal: f32,
     pub MaxAp4MaxFocal: f32,
     pub EXIF_MaxAp: f32,
-    pub LensMake: [libc::c_char; 128usize],
-    pub Lens: [libc::c_char; 128usize],
-    pub LensSerial: [libc::c_char; 128usize],
-    pub InternalLensSerial: [libc::c_char; 128usize],
+    pub LensMake: [core::ffi::c_char; 128usize],
+    pub Lens: [core::ffi::c_char; 128usize],
+    pub LensSerial: [core::ffi::c_char; 128usize],
+    pub InternalLensSerial: [core::ffi::c_char; 128usize],
     pub FocalLengthIn35mmFormat: ushort,
     pub nikon: libraw_nikonlens_t,
     pub dng: libraw_dnglens_t,
@@ -4965,15 +4974,15 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct libraw_shootinginfo_t {
-    pub DriveMode: libc::c_short,
-    pub FocusMode: libc::c_short,
-    pub MeteringMode: libc::c_short,
-    pub AFPoint: libc::c_short,
-    pub ExposureMode: libc::c_short,
-    pub ExposureProgram: libc::c_short,
-    pub ImageStabilization: libc::c_short,
-    pub BodySerial: [libc::c_char; 64usize],
-    pub InternalBodySerial: [libc::c_char; 64usize],
+    pub DriveMode: core::ffi::c_short,
+    pub FocusMode: core::ffi::c_short,
+    pub MeteringMode: core::ffi::c_short,
+    pub AFPoint: core::ffi::c_short,
+    pub ExposureMode: core::ffi::c_short,
+    pub ExposureProgram: core::ffi::c_short,
+    pub ImageStabilization: core::ffi::c_short,
+    pub BodySerial: [core::ffi::c_char; 64usize],
+    pub InternalBodySerial: [core::ffi::c_char; 64usize],
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -5002,7 +5011,7 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct libraw_custom_camera_t {
-    pub fsize: libc::c_uint,
+    pub fsize: core::ffi::c_uint,
     pub rw: ushort,
     pub rh: ushort,
     pub lm: uchar,
@@ -5013,8 +5022,8 @@ pub struct libraw_custom_camera_t {
     pub cf: uchar,
     pub max: uchar,
     pub flags: uchar,
-    pub t_make: [libc::c_char; 10usize],
-    pub t_model: [libc::c_char; 20usize],
+    pub t_make: [core::ffi::c_char; 10usize],
+    pub t_model: [core::ffi::c_char; 20usize],
     pub offset: ushort,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
@@ -5062,14 +5071,14 @@ pub struct libraw_data_t {
     pub shootinginfo: libraw_shootinginfo_t,
     pub params: libraw_output_params_t,
     pub rawparams: libraw_raw_unpack_params_t,
-    pub progress_flags: libc::c_uint,
-    pub process_warnings: libc::c_uint,
+    pub progress_flags: core::ffi::c_uint,
+    pub process_warnings: core::ffi::c_uint,
     pub color: libraw_colordata_t,
     pub other: libraw_imgother_t,
     pub thumbnail: libraw_thumbnail_t,
     pub thumbs_list: libraw_thumbnail_list_t,
     pub rawdata: libraw_rawdata_t,
-    pub parent_class: *mut libc::c_void,
+    pub parent_class: *mut core::ffi::c_void,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -5112,11 +5121,11 @@ const _: () = {
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct fuji_q_table {
     pub q_table: *mut i8,
-    pub raw_bits: libc::c_int,
-    pub total_values: libc::c_int,
-    pub max_grad: libc::c_int,
-    pub q_grad_mult: libc::c_int,
-    pub q_base: libc::c_int,
+    pub raw_bits: core::ffi::c_int,
+    pub total_values: core::ffi::c_int,
+    pub max_grad: core::ffi::c_int,
+    pub q_grad_mult: core::ffi::c_int,
+    pub q_base: core::ffi::c_int,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -5139,10 +5148,10 @@ const _: () = {
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct fuji_compressed_params {
     pub qt: [fuji_q_table; 4usize],
-    pub buf: *mut libc::c_void,
-    pub max_bits: libc::c_int,
-    pub min_value: libc::c_int,
-    pub max_value: libc::c_int,
+    pub buf: *mut core::ffi::c_void,
+    pub max_bits: core::ffi::c_int,
+    pub min_value: core::ffi::c_int,
+    pub max_value: core::ffi::c_int,
     pub line_width: ushort,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
@@ -5168,11 +5177,11 @@ const _: () = {
 pub struct internal_data_t {
     pub input: *mut LibRaw_abstract_datastream,
     pub output: *mut FILE,
-    pub input_internal: libc::c_int,
-    pub meta_data: *mut libc::c_char,
+    pub input_internal: core::ffi::c_int,
+    pub meta_data: *mut core::ffi::c_char,
     pub profile_offset: INT64,
     pub toffset: INT64,
-    pub pana_black: [libc::c_uint; 4usize],
+    pub pana_black: [core::ffi::c_uint; 4usize],
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -5196,8 +5205,8 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct output_data_t {
-    pub histogram: *mut [libc::c_int; 8192usize],
-    pub oprof: *mut libc::c_uint,
+    pub histogram: *mut [core::ffi::c_int; 8192usize],
+    pub oprof: *mut core::ffi::c_uint,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -5211,12 +5220,12 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct identify_data_t {
-    pub olympus_exif_cfa: libc::c_uint,
-    pub unique_id: libc::c_ulonglong,
-    pub OlyID: libc::c_ulonglong,
-    pub tiff_nifds: libc::c_uint,
-    pub tiff_flip: libc::c_int,
-    pub metadata_blocks: libc::c_int,
+    pub olympus_exif_cfa: core::ffi::c_uint,
+    pub unique_id: core::ffi::c_ulonglong,
+    pub OlyID: core::ffi::c_ulonglong,
+    pub tiff_nifds: core::ffi::c_uint,
+    pub tiff_flip: core::ffi::c_int,
+    pub metadata_blocks: core::ffi::c_int,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -5391,10 +5400,10 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct unpacker_data_t {
-    pub order: libc::c_short,
+    pub order: core::ffi::c_short,
     pub sraw_mul: [ushort; 4usize],
     pub cr2_slice: [ushort; 3usize],
-    pub kodak_cbpp: libc::c_uint,
+    pub kodak_cbpp: core::ffi::c_uint,
     pub strip_offset: INT64,
     pub data_offset: INT64,
     pub meta_offset: INT64,
@@ -5402,47 +5411,47 @@ pub struct unpacker_data_t {
     pub exif_subdir_offset: INT64,
     pub ifd0_offset: INT64,
     pub data_size: INT64,
-    pub meta_length: libc::c_uint,
-    pub cr3_exif_length: libc::c_uint,
-    pub cr3_ifd0_length: libc::c_uint,
-    pub thumb_misc: libc::c_uint,
+    pub meta_length: core::ffi::c_uint,
+    pub cr3_exif_length: core::ffi::c_uint,
+    pub cr3_ifd0_length: core::ffi::c_uint,
+    pub thumb_misc: core::ffi::c_uint,
     pub thumb_format: LibRaw_internal_thumbnail_formats,
-    pub fuji_layout: libc::c_uint,
-    pub tiff_samples: libc::c_uint,
-    pub tiff_bps: libc::c_uint,
-    pub tiff_compress: libc::c_uint,
-    pub tiff_sampleformat: libc::c_uint,
-    pub zero_after_ff: libc::c_uint,
-    pub tile_width: libc::c_uint,
-    pub tile_length: libc::c_uint,
-    pub load_flags: libc::c_uint,
-    pub data_error: libc::c_uint,
-    pub hasselblad_parser_flag: libc::c_int,
-    pub posRAFData: libc::c_longlong,
-    pub lenRAFData: libc::c_uint,
-    pub fuji_total_lines: libc::c_int,
-    pub fuji_total_blocks: libc::c_int,
-    pub fuji_block_width: libc::c_int,
-    pub fuji_bits: libc::c_int,
-    pub fuji_raw_type: libc::c_int,
-    pub fuji_lossless: libc::c_int,
-    pub pana_encoding: libc::c_int,
-    pub pana_bpp: libc::c_int,
+    pub fuji_layout: core::ffi::c_uint,
+    pub tiff_samples: core::ffi::c_uint,
+    pub tiff_bps: core::ffi::c_uint,
+    pub tiff_compress: core::ffi::c_uint,
+    pub tiff_sampleformat: core::ffi::c_uint,
+    pub zero_after_ff: core::ffi::c_uint,
+    pub tile_width: core::ffi::c_uint,
+    pub tile_length: core::ffi::c_uint,
+    pub load_flags: core::ffi::c_uint,
+    pub data_error: core::ffi::c_uint,
+    pub hasselblad_parser_flag: core::ffi::c_int,
+    pub posRAFData: core::ffi::c_longlong,
+    pub lenRAFData: core::ffi::c_uint,
+    pub fuji_total_lines: core::ffi::c_int,
+    pub fuji_total_blocks: core::ffi::c_int,
+    pub fuji_block_width: core::ffi::c_int,
+    pub fuji_bits: core::ffi::c_int,
+    pub fuji_raw_type: core::ffi::c_int,
+    pub fuji_lossless: core::ffi::c_int,
+    pub pana_encoding: core::ffi::c_int,
+    pub pana_bpp: core::ffi::c_int,
     pub pana8: pana8_tags_t,
     pub crx_header: [crx_data_header_t; 16usize],
-    pub crx_track_selected: libc::c_int,
-    pub crx_track_count: libc::c_int,
-    pub CR3_CTMDtag: libc::c_short,
-    pub CR3_Version: libc::c_short,
-    pub CM_found: libc::c_int,
-    pub is_NikonTransfer: libc::c_uint,
-    pub is_Olympus: libc::c_uint,
-    pub OlympusDNG_SubDirOffsetValid: libc::c_int,
-    pub is_Sony: libc::c_uint,
-    pub is_pana_raw: libc::c_uint,
-    pub is_PentaxRicohMakernotes: libc::c_uint,
-    pub dng_frames: [libc::c_uint; 20usize],
-    pub raw_stride: libc::c_ushort,
+    pub crx_track_selected: core::ffi::c_int,
+    pub crx_track_count: core::ffi::c_int,
+    pub CR3_CTMDtag: core::ffi::c_short,
+    pub CR3_Version: core::ffi::c_short,
+    pub CM_found: core::ffi::c_int,
+    pub is_NikonTransfer: core::ffi::c_uint,
+    pub is_Olympus: core::ffi::c_uint,
+    pub OlympusDNG_SubDirOffsetValid: core::ffi::c_int,
+    pub is_Sony: core::ffi::c_uint,
+    pub is_pana_raw: core::ffi::c_uint,
+    pub is_PentaxRicohMakernotes: core::ffi::c_uint,
+    pub dng_frames: [core::ffi::c_uint; 20usize],
+    pub raw_stride: core::ffi::c_ushort,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -5583,7 +5592,7 @@ const _: () = {
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct decode {
     pub branch: [*mut decode; 2usize],
-    pub leaf: libc::c_int,
+    pub leaf: core::ffi::c_int,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -5595,38 +5604,38 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct tiff_ifd_t {
-    pub t_width: libc::c_int,
-    pub t_height: libc::c_int,
-    pub bps: libc::c_int,
-    pub comp: libc::c_int,
-    pub phint: libc::c_int,
-    pub t_flip: libc::c_int,
-    pub samples: libc::c_int,
-    pub extrasamples: libc::c_int,
+    pub t_width: core::ffi::c_int,
+    pub t_height: core::ffi::c_int,
+    pub bps: core::ffi::c_int,
+    pub comp: core::ffi::c_int,
+    pub phint: core::ffi::c_int,
+    pub t_flip: core::ffi::c_int,
+    pub samples: core::ffi::c_int,
+    pub extrasamples: core::ffi::c_int,
     pub offset: INT64,
     pub bytes: INT64,
-    pub t_tile_width: libc::c_int,
-    pub t_tile_length: libc::c_int,
-    pub sample_format: libc::c_int,
-    pub predictor: libc::c_int,
-    pub rows_per_strip: libc::c_int,
+    pub t_tile_width: core::ffi::c_int,
+    pub t_tile_length: core::ffi::c_int,
+    pub sample_format: core::ffi::c_int,
+    pub predictor: core::ffi::c_int,
+    pub rows_per_strip: core::ffi::c_int,
     pub strip_offsets: *mut INT64,
-    pub strip_offsets_count: libc::c_int,
+    pub strip_offsets_count: core::ffi::c_int,
     pub strip_byte_counts: *mut INT64,
-    pub strip_byte_counts_count: libc::c_int,
-    pub t_filters: libc::c_uint,
-    pub t_vwidth: libc::c_int,
-    pub t_vheight: libc::c_int,
-    pub t_lm: libc::c_int,
-    pub t_tm: libc::c_int,
-    pub t_fuji_width: libc::c_int,
+    pub strip_byte_counts_count: core::ffi::c_int,
+    pub t_filters: core::ffi::c_uint,
+    pub t_vwidth: core::ffi::c_int,
+    pub t_vheight: core::ffi::c_int,
+    pub t_lm: core::ffi::c_int,
+    pub t_tm: core::ffi::c_int,
+    pub t_fuji_width: core::ffi::c_int,
     pub t_shutter: f32,
     pub opcode2_offset: INT64,
     pub lineartable_offset: INT64,
-    pub lineartable_len: libc::c_int,
+    pub lineartable_len: core::ffi::c_int,
     pub dng_color: [libraw_dng_color_t; 2usize],
     pub dng_levels: libraw_dng_levels_t,
-    pub newsubfiletype: libc::c_int,
+    pub newsubfiletype: core::ffi::c_int,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -5691,15 +5700,15 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct jhead {
-    pub algo: libc::c_int,
-    pub bits: libc::c_int,
-    pub high: libc::c_int,
-    pub wide: libc::c_int,
-    pub clrs: libc::c_int,
-    pub sraw: libc::c_int,
-    pub psv: libc::c_int,
-    pub restart: libc::c_int,
-    pub vpred: [libc::c_int; 6usize],
+    pub algo: core::ffi::c_int,
+    pub bits: core::ffi::c_int,
+    pub high: core::ffi::c_int,
+    pub wide: core::ffi::c_int,
+    pub clrs: core::ffi::c_int,
+    pub sraw: core::ffi::c_int,
+    pub psv: core::ffi::c_int,
+    pub restart: core::ffi::c_int,
+    pub vpred: [core::ffi::c_int; 6usize],
     pub quant: [ushort; 64usize],
     pub idct: [ushort; 64usize],
     pub huff: [*mut ushort; 20usize],
@@ -5730,15 +5739,15 @@ const _: () = {
 pub struct libraw_tiff_tag {
     pub tag: ushort,
     pub type_: ushort,
-    pub count: libc::c_int,
+    pub count: core::ffi::c_int,
     pub val: libraw_tiff_tag__bindgen_ty_1,
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union libraw_tiff_tag__bindgen_ty_1 {
-    pub c: [libc::c_char; 4usize],
-    pub s: [libc::c_short; 2usize],
-    pub i: libc::c_int,
+    pub c: [core::ffi::c_char; 4usize],
+    pub s: [core::ffi::c_short; 2usize],
+    pub i: core::ffi::c_int,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -5771,26 +5780,26 @@ const _: () = {
 pub struct tiff_hdr {
     pub t_order: ushort,
     pub magic: ushort,
-    pub ifd: libc::c_int,
+    pub ifd: core::ffi::c_int,
     pub pad: ushort,
     pub ntag: ushort,
     pub tag: [libraw_tiff_tag; 23usize],
-    pub nextifd: libc::c_int,
+    pub nextifd: core::ffi::c_int,
     pub pad2: ushort,
     pub nexif: ushort,
     pub exif: [libraw_tiff_tag; 4usize],
     pub pad3: ushort,
     pub ngps: ushort,
     pub gpst: [libraw_tiff_tag; 10usize],
-    pub bps: [libc::c_short; 4usize],
-    pub rat: [libc::c_int; 10usize],
-    pub gps: [libc::c_uint; 26usize],
-    pub t_desc: [libc::c_char; 512usize],
-    pub t_make: [libc::c_char; 64usize],
-    pub t_model: [libc::c_char; 64usize],
-    pub soft: [libc::c_char; 32usize],
-    pub date: [libc::c_char; 20usize],
-    pub t_artist: [libc::c_char; 64usize],
+    pub bps: [core::ffi::c_short; 4usize],
+    pub rat: [core::ffi::c_int; 10usize],
+    pub gps: [core::ffi::c_uint; 26usize],
+    pub t_desc: [core::ffi::c_char; 512usize],
+    pub t_make: [core::ffi::c_char; 64usize],
+    pub t_model: [core::ffi::c_char; 64usize],
+    pub soft: [core::ffi::c_char; 32usize],
+    pub date: [core::ffi::c_char; 20usize],
+    pub t_artist: [core::ffi::c_char; 64usize],
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
@@ -5821,50 +5830,56 @@ const _: () = {
         [::core::mem::offset_of!(tiff_hdr, t_artist) - 1312usize];
 };
 unsafe extern "C" {
-    pub fn libraw_strerror(errorcode: libc::c_int) -> *const libc::c_char;
+    pub fn libraw_strerror(errorcode: core::ffi::c_int) -> *const core::ffi::c_char;
 }
 unsafe extern "C" {
-    pub fn libraw_strprogress(arg1: LibRaw_progress) -> *const libc::c_char;
+    pub fn libraw_strprogress(arg1: LibRaw_progress) -> *const core::ffi::c_char;
 }
 unsafe extern "C" {
-    pub fn libraw_init(flags: libc::c_uint) -> *mut libraw_data_t;
+    pub fn libraw_init(flags: core::ffi::c_uint) -> *mut libraw_data_t;
 }
 unsafe extern "C" {
-    pub fn libraw_open_file(arg1: *mut libraw_data_t, arg2: *const libc::c_char) -> libc::c_int;
+    pub fn libraw_open_file(
+        arg1: *mut libraw_data_t,
+        arg2: *const core::ffi::c_char,
+    ) -> core::ffi::c_int;
 }
 unsafe extern "C" {
     pub fn libraw_open_buffer(
         arg1: *mut libraw_data_t,
-        buffer: *const libc::c_void,
+        buffer: *const core::ffi::c_void,
         size: usize,
-    ) -> libc::c_int;
+    ) -> core::ffi::c_int;
 }
 unsafe extern "C" {
     pub fn libraw_open_bayer(
         lr: *mut libraw_data_t,
-        data: *mut libc::c_uchar,
-        datalen: libc::c_uint,
+        data: *mut core::ffi::c_uchar,
+        datalen: core::ffi::c_uint,
         _raw_width: ushort,
         _raw_height: ushort,
         _left_margin: ushort,
         _top_margin: ushort,
         _right_margin: ushort,
         _bottom_margin: ushort,
-        procflags: libc::c_uchar,
-        bayer_battern: libc::c_uchar,
-        unused_bits: libc::c_uint,
-        otherflags: libc::c_uint,
-        black_level: libc::c_uint,
-    ) -> libc::c_int;
+        procflags: core::ffi::c_uchar,
+        bayer_battern: core::ffi::c_uchar,
+        unused_bits: core::ffi::c_uint,
+        otherflags: core::ffi::c_uint,
+        black_level: core::ffi::c_uint,
+    ) -> core::ffi::c_int;
 }
 unsafe extern "C" {
-    pub fn libraw_unpack(arg1: *mut libraw_data_t) -> libc::c_int;
+    pub fn libraw_unpack(arg1: *mut libraw_data_t) -> core::ffi::c_int;
 }
 unsafe extern "C" {
-    pub fn libraw_unpack_thumb(arg1: *mut libraw_data_t) -> libc::c_int;
+    pub fn libraw_unpack_thumb(arg1: *mut libraw_data_t) -> core::ffi::c_int;
 }
 unsafe extern "C" {
-    pub fn libraw_unpack_thumb_ex(arg1: *mut libraw_data_t, arg2: libc::c_int) -> libc::c_int;
+    pub fn libraw_unpack_thumb_ex(
+        arg1: *mut libraw_data_t,
+        arg2: core::ffi::c_int,
+    ) -> core::ffi::c_int;
 }
 unsafe extern "C" {
     pub fn libraw_recycle_datastream(arg1: *mut libraw_data_t);
@@ -5879,170 +5894,170 @@ unsafe extern "C" {
     pub fn libraw_subtract_black(arg1: *mut libraw_data_t);
 }
 unsafe extern "C" {
-    pub fn libraw_raw2image(arg1: *mut libraw_data_t) -> libc::c_int;
+    pub fn libraw_raw2image(arg1: *mut libraw_data_t) -> core::ffi::c_int;
 }
 unsafe extern "C" {
     pub fn libraw_free_image(arg1: *mut libraw_data_t);
 }
 unsafe extern "C" {
-    pub fn libraw_version() -> *const libc::c_char;
+    pub fn libraw_version() -> *const core::ffi::c_char;
 }
 unsafe extern "C" {
-    pub fn libraw_versionNumber() -> libc::c_int;
+    pub fn libraw_versionNumber() -> core::ffi::c_int;
 }
 unsafe extern "C" {
-    pub fn libraw_cameraList() -> *mut *const libc::c_char;
+    pub fn libraw_cameraList() -> *mut *const core::ffi::c_char;
 }
 unsafe extern "C" {
-    pub fn libraw_cameraCount() -> libc::c_int;
+    pub fn libraw_cameraCount() -> core::ffi::c_int;
 }
 unsafe extern "C" {
     pub fn libraw_set_exifparser_handler(
         arg1: *mut libraw_data_t,
         cb: exif_parser_callback,
-        datap: *mut libc::c_void,
+        datap: *mut core::ffi::c_void,
     );
 }
 unsafe extern "C" {
     pub fn libraw_set_makernotes_handler(
         arg1: *mut libraw_data_t,
         cb: exif_parser_callback,
-        datap: *mut libc::c_void,
+        datap: *mut core::ffi::c_void,
     );
 }
 unsafe extern "C" {
     pub fn libraw_set_dataerror_handler(
         arg1: *mut libraw_data_t,
         func: data_callback,
-        datap: *mut libc::c_void,
+        datap: *mut core::ffi::c_void,
     );
 }
 unsafe extern "C" {
     pub fn libraw_set_progress_handler(
         arg1: *mut libraw_data_t,
         cb: progress_callback,
-        datap: *mut libc::c_void,
+        datap: *mut core::ffi::c_void,
     );
 }
 unsafe extern "C" {
-    pub fn libraw_unpack_function_name(lr: *mut libraw_data_t) -> *const libc::c_char;
+    pub fn libraw_unpack_function_name(lr: *mut libraw_data_t) -> *const core::ffi::c_char;
 }
 unsafe extern "C" {
     pub fn libraw_get_decoder_info(
         lr: *mut libraw_data_t,
         d: *mut libraw_decoder_info_t,
-    ) -> libc::c_int;
+    ) -> core::ffi::c_int;
 }
 unsafe extern "C" {
     pub fn libraw_COLOR(
         arg1: *mut libraw_data_t,
-        row: libc::c_int,
-        col: libc::c_int,
-    ) -> libc::c_int;
+        row: core::ffi::c_int,
+        col: core::ffi::c_int,
+    ) -> core::ffi::c_int;
 }
 unsafe extern "C" {
-    pub fn libraw_capabilities() -> libc::c_uint;
+    pub fn libraw_capabilities() -> core::ffi::c_uint;
 }
 unsafe extern "C" {
     pub fn libraw_adjust_to_raw_inset_crop(
         lr: *mut libraw_data_t,
-        mask: libc::c_uint,
+        mask: core::ffi::c_uint,
         maxcrop: f32,
-    ) -> libc::c_int;
+    ) -> core::ffi::c_int;
 }
 unsafe extern "C" {
-    pub fn libraw_adjust_sizes_info_only(arg1: *mut libraw_data_t) -> libc::c_int;
+    pub fn libraw_adjust_sizes_info_only(arg1: *mut libraw_data_t) -> core::ffi::c_int;
 }
 unsafe extern "C" {
     pub fn libraw_dcraw_ppm_tiff_writer(
         lr: *mut libraw_data_t,
-        filename: *const libc::c_char,
-    ) -> libc::c_int;
+        filename: *const core::ffi::c_char,
+    ) -> core::ffi::c_int;
 }
 unsafe extern "C" {
     pub fn libraw_dcraw_thumb_writer(
         lr: *mut libraw_data_t,
-        fname: *const libc::c_char,
-    ) -> libc::c_int;
+        fname: *const core::ffi::c_char,
+    ) -> core::ffi::c_int;
 }
 unsafe extern "C" {
-    pub fn libraw_dcraw_process(lr: *mut libraw_data_t) -> libc::c_int;
+    pub fn libraw_dcraw_process(lr: *mut libraw_data_t) -> core::ffi::c_int;
 }
 unsafe extern "C" {
     pub fn libraw_dcraw_make_mem_image(
         lr: *mut libraw_data_t,
-        errc: *mut libc::c_int,
+        errc: *mut core::ffi::c_int,
     ) -> *mut libraw_processed_image_t;
 }
 unsafe extern "C" {
     pub fn libraw_dcraw_make_mem_thumb(
         lr: *mut libraw_data_t,
-        errc: *mut libc::c_int,
+        errc: *mut core::ffi::c_int,
     ) -> *mut libraw_processed_image_t;
 }
 unsafe extern "C" {
     pub fn libraw_dcraw_clear_mem(arg1: *mut libraw_processed_image_t);
 }
 unsafe extern "C" {
-    pub fn libraw_set_demosaic(lr: *mut libraw_data_t, value: libc::c_int);
+    pub fn libraw_set_demosaic(lr: *mut libraw_data_t, value: core::ffi::c_int);
 }
 unsafe extern "C" {
-    pub fn libraw_set_output_color(lr: *mut libraw_data_t, value: libc::c_int);
+    pub fn libraw_set_output_color(lr: *mut libraw_data_t, value: core::ffi::c_int);
 }
 unsafe extern "C" {
     pub fn libraw_set_adjust_maximum_thr(lr: *mut libraw_data_t, value: f32);
 }
 unsafe extern "C" {
-    pub fn libraw_set_user_mul(lr: *mut libraw_data_t, index: libc::c_int, val: f32);
+    pub fn libraw_set_user_mul(lr: *mut libraw_data_t, index: core::ffi::c_int, val: f32);
 }
 unsafe extern "C" {
-    pub fn libraw_set_output_bps(lr: *mut libraw_data_t, value: libc::c_int);
+    pub fn libraw_set_output_bps(lr: *mut libraw_data_t, value: core::ffi::c_int);
 }
 unsafe extern "C" {
-    pub fn libraw_set_gamma(lr: *mut libraw_data_t, index: libc::c_int, value: f32);
+    pub fn libraw_set_gamma(lr: *mut libraw_data_t, index: core::ffi::c_int, value: f32);
 }
 unsafe extern "C" {
-    pub fn libraw_set_no_auto_bright(lr: *mut libraw_data_t, value: libc::c_int);
+    pub fn libraw_set_no_auto_bright(lr: *mut libraw_data_t, value: core::ffi::c_int);
 }
 unsafe extern "C" {
     pub fn libraw_set_bright(lr: *mut libraw_data_t, value: f32);
 }
 unsafe extern "C" {
-    pub fn libraw_set_highlight(lr: *mut libraw_data_t, value: libc::c_int);
+    pub fn libraw_set_highlight(lr: *mut libraw_data_t, value: core::ffi::c_int);
 }
 unsafe extern "C" {
-    pub fn libraw_set_fbdd_noiserd(lr: *mut libraw_data_t, value: libc::c_int);
+    pub fn libraw_set_fbdd_noiserd(lr: *mut libraw_data_t, value: core::ffi::c_int);
 }
 unsafe extern "C" {
-    pub fn libraw_get_raw_height(lr: *mut libraw_data_t) -> libc::c_int;
+    pub fn libraw_get_raw_height(lr: *mut libraw_data_t) -> core::ffi::c_int;
 }
 unsafe extern "C" {
-    pub fn libraw_get_raw_width(lr: *mut libraw_data_t) -> libc::c_int;
+    pub fn libraw_get_raw_width(lr: *mut libraw_data_t) -> core::ffi::c_int;
 }
 unsafe extern "C" {
-    pub fn libraw_get_iheight(lr: *mut libraw_data_t) -> libc::c_int;
+    pub fn libraw_get_iheight(lr: *mut libraw_data_t) -> core::ffi::c_int;
 }
 unsafe extern "C" {
-    pub fn libraw_get_iwidth(lr: *mut libraw_data_t) -> libc::c_int;
+    pub fn libraw_get_iwidth(lr: *mut libraw_data_t) -> core::ffi::c_int;
 }
 unsafe extern "C" {
-    pub fn libraw_get_cam_mul(lr: *mut libraw_data_t, index: libc::c_int) -> f32;
+    pub fn libraw_get_cam_mul(lr: *mut libraw_data_t, index: core::ffi::c_int) -> f32;
 }
 unsafe extern "C" {
-    pub fn libraw_get_pre_mul(lr: *mut libraw_data_t, index: libc::c_int) -> f32;
+    pub fn libraw_get_pre_mul(lr: *mut libraw_data_t, index: core::ffi::c_int) -> f32;
 }
 unsafe extern "C" {
     pub fn libraw_get_rgb_cam(
         lr: *mut libraw_data_t,
-        index1: libc::c_int,
-        index2: libc::c_int,
+        index1: core::ffi::c_int,
+        index2: core::ffi::c_int,
     ) -> f32;
 }
 unsafe extern "C" {
-    pub fn libraw_get_color_maximum(lr: *mut libraw_data_t) -> libc::c_int;
+    pub fn libraw_get_color_maximum(lr: *mut libraw_data_t) -> core::ffi::c_int;
 }
 unsafe extern "C" {
-    pub fn libraw_set_output_tif(lr: *mut libraw_data_t, value: libc::c_int);
+    pub fn libraw_set_output_tif(lr: *mut libraw_data_t, value: core::ffi::c_int);
 }
 unsafe extern "C" {
     pub fn libraw_get_iparams(lr: *mut libraw_data_t) -> *mut libraw_iparams_t;
@@ -6062,10 +6077,10 @@ pub type __builtin_va_list = [__va_list_tag; 1usize];
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct __va_list_tag {
-    pub gp_offset: libc::c_uint,
-    pub fp_offset: libc::c_uint,
-    pub overflow_arg_area: *mut libc::c_void,
-    pub reg_save_area: *mut libc::c_void,
+    pub gp_offset: core::ffi::c_uint,
+    pub fp_offset: core::ffi::c_uint,
+    pub overflow_arg_area: *mut core::ffi::c_void,
+    pub reg_save_area: *mut core::ffi::c_void,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
